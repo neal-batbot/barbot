@@ -1,0 +1,608 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "Vector",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "Vector",
+        "width": 100,
+        "height": 100
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Features",
+          "url": "/#features",
+          "icon": "Sparkles"
+        },
+        {
+          "title": "Use Cases",
+          "url": "/#benefits",
+          "icon": "Box"
+        },
+        {
+          "title": "Pricing",
+          "url": "/pricing",
+          "icon": "DollarSign"
+        },
+        {
+          "title": "Platform",
+          "icon": "RiRobot2Line",
+          "children": [
+            {
+              "title": "AI Virtual FAE",
+              "description": "Native LLM-powered technical support for design-in",
+              "url": "/#hero",
+              "icon": "RiRobot2Line"
+            },
+            {
+              "title": "Doc Search API",
+              "description": "Programmatic search across datasheets & app notes",
+              "url": "/docs",
+              "icon": "RiSearch2Line"
+            },
+            {
+              "title": "Multilingual Support",
+              "description": "Serve engineers in 50+ languages, 24/7",
+              "url": "/#introduce",
+              "icon": "RiGlobalLine"
+            },
+            {
+              "title": "Engineer Chat",
+              "description": "Ask technical questions and get FAE-grade answers",
+              "url": "/chat",
+              "icon": "RiMessage2Line"
+            }
+          ]
+        },
+        {
+          "title": "Resources",
+          "icon": "FileText",
+          "children": [
+            {
+              "title": "Blog",
+              "description": "Insights on semiconductor support & design-in",
+              "url": "/blog",
+              "icon": "Newspaper"
+            },
+            {
+              "title": "Updates",
+              "description": "Product updates and release notes",
+              "url": "/updates",
+              "icon": "Clock"
+            },
+            {
+              "title": "Docs",
+              "description": "Implementation guides, APIs, and security",
+              "url": "/docs",
+              "icon": "BookOpenText"
+            }
+          ]
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "Billing",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        },
+        {
+          "title": "Activity",
+          "url": "/activity",
+          "icon": "Activity"
+        }
+      ]
+    },
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true
+  },
+  "hero": {
+    "id": "hero",
+    "title": "Native LLM-powered FAE for Semiconductor Design-in",
+    "highlight_text": "Native LLM-powered",
+    "description": "Vector is a <b>Large Language Model–native FAE</b> that helps hardware and procurement engineers select, design, and commit to your components.<br/>24/7 instant answers · 50+ languages · Near-zero marginal cost.",
+    "announcement": {
+      "badge": "New",
+      "title": "Vector is now available for pilot deployments",
+      "url": "/pricing"
+    },
+    "tip": "⚡ Capture design-in moments the instant they happen",
+    "buttons": [
+      {
+        "title": "Request a Demo",
+        "icon": "Zap",
+        "url": "/pricing",
+        "target": "_self",
+        "variant": "default"
+      },
+      {
+        "title": "Read Docs",
+        "icon": "BookOpenText",
+        "url": "/docs",
+        "target": "_blank",
+        "variant": "outline"
+      }
+    ],
+    "show_avatars": true,
+    "avatars_tip": "Trusted by teams serving the global Mass Market",
+    "show_award": false,
+    "image": {
+      "src": "/imgs/features/admin.png",
+      "alt": "Vector dashboard",
+      "width": 1200,
+      "height": 800
+    },
+    "image_invert": {
+      "src": "/imgs/features/admin-dark.png",
+      "alt": "Vector dashboard dark",
+      "width": 1200,
+      "height": 800
+    },
+    "background_image": {
+      "src": "/imgs/bg/tree.jpg",
+      "alt": "background"
+    }
+  },
+  "logos": {
+    "title": "Built to scale semiconductor support across teams and markets",
+    "items": [
+      {
+        "title": "Datasheets",
+        "image": {
+          "src": "/imgs/logos/nextjs.svg",
+          "alt": "Datasheets"
+        }
+      },
+      {
+        "title": "Application Notes",
+        "image": {
+          "src": "/imgs/logos/react.svg",
+          "alt": "Application Notes"
+        }
+      },
+      {
+        "title": "Reference Designs",
+        "image": {
+          "src": "/imgs/logos/tailwindcss.svg",
+          "alt": "Reference Designs"
+        }
+      },
+      {
+        "title": "BOM & Alternatives",
+        "image": {
+          "src": "/imgs/logos/shadcn.svg",
+          "alt": "BOM & Alternatives"
+        }
+      },
+      {
+        "title": "Global Support",
+        "image": {
+          "src": "/imgs/logos/vercel.svg",
+          "alt": "Global Support"
+        }
+      }
+    ]
+  },
+  "introduce": {
+    "block": "features-list",
+    "id": "introduce",
+    "title": "What is Vector",
+    "label": "Introduce",
+    "description": "Vector is a <b>native LLM-powered FAE</b> built for semiconductor companies and distributors. It activates your technical knowledge base and delivers expert-level answers to engineers worldwide — instantly, 24/7.",
+    "image": {
+      "src": "/imgs/features/landing-page.png",
+      "alt": "Vector overview"
+    },
+    "items": [
+      {
+        "title": "Deep Datasheet Reasoning",
+        "description": "Understand parameters, limits, and trade-offs across datasheets and app notes — with FAE-grade explanations.",
+        "icon": "RiNextjsFill",
+        "image": {
+          "src": "/imgs/features/1.png",
+          "alt": "Datasheet reasoning"
+        }
+      },
+      {
+        "title": "Cross-SKU Alternatives & BOM Guidance",
+        "description": "Recommend substitutes and second-source options with clear rationale to lock BOMs earlier in the design cycle.",
+        "icon": "RiDatabase2Line",
+        "image": {
+          "src": "/imgs/features/2.png",
+          "alt": "BOM guidance"
+        }
+      },
+      {
+        "title": "50+ Languages, One Global Center",
+        "description": "Engineers ask in their native language; Vector retrieves global docs and answers precisely — no translation loss.",
+        "icon": "RiCloudyFill",
+        "image": {
+          "src": "/imgs/features/3.png",
+          "alt": "Multilingual support"
+        }
+      },
+      {
+        "title": "Always-on, Near-zero Marginal Cost",
+        "description": "Serve the global Mass Market with consistent support quality without adding headcount.",
+        "icon": "RiRobot2Line",
+        "image": {
+          "src": "/imgs/features/4.png",
+          "alt": "Always on"
+        }
+      }
+    ],
+    "className": "bg-muted"
+  },
+  "benefits": {
+    "block": "features-accordion",
+    "id": "benefits",
+    "title": "Why Teams Choose Vector",
+    "label": "Benefits",
+    "description": "Vector turns technical support from a cost center into a design-in growth engine — for both KA and Mass Market.",
+    "items": [
+      {
+        "title": "Scale FAE Expertise Beyond Top KA",
+        "description": "Deliver consistent, expert-level guidance to thousands of engineers without overloading your senior FAEs.",
+        "icon": "RiNextjsFill",
+        "image": {
+          "src": "/imgs/features/user-billing.png",
+          "alt": "Scale FAE"
+        }
+      },
+      {
+        "title": "Capture the Moment of Intent",
+        "description": "Instant answers at the exact time decisions are made — reduce drop-off and prevent design-ins from shifting to competitors.",
+        "icon": "RiClapperboardAiLine",
+        "image": {
+          "src": "/imgs/features/admin-settings.png",
+          "alt": "Moment of Intent"
+        }
+      },
+      {
+        "title": "From Support to Revenue",
+        "description": "Shorten time-to-sample, increase conversion, and lock BOMs earlier with AI-driven guidance across the full design cycle.",
+        "icon": "RiCodeFill",
+        "image": {
+          "src": "/imgs/features/landing-page.png",
+          "alt": "Revenue"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "block": "features-step",
+    "id": "usage",
+    "title": "How to Deploy Vector",
+    "description": "Launch a native LLM-powered FAE in weeks — not quarters:",
+    "image": {
+      "src": "/imgs/features/1.png",
+      "alt": "Deploy Vector"
+    },
+    "image_position": "left",
+    "text_align": "center",
+    "items": [
+      {
+        "title": "Connect Knowledge Sources",
+        "description": "Import datasheets, app notes, FAQs, reference designs, and internal playbooks.",
+        "image": {
+          "src": "/imgs/features/5.png",
+          "alt": "Connect knowledge"
+        }
+      },
+      {
+        "title": "Configure Products & Taxonomy",
+        "description": "Map SKUs, families, and key attributes so Vector can compare parts and recommend alternatives accurately.",
+        "image": {
+          "src": "/imgs/features/6.png",
+          "alt": "Configure taxonomy"
+        }
+      },
+      {
+        "title": "Embed Everywhere Engineers Ask",
+        "description": "Deploy on docs site, distributor portals, community, and internal tools — with APIs and widgets.",
+        "image": {
+          "src": "/imgs/features/7.png",
+          "alt": "Embed"
+        }
+      },
+      {
+        "title": "Measure & Improve",
+        "description": "Track intent, topics, and conversion signals to continuously improve answers and unlock more design-ins.",
+        "image": {
+          "src": "/imgs/features/8.png",
+          "alt": "Improve"
+        }
+      }
+    ],
+    "className": "bg-muted"
+  },
+  "features": {
+    "id": "features",
+    "title": "Key Features",
+    "description": "Everything you need to run a native LLM-powered FAE at scale.",
+    "items": [
+      {
+        "title": "FAE-grade Q&A",
+        "description": "Answer complex selection and design questions with clear reasoning and citations to source docs.",
+        "icon": "RiNextjsFill"
+      },
+      {
+        "title": "Doc Search API",
+        "description": "Programmatic search across datasheets and application notes for your apps and portals.",
+        "icon": "RiKey2Fill"
+      },
+      {
+        "title": "SKU-scale Knowledge Graph",
+        "description": "Connect families, pin-compatibility, alternatives, and constraints across massive catalogs.",
+        "icon": "RiDatabase2Line"
+      },
+      {
+        "title": "Always-on Global Support",
+        "description": "Serve engineers across time zones with consistent quality — 24/7.",
+        "icon": "RiCloudy2Fill"
+      },
+      {
+        "title": "Intent & Conversion Analytics",
+        "description": "Understand what engineers are trying to do, where they drop off, and what drives samples and orders.",
+        "icon": "RiBarChart2Line"
+      },
+      {
+        "title": "Enterprise Controls",
+        "description": "SSO, access control, audit logs, and deployment options for secure rollouts.",
+        "icon": "RiRobot2Line"
+      }
+    ]
+  },
+  "stats": {
+    "id": "stats",
+    "title": "Designed for Global Scale",
+    "description": "Built to serve both Top KA and the global long tail.",
+    "items": [
+      {
+        "title": "50+",
+        "description": "Languages"
+      },
+      {
+        "title": "24/7",
+        "description": "Always On"
+      },
+      {
+        "title": "SKU-scale",
+        "description": "Catalog Coverage"
+      }
+    ],
+    "className": "bg-muted"
+  },
+  "testimonials": {
+    "id": "testimonials",
+    "title": "What Teams Say",
+    "description": "Early pilots show faster design decisions and reduced support load.",
+    "items": [
+      {
+        "name": "FAE Lead",
+        "role": "Semiconductor Vendor",
+        "quote": "Vector handles the long-tail questions instantly, so our senior FAEs can focus on the highest-impact engagements.",
+        "image": {
+          "src": "/imgs/avatars/1.png",
+          "alt": "testimonial 1"
+        }
+      },
+      {
+        "name": "Hardware Engineer",
+        "role": "Consumer Electronics",
+        "quote": "It feels like having an expert on call. I get an answer while I'm in the lab — not two days later.",
+        "image": {
+          "src": "/imgs/avatars/2.png",
+          "alt": "testimonial 2"
+        }
+      },
+      {
+        "name": "Distributor PM",
+        "role": "Channel Partner",
+        "quote": "We can support more engineers globally without growing headcount, and we see higher sample requests from documentation traffic.",
+        "image": {
+          "src": "/imgs/avatars/3.png",
+          "alt": "testimonial 3"
+        }
+      }
+    ]
+  },
+  "faq": {
+    "id": "faq",
+    "title": "Frequently Asked Questions",
+    "description": "Have another question? Talk to our team.",
+    "tip": "Can't find what you're looking for? <a href='/pricing' class='text-primary font-medium hover:underline'>Request a demo</a> and we'll walk you through a pilot.",
+    "items": [
+      {
+        "question": "What does \"native LLM-powered FAE\" mean?",
+        "answer": "Vector is not a traditional support workflow with AI added on. It is an FAE role redefined around large language models — able to read datasheets, reason across technical documents, and guide engineers at the moment of design-in."
+      },
+      {
+        "question": "What content can Vector learn from?",
+        "answer": "Datasheets, application notes, reference designs, FAQs, training materials, and internal playbooks. Vector can also be configured with SKU taxonomies and alternative-part mappings."
+      },
+      {
+        "question": "Can Vector support global customers in multiple languages?",
+        "answer": "Yes. Vector supports 50+ languages. Engineers can ask in their native language; Vector retrieves information from your documentation and responds with technical accuracy."
+      },
+      {
+        "question": "Where can we deploy Vector?",
+        "answer": "Common deployments include documentation sites, distributor portals, community forums, and internal support tools. Vector can be embedded via widgets and accessed programmatically via APIs."
+      },
+      {
+        "question": "How does Vector help increase revenue, not just reduce cost?",
+        "answer": "Vector captures design-in moments with instant answers, reduces drop-off, recommends alternatives to prevent churn, and shortens time-to-sample — increasing conversion from documentation traffic to real design wins."
+      },
+      {
+        "question": "How do you handle security and access control?",
+        "answer": "Vector supports enterprise controls such as SSO, access control, and audit logs. Deployment options can be tailored to your security requirements."
+      }
+    ]
+  },
+  "cta": {
+    "id": "cta",
+    "title": "Turn Support into Design-in Growth",
+    "description": "Deploy a native LLM-powered FAE to serve engineers globally, 24/7 — and capture more design-ins automatically.",
+    "buttons": [
+      {
+        "title": "Request a Demo",
+        "url": "/pricing",
+        "target": "_self",
+        "icon": "Zap"
+      },
+      {
+        "title": "Read Docs",
+        "url": "/docs",
+        "target": "_blank",
+        "variant": "outline",
+        "icon": "BookOpenText"
+      }
+    ],
+    "className": "bg-muted"
+  },
+  "subscribe": {
+    "id": "subscribe",
+    "title": "Get Vector Updates",
+    "description": "Product updates, pilot stories, and design-in playbooks.",
+    "submit": {
+      "input": {
+        "placeholder": "Enter your email"
+      },
+      "button": {
+        "title": "Subscribe"
+      },
+      "action": "/api/subscribe"
+    },
+    "className": "bg-muted"
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "Vector",
+      "description": "Vector is a native LLM-powered FAE for semiconductor design-in — delivering expert technical support globally, 24/7, at near-zero marginal cost.",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "Vector",
+        "width": 1024,
+        "height": 1024
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Product",
+          "children": [
+            {
+              "title": "Features",
+              "url": "/#features",
+              "target": "_self"
+            },
+            {
+              "title": "Use Cases",
+              "url": "/#benefits",
+              "target": "_self"
+            },
+            {
+              "title": "Pricing",
+              "url": "/pricing",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "Resources",
+          "children": [
+            {
+              "title": "Docs",
+              "url": "/docs",
+              "target": "_self"
+            },
+            {
+              "title": "Blog",
+              "url": "/blog",
+              "target": "_self"
+            },
+            {
+              "title": "Engineer Chat",
+              "url": "/chat",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "Company",
+          "children": [
+            {
+              "title": "Updates",
+              "url": "/updates",
+              "target": "_self"
+            },
+            {
+              "title": "Privacy Policy",
+              "url": "/privacy-policy",
+              "target": "_self"
+            },
+            {
+              "title": "Terms of Service",
+              "url": "/terms-of-service",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "Github",
+          "url": "https://github.com/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.gg/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Email",
+          "icon": "Mail",
+          "url": "mailto:support@your-domain.com",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "Privacy Policy",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "Terms of Service",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  }
+}
