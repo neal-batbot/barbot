@@ -33,26 +33,26 @@
           "icon": "RiRobot2Line",
           "children": [
             {
-              "title": "AI 虚拟 FAE",
-              "description": "原生 LLM 驱动的设计导入技术支持",
-              "url": "/#hero",
-              "icon": "RiRobot2Line"
+              "title": "AI 图片生成器",
+              "description": "使用 AI 生成图片",
+              "url": "/ai-image-generator",
+              "icon": "RiImage2Line"
             },
             {
-              "title": "文档搜索 API",
-              "description": "跨数据表和应用笔记的程序化搜索",
-              "url": "/docs",
-              "icon": "RiSearch2Line"
+              "title": "AI 音乐生成器",
+              "description": "使用 AI 生成美妙的音乐",
+              "url": "/ai-music-generator",
+              "icon": "RiMusic2Line"
             },
             {
-              "title": "多语言支持",
-              "description": "为工程师提供 50+ 语言的全天候服务",
-              "url": "/#introduce",
-              "icon": "RiGlobalLine"
+              "title": "AI 视频生成器",
+              "description": "使用 AI 生成视频",
+              "url": "/ai-video-generator",
+              "icon": "RiVideoLine"
             },
             {
-              "title": "工程师对话",
-              "description": "提出技术问题，获得 FAE 级别的解答",
+              "title": "AI 聊天机器人",
+              "description": "与 AI 聊天机器人对话",
               "url": "/chat",
               "icon": "RiMessage2Line"
             }
@@ -108,15 +108,15 @@
   },
   "hero": {
     "id": "hero",
-    "title": "原生 LLM 驱动的半导体设计导入 FAE",
+    "title": "AI原生 LLM 驱动的FAE",
     "highlight_text": "原生 LLM 驱动",
-    "description": "Vector 是<b>大型语言模型原生 FAE</b>，帮助硬件和采购工程师选择、设计和承诺您的组件。<br/>24/7 即时回答 · 50+ 语言 · 近乎零边际成本。",
+    "description": "Vector 是<b>大型语言模型原生 FAE</b>，帮助硬件、采购工程师、器件工程师快速选型。<br/>24/7 即时回答 · 50+ 语言 · 近乎零边际成本。",
     "announcement": {
       "badge": "全新",
       "title": "Vector 现已可用于试点部署",
       "url": "/pricing"
     },
-    "tip": "⚡ 捕捉设计导入时刻，就在它们发生之时",
+    "tip": "捕捉Design-in时刻，就在它们发生之时",
     "buttons": [
       {
         "title": "请求演示",
@@ -134,7 +134,7 @@
       }
     ],
     "show_avatars": true,
-    "avatars_tip": "受服务全球大众市场的团队信赖",
+    "avatars_tip": "服务全球大众市场的团队信赖",
     "show_award": false,
     "image": {
       "src": "/imgs/features/admin.png",
@@ -198,7 +198,7 @@
     "id": "introduce",
     "title": "Vector 是什么？",
     "label": "产品简介",
-    "description": "Vector 是<b>原生 LLM 驱动的 FAE</b>，专为半导体公司和分销商打造。它激活您的技术知识库，为全球工程师即时提供专家级答案 —— 全天候、24/7。",
+    "description": "Vector 是AI 原生 LLM 驱动的 FAE，服务于硬件研发、采购、器件工程师。它激活您的技术知识库，为全球工程师即时提供专家级答案 —— 全天候、24/7。",
     "image": {
       "src": "/imgs/features/landing-page.png",
       "alt": "introduce"
@@ -206,7 +206,7 @@
     "items": [
       {
         "title": "深度数据表推理",
-        "description": "理解参数、限制和权衡，在数据表和应用笔记中提供 FAE 级别的解释。",
+        "description": "理解参数、技术文档，在数据手册和应用笔记中提供 FAE 级别的解释。",
         "icon": "RiNextjsFill",
         "image": {
           "src": "/imgs/features/1.png",
@@ -603,6 +603,6 @@
       ]
     },
     "show_theme": true,
-    "show_locale": true
+    "show_locale": false
   }
 }
