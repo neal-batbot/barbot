@@ -148,7 +148,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     } else if (!sessionUser && currentUserId) {
       setUser(null);
     }
-  }, [session?.user?.id, user?.id]);
+  }, [session?.user?.id]);
 
   // one tap initialized
   const oneTapInitialized = useRef(false);

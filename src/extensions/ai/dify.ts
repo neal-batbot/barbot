@@ -9,7 +9,7 @@ export interface DifyConfig {
 }
 
 export interface DifyChatRequest {
-  inputs?: Record<string, any>;
+  inputs: Record<string, any>;
   query: string;
   response_mode: 'streaming' | 'blocking';
   conversation_id?: string;

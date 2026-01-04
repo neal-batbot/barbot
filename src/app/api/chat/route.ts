@@ -3,16 +3,15 @@ import {
   convertToModelMessages,
   createIdGenerator,
   generateId,
-  stepCountIs,
   streamText,
-  TextUIPart,
-  tool,
   UIMessage,
-  validateUIMessages,
 } from 'ai';
-import { z } from 'zod';
 
 import { findChatById } from '@/shared/models/chat';
+
+// Force dynamic to ensure streaming works properly
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Allow longer response time for AI
 import {
   ChatMessageStatus,
   createChatMessage,
@@ -31,6 +30,7 @@ export async function POST(req: Request) {
       webSearch,
       reasoning,
       provider: requestProvider,
+      rating,
     }: {
       chatId: string;
       message: UIMessage;
@@ -38,6 +38,7 @@ export async function POST(req: Request) {
       webSearch: boolean;
       reasoning?: boolean;
       provider?: string;
+      rating?: string;
     } = await req.json();
 
     if (!chatId || !model) {
@@ -103,6 +104,7 @@ export async function POST(req: Request) {
         configs,
         currentTime,
         model,
+        rating,
       });
     } else {
       // OpenRouter (default)
@@ -210,6 +212,7 @@ async function handleDifyChat({
   configs,
   currentTime,
   model,
+  rating,
 }: {
   chatId: string;
   chat: any;
@@ -218,7 +221,12 @@ async function handleDifyChat({
   configs: any;
   currentTime: Date;
   model: string;
+  rating?: string;
 }) {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:entry',message:'handleDifyChat called',data:{chatId,model,rating},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+  // #endregion
+
   const { getDifyConfig, streamDifyChatMessages, parseDifyStream } = await import(
     '@/extensions/ai/dify'
   );
@@ -236,8 +244,11 @@ async function handleDifyChat({
   const textParts = message.parts.filter((part: any) => part.type === 'text');
   const query = textParts.map((part: any) => part.text).join('\n');
 
-  // Call Dify API
-  const stream = await streamDifyChatMessages(difyConfig, {
+  // Call Dify API with user-selected rating
+  const difyStream = await streamDifyChatMessages(difyConfig, {
+    inputs: {
+      rating: rating || 'Catalog工业'
+    },
     query,
     response_mode: 'streaming',
     conversation_id: conversationId,
@@ -245,87 +256,125 @@ async function handleDifyChat({
     files: [],
   });
 
-  // Create response stream
-  const encoder = new TextEncoder();
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:difyStreamReady',message:'Dify stream ready',timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+  // #endregion
+
+  // Track state outside the stream
   let newConversationId = conversationId;
   let fullAnswer = '';
+  let difyMessageId = '';
 
-  const responseStream = new ReadableStream({
+  // Create a manual ReadableStream with AI SDK Data Stream Protocol format
+  const encoder = new TextEncoder();
+  
+  const readable = new ReadableStream({
     async start(controller) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:start',message:'ReadableStream started',timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+      // #endregion
+      
       try {
-        for await (const event of parseDifyStream(stream)) {
+        let chunkCount = 0;
+        
+        for await (const event of parseDifyStream(difyStream)) {
           // Save conversation_id from first event
           if (event.conversation_id && !newConversationId) {
             newConversationId = event.conversation_id;
           }
 
-          // Stream answer chunks
+          // Save message_id
+          if (event.message_id && !difyMessageId) {
+            difyMessageId = event.message_id;
+          }
+
+          // Stream answer chunks - AI SDK format: 0:"text"\n
           if (event.event === 'agent_message' || event.event === 'message') {
             if (event.answer) {
               fullAnswer += event.answer;
+              chunkCount++;
               
-              // Format as AI SDK stream format
-              const chunk = {
-                type: 'text-delta',
-                textDelta: event.answer,
-              };
-              controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk)}\n`));
+              // AI SDK Data Stream Protocol: 0 = text delta
+              const chunk = `0:${JSON.stringify(event.answer)}\n`;
+              controller.enqueue(encoder.encode(chunk));
             }
           }
 
-          // Handle message_end event
+          // Handle message_end event - save to DB and close stream
           if (event.event === 'message_end') {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:messageEnd',message:'Dify message_end, saving to DB',data:{fullAnswerLength:fullAnswer.length,chunkCount},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+            // #endregion
+            
             // Save assistant message to database
-            const assistantMessage: NewChatMessage = {
-              id: generateId().toLowerCase(),
-              chatId,
-              userId: user?.id,
-              status: ChatMessageStatus.CREATED,
-              createdAt: currentTime,
-              updatedAt: currentTime,
-              model: model,
-              provider: 'dify',
-              parts: JSON.stringify([{ type: 'text', text: fullAnswer }]),
-              role: 'assistant',
-              metadata: JSON.stringify({
-                conversation_id: newConversationId,
-                message_id: event.message_id,
-              }),
-            };
-            await createChatMessage(assistantMessage);
-
-            // Update chat metadata with conversation_id
-            if (newConversationId && newConversationId !== conversationId) {
-              const { updateChat } = await import('@/shared/models/chat');
-              await updateChat(chatId, {
+            try {
+              const assistantMessage: NewChatMessage = {
+                id: generateId().toLowerCase(),
+                chatId,
+                userId: user?.id,
+                status: ChatMessageStatus.CREATED,
+                createdAt: currentTime,
+                updatedAt: currentTime,
+                model: model,
+                provider: 'dify',
+                parts: JSON.stringify([{ type: 'text', text: fullAnswer }]),
+                role: 'assistant',
                 metadata: JSON.stringify({
-                  ...chatMetadata,
-                  dify_conversation_id: newConversationId,
+                  conversation_id: newConversationId,
+                  message_id: difyMessageId,
                 }),
-              });
+              };
+              await createChatMessage(assistantMessage);
+              
+              // Update chat metadata with conversation_id
+              if (newConversationId && newConversationId !== conversationId) {
+                const { updateChat } = await import('@/shared/models/chat');
+                await updateChat(chatId, {
+                  metadata: JSON.stringify({
+                    ...chatMetadata,
+                    dify_conversation_id: newConversationId,
+                  }),
+                });
+              }
+              
+              // #region agent log
+              fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:dbSaved',message:'Message saved to DB successfully',data:{messageId:assistantMessage.id,fullAnswerLength:fullAnswer.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+              // #endregion
+            } catch (dbErr: any) {
+              console.error('[Dify] DB save error:', dbErr);
             }
 
-            // Send finish event
-            const finishChunk = {
-              type: 'finish',
-              finishReason: 'stop',
-            };
-            controller.enqueue(encoder.encode(`0:${JSON.stringify(finishChunk)}\n`));
+            // AI SDK Data Stream Protocol: d = finish message
+            const finishChunk = `d:${JSON.stringify({ finishReason: 'stop' })}\n`;
+            controller.enqueue(encoder.encode(finishChunk));
+            controller.close();
+            return;
           }
         }
 
+        // If we exit the loop without message_end, still close properly
+        const finishChunk = `d:${JSON.stringify({ finishReason: 'stop' })}\n`;
+        controller.enqueue(encoder.encode(finishChunk));
         controller.close();
-      } catch (error) {
-        console.error('Dify stream error:', error);
-        controller.error(error);
+        
+      } catch (err: any) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:error',message:'Stream error',data:{error:err?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+        // #endregion
+        console.error('[Dify] Stream error:', err);
+        controller.error(err);
       }
     },
   });
 
-  return new Response(responseStream, {
+  // Return Response with AI SDK headers + streaming headers to prevent buffering
+  return new Response(readable, {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'X-Vercel-AI-Data-Stream': 'v1',
+      'Cache-Control': 'no-cache, no-transform',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no', // Disable nginx buffering
     },
   });
 }
