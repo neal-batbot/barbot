@@ -47,7 +47,7 @@ export function DifyFollowUp({
 
   const models: ChatModel[] = [
     {
-      title: 'Dify Assistant',
+      title: 'TI ChatBot Assistant',
       name: 'dify/default',
       provider: 'dify',
     },

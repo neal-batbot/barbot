@@ -5,352 +5,233 @@
   },
   "pricing": {
     "id": "pricing",
-    "sr_only_title": "ShipAny 价格表",
+    "sr_only_title": "IC智能客服定价表",
     "title": "价格",
-    "description": "获取 ShipAny 的全部功能，极速交付你的 AI SaaS 创业项目。",
+    "description": "让每一位硬件、采购、器件工程师都能快速、高效地提升选型效率。",
     "groups": [
       {
-        "name": "one-time",
-        "title": "按次付费"
-      },
-      {
         "name": "monthly",
-        "title": "包月",
-        "is_featured": true,
-        "label": "立省15%"
+        "title": "按月付费",
+        "is_featured": true
       },
       {
         "name": "yearly",
-        "title": "包年"
+        "title": "按年付费",
+        "label": "立省30%"
+      },
+      {
+        "name": "enterprise",
+        "title": "企业定制"
       }
     ],
     "items": [
       {
-        "title": "入门版",
-        "description": "开启你的第一个 SaaS 创业项目。",
+        "title": "基础版",
+        "description": "适合日常查询芯片资料的工程师。",
         "features_title": "包含",
         "features": [
-          "100 积分，有效期 1 个月",
-          "NextJS 项目模板",
-          "SEO 友好结构",
-          "支持 Stripe 支付",
-          "Supabase 数据存储",
-          "Google Oauth & 一键登录",
-          "多语言（i18n）支持"
+          "每月 100 次智能问答",
+          "覆盖TI 2W+芯片原厂数据手册",
+          "Datasheet 技术参数查询",
+          "选型推荐与替代料建议",
+          "中英文问答支持",
+          "历史对话记录保存"
         ],
-        "interval": "one-time",
-        "amount": 9900,
+        "interval": "month",
+        "amount": 990,
         "currency": "USD",
-        "price": "$99",
-        "original_price": "$199",
+        "price": "$9.9",
+        "original_price": "$19",
         "currencies": [
           {
             "currency": "CNY",
-            "amount": 69900,
-            "price": "¥699",
-            "original_price": "¥1399",
+            "amount": 1900,
+            "price": "¥19",
+            "original_price": "¥39",
             "payment_providers": ["stripe"]
           }
         ],
-        "unit": "",
+        "unit": "/ 月",
         "is_featured": false,
-        "tip": "一次付费，畅享无限项目部署！",
+        "tip": "每天不到1块钱，告别翻手册的烦恼！",
         "button": {
-          "title": "获取 ShipAny",
+          "title": "立即开通",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "starter",
-        "product_name": "ShipAny 模板入门版",
+        "product_id": "basic-monthly",
+        "product_name": "IC智能客服基础版（月付）",
         "credits": 100,
         "valid_days": 30,
-        "group": "one-time"
+        "group": "monthly"
       },
       {
-        "title": "标准版",
-        "description": "快速交付你的 SaaS 创业项目。",
+        "title": "专业版",
+        "description": "适合高频使用、深度研发的工程师。",
         "label": "热门",
-        "features_title": "包含入门版功能，此外",
+        "features_title": "包含基础版功能，此外",
         "features": [
-          "200 积分，有效期 3 个月",
-          "支持 Vercel 或 Cloudflare 部署",
-          "自动生成隐私政策&服务条款",
-          "集成 Google Analytics",
-          "集成 Google Search Console",
-          "Discord 技术社区",
-          "首个上线项目技术支持",
-          "终身免费更新"
+          "每月 500 次智能问答",
+          "覆盖更全面的芯片原厂资料",
+          "电气特性、时序参数深度解析",
+          "应用电路设计参考",
+          "Pin-to-Pin 兼容替代方案",
+          "优先响应速度",
+          "专属工程师社群"
         ],
-        "interval": "one-time",
-        "amount": 19900,
+        "interval": "month",
+        "amount": 4900,
         "currency": "USD",
-        "price": "$199",
-        "original_price": "$299",
+        "price": "$49",
+        "original_price": "$79",
         "currencies": [
           {
             "currency": "CNY",
-            "amount": 139900,
-            "price": "¥1399",
-            "original_price": "¥1999",
+            "amount": 9900,
+            "price": "¥99",
+            "original_price": "¥159",
             "payment_providers": ["stripe"]
           }
         ],
-        "unit": "",
+        "unit": "/ 月",
         "is_featured": true,
-        "tip": "一次付费，畅享无限项目部署！",
+        "tip": "深度研发必备，省下翻资料的时间专注设计！",
         "button": {
-          "title": "获取 ShipAny",
+          "title": "立即开通",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "standard",
-        "product_name": "ShipAny 模板标准版",
-        "credits": 200,
-        "valid_days": 90,
-        "group": "one-time"
+        "product_id": "pro-monthly",
+        "product_name": "IC智能客服专业版（月付）",
+        "credits": 500,
+        "valid_days": 30,
+        "group": "monthly"
       },
       {
-        "title": "高级版",
-        "description": "交付任意 AI SaaS 创业项目。",
-        "features_title": "包含标准版功能，此外",
+        "title": "基础版",
+        "description": "适合日常查询芯片资料的工程师。",
+        "features_title": "包含",
         "features": [
-          "300 积分，有效期 1 年",
-          "内置 AI 业务功能",
-          "用户中心",
-          "积分系统",
-          "为你的 SaaS 售卖 API",
-          "后台管理系统",
-          "优先技术支持"
+          "每年 1500 次智能问答",
+          "覆盖TI 2W+芯片原厂数据手册",
+          "Datasheet 技术参数查询",
+          "选型推荐与替代料建议",
+          "中英文问答支持",
+          "历史对话记录保存"
         ],
-        "interval": "one-time",
-        "amount": 29900,
+        "interval": "year",
+        "amount": 7900,
         "currency": "USD",
-        "price": "$299",
-        "original_price": "$399",
+        "price": "$79",
+        "original_price": "$118",
         "currencies": [
           {
             "currency": "CNY",
-            "amount": 199900,
-            "price": "¥1999",
-            "original_price": "¥2799",
-            "payment_providers": ["stripe", "creem"]
+            "amount": 15800,
+            "price": "¥158",
+            "original_price": "¥228",
+            "payment_providers": ["stripe"]
+          }
+        ],
+        "unit": "/ 年",
+        "is_featured": false,
+        "tip": "年付省30%，约¥13/月！",
+        "button": {
+          "title": "立即开通",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "basic-yearly",
+        "product_name": "IC智能客服基础版（年付）",
+        "credits": 1500,
+        "valid_days": 365,
+        "group": "yearly",
+        "plan_name": "基础版"
+      },
+      {
+        "title": "专业版",
+        "description": "适合高频使用、深度研发的工程师。",
+        "label": "超值",
+        "features_title": "包含基础版功能，此外",
+        "features": [
+          "每年 8000 次智能问答",
+          "覆盖更全面的芯片原厂资料",
+          "电气特性、时序参数深度解析",
+          "应用电路设计参考",
+          "Pin-to-Pin 兼容替代方案",
+          "优先响应速度",
+          "专属工程师社群"
+        ],
+        "interval": "year",
+        "amount": 39900,
+        "currency": "USD",
+        "price": "$399",
+        "original_price": "$588",
+        "currencies": [
+          {
+            "currency": "CNY",
+            "amount": 79800,
+            "price": "¥798",
+            "original_price": "¥1188",
+            "payment_providers": ["stripe"]
+          }
+        ],
+        "unit": "/ 年",
+        "is_featured": true,
+        "tip": "年付省33%，约¥66/月，研发团队首选！",
+        "button": {
+          "title": "立即开通",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "pro-yearly",
+        "product_name": "IC智能客服专业版（年付）",
+        "credits": 8000,
+        "valid_days": 365,
+        "group": "yearly",
+        "plan_name": "专业版"
+      },
+      {
+        "title": "企业定制版",
+        "description": "为您的企业打造专属芯片选型助手。",
+        "features_title": "企业专属权益",
+        "features": [
+          "无限问答次数",
+          "导入企业专属芯片库/BOM清单",
+          "支持私有化部署",
+          "对接企业内部 ERP/PLM 系统",
+          "多人团队协作账号",
+          "定制化原厂资料爬取与更新",
+          "专属技术支持与培训",
+          "API 接口集成"
+        ],
+        "interval": "one-time",
+        "amount": 0,
+        "currency": "USD",
+        "price": "联系我们",
+        "original_price": "",
+        "currencies": [
+          {
+            "currency": "CNY",
+            "amount": 0,
+            "price": "联系我们",
+            "original_price": "",
+            "payment_providers": []
           }
         ],
         "unit": "",
         "is_featured": false,
-        "tip": "一次付费，畅享无限项目部署！",
+        "tip": "为企业量身定制，让整个研发团队效率翻倍！",
         "button": {
-          "title": "获取 ShipAny",
+          "title": "预约演示",
           "url": "/#pricing",
-          "icon": "RiFlashlightFill"
+          "icon": "RiCustomerService2Fill"
         },
-        "product_id": "premium",
-        "product_name": "ShipAny 模板高级版",
-        "credits": 300,
-        "valid_days": 365,
-        "group": "one-time"
-      },
-      {
-        "title": "入门版",
-        "description": "开启你的第一个 SaaS 创业项目。",
-        "features_title": "包含",
-        "features": [
-          "100 积分，有效期 1 个月",
-          "NextJS 项目模板",
-          "SEO 友好结构",
-          "支持 Stripe 支付",
-          "Supabase 数据存储",
-          "Google Oauth & 一键登录",
-          "多语言（i18n）支持"
-        ],
-        "interval": "month",
-        "amount": 8900,
-        "currency": "USD",
-        "price": "$89",
-        "original_price": "$99",
-        "unit": "/ 月",
-        "is_featured": false,
-        "tip": "按月付费，畅享无限项目部署！",
-        "button": {
-          "title": "获取 ShipAny",
-          "url": "/#pricing",
-          "icon": "RiFlashlightFill"
-        },
-        "product_id": "starter-monthly",
-        "product_name": "ShipAny 模板入门版包月",
-        "credits": 100,
-        "valid_days": 30,
-        "group": "monthly",
-        "plan_name": "入门版"
-      },
-      {
-        "title": "标准版",
-        "description": "快速交付你的 SaaS 创业项目。",
-        "label": "热门",
-        "features_title": "包含入门版功能，此外",
-        "features": [
-          "200 积分，有效期 1 个月",
-          "支持 Vercel 或 Cloudflare 部署",
-          "自动生成隐私政策&服务条款",
-          "集成 Google Analytics",
-          "集成 Google Search Console",
-          "Discord 技术社区",
-          "首个上线项目技术支持",
-          "终身免费更新"
-        ],
-        "interval": "month",
-        "amount": 16900,
-        "currency": "USD",
-        "price": "$169",
-        "original_price": "$199",
-        "unit": "/ 月",
-        "is_featured": true,
-        "tip": "按月付费，极速上线你的 SaaS 项目。",
-        "button": {
-          "title": "获取 ShipAny",
-          "url": "/#pricing",
-          "icon": "RiFlashlightFill"
-        },
-        "product_id": "standard-monthly",
-        "product_name": "ShipAny 模板标准版包月",
-        "credits": 200,
-        "valid_days": 30,
-        "group": "monthly",
-        "plan_name": "标准版"
-      },
-      {
-        "title": "高级版",
-        "description": "交付任意 AI SaaS 创业项目。",
-        "features_title": "包含标准版功能，此外",
-        "features": [
-          "300 积分，有效期 1 个月",
-          "内置 AI 业务功能",
-          "用户中心",
-          "积分系统",
-          "为你的 SaaS 售卖 API",
-          "后台管理系统",
-          "优先技术支持"
-        ],
-        "interval": "month",
-        "amount": 24900,
-        "currency": "USD",
-        "price": "$249",
-        "original_price": "$299",
-        "unit": "/ 月",
-        "is_featured": false,
-        "tip": "按月付费，助你交付任何 AI SaaS 项目。",
-        "button": {
-          "title": "获取 ShipAny",
-          "url": "/#pricing",
-          "icon": "RiFlashlightFill"
-        },
-        "product_id": "premium-monthly",
-        "product_name": "ShipAny 模板高级版包月",
-        "credits": 300,
-        "valid_days": 30,
-        "group": "monthly",
-        "plan_name": "高级版"
-      },
-      {
-        "title": "入门版",
-        "description": "开启你的第一个 SaaS 创业项目。",
-        "features_title": "包含",
-        "features": [
-          "100 积分，有效期 1 年",
-          "NextJS 项目模板",
-          "SEO 友好结构",
-          "支持 Stripe 支付",
-          "Supabase 数据存储",
-          "Google Oauth & 一键登录",
-          "多语言（i18n）支持"
-        ],
-        "interval": "year",
-        "amount": 82800,
-        "currency": "USD",
-        "price": "$69",
-        "original_price": "$89",
-        "unit": "/ 月",
-        "is_featured": false,
-        "tip": "按年付费，畅享无限项目部署！",
-        "button": {
-          "title": "获取 ShipAny",
-          "url": "/#pricing",
-          "icon": "RiFlashlightFill"
-        },
-        "product_id": "starter-yearly",
-        "product_name": "ShipAny 模板入门版包年",
-        "credits": 1200,
-        "valid_days": 365,
-        "group": "yearly",
-        "plan_name": "入门版"
-      },
-      {
-        "title": "标准版",
-        "description": "快速交付你的 SaaS 创业项目。",
-        "label": "热门",
-        "features_title": "包含入门版功能，此外",
-        "features": [
-          "200 积分，有效期 1 年",
-          "支持 Vercel 或 Cloudflare 部署",
-          "自动生成隐私政策&服务条款",
-          "集成 Google Analytics",
-          "集成 Google Search Console",
-          "Discord 技术社区",
-          "首个上线项目技术支持",
-          "终身免费更新"
-        ],
-        "interval": "year",
-        "amount": 154800,
-        "currency": "USD",
-        "price": "$129",
-        "original_price": "$169",
-        "unit": "/ 月",
-        "is_featured": true,
-        "tip": "按年付费，极速上线你的 SaaS 项目。",
-        "button": {
-          "title": "获取 ShipAny",
-          "url": "/#pricing",
-          "icon": "RiFlashlightFill"
-        },
-        "product_id": "standard-yearly",
-        "product_name": "ShipAny 模板标准版包年",
-        "credits": 2400,
-        "valid_days": 365,
-        "group": "yearly",
-        "plan_name": "标准版"
-      },
-      {
-        "title": "高级版",
-        "description": "交付任意 AI SaaS 创业项目。",
-        "features_title": "包含标准版功能，此外",
-        "features": [
-          "300 积分，有效期 1 年",
-          "内置 AI 业务功能",
-          "用户中心",
-          "积分系统",
-          "为你的 SaaS 售卖 API",
-          "后台管理系统",
-          "优先技术支持"
-        ],
-        "interval": "year",
-        "amount": 226800,
-        "currency": "USD",
-        "price": "$189",
-        "original_price": "$249",
-        "unit": "/ 月",
-        "is_featured": false,
-        "tip": "按年付费，助你交付任何 AI SaaS 项目。",
-        "button": {
-          "title": "获取 ShipAny",
-          "url": "/#pricing",
-          "icon": "RiFlashlightFill"
-        },
-        "product_id": "premium-yearly",
-        "product_name": "ShipAny 模板高级版包年",
-        "credits": 3600,
-        "valid_days": 365,
-        "group": "yearly",
-        "plan_name": "高级版"
+        "product_id": "enterprise",
+        "product_name": "IC智能客服企业定制版",
+        "credits": 0,
+        "valid_days": 0,
+        "group": "enterprise"
       }
     ]
   },

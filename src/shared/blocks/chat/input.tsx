@@ -56,7 +56,7 @@ export function ChatInput({
   // todo: get models from api
   const models: ChatModel[] = [
     {
-      title: 'Dify Assistant',
+      title: 'TI ChatBot Assistant',
       name: 'dify/default',
       provider: 'dify',
     },
