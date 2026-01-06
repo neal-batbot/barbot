@@ -137,13 +137,13 @@
     "avatars_tip": "Trusted by teams serving the global Mass Market",
     "show_award": false,
     "image": {
-      "src": "/imgs/features/admin.png",
+      "src": "https://picsum.photos/1200/800?random=1",
       "alt": "Vector dashboard",
       "width": 1200,
       "height": 800
     },
     "image_invert": {
-      "src": "/imgs/features/admin-dark.png",
+      "src": "https://picsum.photos/1200/800?random=2",
       "alt": "Vector dashboard dark",
       "width": 1200,
       "height": 800
@@ -159,35 +159,35 @@
       {
         "title": "Datasheets",
         "image": {
-          "src": "/imgs/logos/nextjs.svg",
+          "src": "https://picsum.photos/200?random=10",
           "alt": "Datasheets"
         }
       },
       {
         "title": "Application Notes",
         "image": {
-          "src": "/imgs/logos/react.svg",
+          "src": "https://picsum.photos/200?random=11",
           "alt": "Application Notes"
         }
       },
       {
         "title": "Reference Designs",
         "image": {
-          "src": "/imgs/logos/tailwindcss.svg",
+          "src": "https://picsum.photos/200?random=12",
           "alt": "Reference Designs"
         }
       },
       {
         "title": "BOM & Alternatives",
         "image": {
-          "src": "/imgs/logos/shadcn.svg",
+          "src": "https://picsum.photos/200?random=13",
           "alt": "BOM & Alternatives"
         }
       },
       {
         "title": "Global Support",
         "image": {
-          "src": "/imgs/logos/vercel.svg",
+          "src": "https://picsum.photos/200?random=14",
           "alt": "Global Support"
         }
       }
@@ -200,7 +200,7 @@
     "label": "Introduce",
     "description": "Vector is a <b>native LLM-powered FAE</b> built for semiconductor companies and distributors. It activates your technical knowledge base and delivers expert-level answers to engineers worldwide — instantly, 24/7.",
     "image": {
-      "src": "/imgs/features/landing-page.png",
+      "src": "https://picsum.photos/1200/800?random=20",
       "alt": "Vector overview"
     },
     "items": [
@@ -209,7 +209,7 @@
         "description": "Understand parameters, limits, and trade-offs across datasheets and app notes — with FAE-grade explanations.",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "https://picsum.photos/800/600?random=21",
           "alt": "Datasheet reasoning"
         }
       },
@@ -218,7 +218,7 @@
         "description": "Recommend substitutes and second-source options with clear rationale to lock BOMs earlier in the design cycle.",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "/imgs/features/2.png",
+          "src": "https://picsum.photos/800/600?random=22",
           "alt": "BOM guidance"
         }
       },
@@ -227,7 +227,7 @@
         "description": "Engineers ask in their native language; Vector retrieves global docs and answers precisely — no translation loss.",
         "icon": "RiCloudyFill",
         "image": {
-          "src": "/imgs/features/3.png",
+          "src": "https://picsum.photos/800/600?random=23",
           "alt": "Multilingual support"
         }
       },
@@ -236,7 +236,7 @@
         "description": "Serve the global Mass Market with consistent support quality without adding headcount.",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "/imgs/features/4.png",
+          "src": "https://picsum.photos/800/600?random=24",
           "alt": "Always on"
         }
       }
@@ -255,7 +255,7 @@
         "description": "Deliver consistent, expert-level guidance to thousands of engineers without overloading your senior FAEs.",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/features/user-billing.png",
+          "src": "https://picsum.photos/800/600?random=30",
           "alt": "Scale FAE"
         }
       },
@@ -264,7 +264,7 @@
         "description": "Instant answers at the exact time decisions are made — reduce drop-off and prevent design-ins from shifting to competitors.",
         "icon": "RiClapperboardAiLine",
         "image": {
-          "src": "/imgs/features/admin-settings.png",
+          "src": "https://picsum.photos/800/600?random=31",
           "alt": "Moment of Intent"
         }
       },
@@ -273,7 +273,7 @@
         "description": "Shorten time-to-sample, increase conversion, and lock BOMs earlier with AI-driven guidance across the full design cycle.",
         "icon": "RiCodeFill",
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "https://picsum.photos/800/600?random=32",
           "alt": "Revenue"
         }
       }
@@ -285,7 +285,7 @@
     "title": "How to Deploy Vector",
     "description": "Launch a native LLM-powered FAE in weeks — not quarters:",
     "image": {
-      "src": "/imgs/features/1.png",
+      "src": "https://picsum.photos/800/600?random=40",
       "alt": "Deploy Vector"
     },
     "image_position": "left",
@@ -295,7 +295,7 @@
         "title": "Connect Knowledge Sources",
         "description": "Import datasheets, app notes, FAQs, reference designs, and internal playbooks.",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "https://picsum.photos/800/600?random=41",
           "alt": "Connect knowledge"
         }
       },
@@ -303,7 +303,7 @@
         "title": "Configure Products & Taxonomy",
         "description": "Map SKUs, families, and key attributes so Vector can compare parts and recommend alternatives accurately.",
         "image": {
-          "src": "/imgs/features/6.png",
+          "src": "https://picsum.photos/800/600?random=42",
           "alt": "Configure taxonomy"
         }
       },
@@ -311,7 +311,7 @@
         "title": "Embed Everywhere Engineers Ask",
         "description": "Deploy on docs site, distributor portals, community, and internal tools — with APIs and widgets.",
         "image": {
-          "src": "/imgs/features/7.png",
+          "src": "https://picsum.photos/800/600?random=43",
           "alt": "Embed"
         }
       },
@@ -319,7 +319,7 @@
         "title": "Measure & Improve",
         "description": "Track intent, topics, and conversion signals to continuously improve answers and unlock more design-ins.",
         "image": {
-          "src": "/imgs/features/8.png",
+          "src": "https://picsum.photos/800/600?random=44",
           "alt": "Improve"
         }
       }
@@ -393,7 +393,7 @@
         "role": "Semiconductor Vendor",
         "quote": "Vector handles the long-tail questions instantly, so our senior FAEs can focus on the highest-impact engagements.",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "https://picsum.photos/200?random=50",
           "alt": "testimonial 1"
         }
       },
@@ -402,7 +402,7 @@
         "role": "Consumer Electronics",
         "quote": "It feels like having an expert on call. I get an answer while I'm in the lab — not two days later.",
         "image": {
-          "src": "/imgs/avatars/2.png",
+          "src": "https://picsum.photos/200?random=51",
           "alt": "testimonial 2"
         }
       },
@@ -411,7 +411,7 @@
         "role": "Channel Partner",
         "quote": "We can support more engineers globally without growing headcount, and we see higher sample requests from documentation traffic.",
         "image": {
-          "src": "/imgs/avatars/3.png",
+          "src": "https://picsum.photos/200?random=52",
           "alt": "testimonial 3"
         }
       }
