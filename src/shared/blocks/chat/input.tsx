@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UIMessage, UseChatHelpers } from '@ai-sdk/react';
 import { BrainCircuitIcon, GlobeIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -56,20 +56,29 @@ export function ChatInput({
   // todo: get models from api
   const models: ChatModel[] = [
     {
+      title: 'TI ChatBot Assistant',
+      name: 'dify/default',
+      provider: 'dify',
+    },
+    {
       title: 'Kimi K2 Thinking',
       name: 'moonshotai/kimi-k2-thinking',
+      provider: 'openrouter',
     },
     {
       title: 'Deepseek R1',
       name: 'deepseek/deepseek-r1',
+      provider: 'openrouter',
     },
     {
       title: 'GPT-5',
       name: 'openai/gpt-5',
+      provider: 'openrouter',
     },
     {
       title: 'Claude 4.5 Sonnet',
       name: 'anthropic/claude-4.5-sonnet',
+      provider: 'openrouter',
     },
   ];
 
@@ -77,15 +86,25 @@ export function ChatInput({
   const [input, setInput] = useState('');
   const [webSearch, setWebSearch] = useState(false);
   const [reasoning, setReasoning] = useState(false);
+  const [rating, setRating] = useState<string>('Catalog工业'); // Dify industry rating
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const selectedModelLabel =
     models.find((item) => item.name === model)?.title ?? models[0]?.title ?? '';
+  const selectedModel = models.find((m) => m.name === model);
+  const isDifyModel = mounted && selectedModel?.provider === 'dify';
 
   return (
     <div className="w-full">
       <PromptInput
         onSubmit={async (message) => {
           try {
-            handleSubmit(message, { model, webSearch, reasoning });
+            const provider = selectedModel?.provider || 'openrouter';
+            handleSubmit(message, { model, webSearch, reasoning, provider, rating });
             setInput('');
           } catch (err) {
             // Allow parent to control error display/state. Do not clear input.
@@ -165,6 +184,26 @@ export function ChatInput({
                 ))}
               </PromptInputSelectContent>
             </PromptInputSelect>
+            {isDifyModel && (
+              <PromptInputSelect
+                onValueChange={(value) => {
+                  setRating(value);
+                }}
+                value={rating}
+              >
+                <PromptInputSelectTrigger>
+                  <PromptInputSelectValue>{rating}</PromptInputSelectValue>
+                </PromptInputSelectTrigger>
+                <PromptInputSelectContent>
+                  <PromptInputSelectItem value="Catalog工业">
+                    Catalog工业
+                  </PromptInputSelectItem>
+                  <PromptInputSelectItem value="Automotive汽车">
+                    Automotive汽车
+                  </PromptInputSelectItem>
+                </PromptInputSelectContent>
+              </PromptInputSelect>
+            )}
           </PromptInputTools>
           <PromptInputSubmit
             disabled={!input || status === 'submitted'}

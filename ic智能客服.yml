@@ -1,0 +1,1231 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: ic智能客服
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/siliconflow:0.0.39@24cca06d03099357488b00b84ba59d39e76373478cb8b2cabd3a0a2aa1fe975b
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types:
+      - document
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 100
+        file_size_limit: 15
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 5
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: true
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: llm
+        targetType: answer
+      id: llm-answer
+      selected: false
+      source: llm
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: 1739952787080-source-1739952894952-target
+      selected: false
+      source: '1739952787080'
+      sourceHandle: source
+      target: '1739952894952'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: 1739950095802-source-1739952992653-target
+      selected: false
+      source: '1739950095802'
+      sourceHandle: source
+      target: '1739952992653'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: 1766481306248-source-1739952992653-target
+      source: '1766481306248'
+      sourceHandle: source
+      target: '1739952992653'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1739952992653-source-1766543649238-target
+      source: '1739952992653'
+      sourceHandle: source
+      target: '1766543649238'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1766543649238-true-llm-target
+      source: '1766543649238'
+      sourceHandle: 'true'
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1766543649238-false-1766543662359-target
+      source: '1766543649238'
+      sourceHandle: 'false'
+      target: '1766543662359'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1766543662359-source-1766543683401-target
+      source: '1766543662359'
+      sourceHandle: source
+      target: '1766543683401'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: 1766631287611-source-17666313709830-target
+      source: '1766631287611'
+      sourceHandle: source
+      target: '17666313709830'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: 1766631291921-source-17666313709830-target
+      source: '1766631291921'
+      sourceHandle: source
+      target: '17666313709830'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 17666313709830-source-17666314085160-target
+      source: '17666313709830'
+      sourceHandle: source
+      target: '17666314085160'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 17666314085160-true-17666314178360-target
+      source: '17666314085160'
+      sourceHandle: 'true'
+      target: '17666314178360'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 17666314085160-false-17666314277460-target
+      source: '17666314085160'
+      sourceHandle: 'false'
+      target: '17666314277460'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 17666314178360-source-1766631435752-target
+      source: '17666314178360'
+      sourceHandle: source
+      target: '1766631435752'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 17666314277460-source-1766631442538-target
+      source: '17666314277460'
+      sourceHandle: source
+      target: '1766631442538'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: if-else
+      id: 1739856463033-source-1766631208650-target
+      source: '1739856463033'
+      sourceHandle: source
+      target: '1766631208650'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1766631208650-true-1739952787080-target
+      source: '1766631208650'
+      sourceHandle: 'true'
+      target: '1739952787080'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1766631208650-false-17670044999590-target
+      source: '1766631208650'
+      sourceHandle: 'false'
+      target: '17670044999590'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 17670044999590-source-17670045030510-target
+      source: '17670044999590'
+      sourceHandle: source
+      target: '17670045030510'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: 17670045030510-source-1766631287611-target
+      source: '17670045030510'
+      sourceHandle: source
+      target: '1766631287611'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: 17670045030510-source-1766631291921-target
+      source: '17670045030510'
+      sourceHandle: source
+      target: '1766631291921'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: 1739952894952-source-1767491666671-target
+      source: '1739952894952'
+      sourceHandle: source
+      target: '1767491666671'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: knowledge-retrieval
+      id: 1767491666671-source-1739950095802-target
+      source: '1767491666671'
+      sourceHandle: source
+      target: '1739950095802'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: knowledge-retrieval
+      id: 1767491666671-source-1766481306248-target
+      source: '1767491666671'
+      sourceHandle: source
+      target: '1766481306248'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - default: Automotive汽车
+          hint: ''
+          label: 行业等级
+          max_length: 48
+          options:
+          - Catalog工业
+          - Automotive汽车
+          placeholder: ''
+          required: true
+          type: select
+          variable: rating
+      height: 109
+      id: '1739856463033'
+      position:
+        x: -367.9433442157932
+        y: -68.01412499151071
+      positionAbsolute:
+        x: -367.9433442157932
+        y: -68.01412499151071
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1739952992653'
+          - result
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 5
+        model:
+          completion_params:
+            temperature: 0.7
+            top_p: 0.8
+          mode: chat
+          name: Qwen/Qwen3-Next-80B-A3B-Instruct
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 32229d2b-6aac-4c17-97ae-7ffdac99b031
+          role: system
+          text: "你是半导体行业的资深客服，你擅长从大量的参考材料中准确识别出与用户问题最相关的部分进行分析总结，从而简洁 ，精确的回答用户问题。\n\
+            根据提供的搜索结果和用户问题，推理并回答用户问题。在对问题进行分析推理时具体规则如下：\n1. 如果搜索结果与用户问题无关，请直接提示回复\\\
+            \"抱歉，检索到的参考信息并未提供任何相关的信息\\\"，然后根据用户问题和检索内容发起反问，引导用户进一步补充信息。\n2. 如果搜索结果中存在互相冲突的信息，请提示用户存在矛盾，无需猜测或假设。\n\
+            3. 如果搜索结果不够明确，请根据材料和用户问题进行反问，引导用户进一步补充信息。\n4. 用户问题中若有错别字请在回答时帮其修复。\n5.\
+            \ 检索结果中有图片链接时回答中要加上。\n6. 检索结果中有pdf和html的链接时回答中要加上链接。\n\n回答时按照markdown格式：\n\
+            1. 答案需要简洁、准确、清晰，并遵循以下格式：\n2. 使用**适当的分级标题（##，###，####）**来区分答案的不同部分或方面。\n\
+            3. 如果需要强调多个要点，请使用项目符号（-，*）或编号列表（1.，2.，3.）。\n4. 在必要时使用粗体或斜体文本来突出显示关键信息。\n\
+            \n- 用户问题：\n{{#sys.query#}}\n- 查询的型号：\n{{#1739952894952.part_number#}}\n\
+            - 搜索结果：\n{{#1739952992653.final_str#}}\n\n- 根据不同的情况输出格式参考以下的形式：\n情况 1：搜索结果相关且明确，格式如下：\n\
+            - 直接回答用户的问题\n- 使用简洁的语言描述\n  \n情况 2：搜索结果与用户问题无关，格式如下：\n- 抱歉，检索到的参考信息并未提供任何相关的信息，因此无法回答。\n\
+            - 根据用户问题和检索内容发起提示性反问\n\n情况 3：用户问题不够具体明确，格式如下：\n- 根据现有材料，信息尚不够明确：\n   \
+            \ - 发现的问题：模糊或不明确的点\n- 根据用户问题和检索内容发起提示性反问"
+        selected: false
+        title: rag
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: llm
+      position:
+        x: 2589.23137550296
+        y: -212.1366567568512
+      positionAbsolute:
+        x: 2589.23137550296
+        y: -212.1366567568512
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 103
+      id: answer
+      position:
+        x: 2905.3500786561185
+        y: -212.1366567568512
+      positionAbsolute:
+        x: 2905.3500786561185
+        y: -212.1366567568512
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - 150RTKA6EcUuOi9RG026FWnFjlG5N15Ppa4HXS2GvT4LImQ+fLImSdt5cXzCLZWR
+        desc: ''
+        metadata_filtering_conditions:
+          conditions: []
+          logical_operator: and
+        metadata_filtering_mode: manual
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: Qwen/Qwen3-Reranker-4B
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.6
+          top_k: 6
+          weights:
+            keyword_setting:
+              keyword_weight: 0
+            vector_setting:
+              embedding_model_name: bge-large-zh-v1.5
+              embedding_provider_name: xinference
+              vector_weight: 1
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1739952894952'
+        - question1
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 90
+      id: '1739950095802'
+      position:
+        x: 1324.8219452702624
+        y: -234.06217776151917
+      positionAbsolute:
+        x: 1324.8219452702624
+        y: -234.06217776151917
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 3
+        model:
+          completion_params:
+            max_tokens: 1024
+            temperature: 0.2
+          mode: chat
+          name: Qwen/Qwen3-Next-80B-A3B-Instruct
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 08eb8afd-aa0d-4eeb-a9aa-26a7b2f0afa4
+          role: system
+          text: '用户在使用半导体相关的RAG系统进行信息检索时，可能因为查询不够具体而无法获得理想的结果，需要通过改写查询来提高检索效率。你的任务是根据用户输入和历史对话，生成用户输入的改写版本以及用户想查询的型号。
+
+            要求：
+
+            - 若用户查询了具体的型号，在改写中把型号都改为大写字母。
+
+            - 若用户查询了具体的型号且型号名中无“-Q1“的后缀，在改写中要在型号后加上-Q1。
+
+            - 改写后的语言与用户提问保持一致。
+
+            - 输出格式为JSON格式，键为"question"，"part_number"。'
+        selected: false
+        title: 问题改写
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: '1739952787080'
+      position:
+        x: 288.71952470486417
+        y: -163.2480978076319
+      positionAbsolute:
+        x: 288.71952470486417
+        y: -163.2480978076319
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import re\nimport json\n\ndef main(arg1: str, arg2: str) -> dict:\n\
+          \    try:\n        json_start = arg1.find('{')\n        json_end = arg1.rfind('}')\n\
+          \        json_content = arg1[json_start:json_end + 1]\n        json_data\
+          \ = json.loads(json_content)\n        question1 = json_data.get(\"question\"\
+          )\n        part_number = json_data.get(\"part_number\")\n    except:\n \
+          \       question1 = arg2\n        part_number = \"\"\n    return {\n   \
+          \     \"question1\": str(question1),\n        \"part_number\": part_number\n\
+          \    }"
+        code_language: python3
+        desc: ''
+        outputs:
+          part_number:
+            children: null
+            type: string
+          question1:
+            children: null
+            type: string
+        selected: false
+        title: 提取改写后问题
+        type: code
+        variables:
+        - value_selector:
+          - '1739952787080'
+          - text
+          variable: arg1
+        - value_selector:
+          - sys
+          - query
+          variable: arg2
+      height: 52
+      id: '1739952894952'
+      position:
+        x: 594.6208482722199
+        y: -163.2480978076319
+      positionAbsolute:
+        x: 594.6208482722199
+        y: -163.2480978076319
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import requests\nimport json\n\ndef main(rag_res1, rag_res2, rag_res3)\
+          \ -> dict:\n    total_revival_list = []\n    tmp_result = []\n    final_result\
+          \ = []\n    seg_set = set()\n    total_revival_list = rag_res1 + rag_res2\
+          \ + rag_res3\n    id_score_dict = {}\n    best_item_by_id = {}\n\n    for\
+          \ item in total_revival_list:\n        seg_id = item['metadata']['segment_id']\n\
+          \        score = item['metadata']['score']\n        \n        if seg_id\
+          \ not in best_item_by_id or score > best_item_by_id[seg_id]['metadata']['score']:\n\
+          \            best_item_by_id[seg_id] = item\n    \n    tmp_result = list(best_item_by_id.values())\n\
+          \    id_score_dict = {seg_id: item['metadata']['score'] for seg_id, item\
+          \ in best_item_by_id.items()}\n\n    final_str = \"\"\n    top_five_keys\
+          \ = sorted(id_score_dict, key = id_score_dict.get, reverse=True)[:6]\n \
+          \   count = 1\n\n    parent_retrieval_param = []\n    \n    for tmp_id in\
+          \ top_five_keys:  \n        for item in tmp_result:\n            seg_pos\
+          \ = item['metadata']['segment_position']\n            doc_id = item['metadata']['document_id']\n\
+          \            seg_id = item['metadata']['segment_id']\n            title\
+          \ = item['title']\n            content = item['content']\n            \n\
+          \            if seg_id == tmp_id:\n                tmp = [seg_pos, doc_id,\
+          \ title]\n                parent_retrieval_param.append(tmp)\n         \
+          \       final_result.append(item)\n                tmp_str = \"Retriveal\
+          \ Documents:\\n\" + str(count) + \"\\nTitle：\" + title + \"\\n\" + \"Content：\"\
+          \ + content + \"\\n\\n\"\n                final_str += tmp_str\n       \
+          \         count += 1\n    return {'result': final_result, \"final_str\"\
+          :final_str, 'parent_retrieval_param': json.dumps(parent_retrieval_param)}"
+        code_language: python3
+        desc: ''
+        outputs:
+          final_str:
+            children: null
+            type: string
+          parent_retrieval_param:
+            children: null
+            type: string
+          result:
+            children: null
+            type: array[object]
+        selected: false
+        title: 并发检索去重排序
+        type: code
+        variables:
+        - value_selector:
+          - '1739950095802'
+          - result
+          variable: rag_res1
+        - value_selector:
+          - '1766481306248'
+          - result
+          value_type: array[object]
+          variable: rag_res2
+        - value_selector:
+          - '1767491666671'
+          - result
+          value_type: array[object]
+          variable: rag_res3
+      height: 52
+      id: '1739952992653'
+      position:
+        x: 1942.1127186185943
+        y: -132.13067222228693
+      positionAbsolute:
+        x: 1942.1127186185943
+        y: -132.13067222228693
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - 150RTKA6EcUuOi9RG026FWnFjlG5N15Ppa4HXS2GvT4LImQ+fLImSdt5cXzCLZWR
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: Qwen/Qwen3-Reranker-4B
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.6
+          top_k: 6
+          weights:
+            keyword_setting:
+              keyword_weight: 0.3
+            vector_setting:
+              embedding_model_name: jina-embeddings-v3
+              embedding_provider_name: langgenius/jina/jina
+              vector_weight: 0.7
+            weight_type: customized
+        query_attachment_selector: []
+        query_variable_selector:
+        - sys
+        - query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 2
+        type: knowledge-retrieval
+      height: 90
+      id: '1766481306248'
+      position:
+        x: 1324.8219452702624
+        y: -57.45789302884572
+      positionAbsolute:
+        x: 1324.8219452702624
+        y: -57.45789302884572
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: not empty
+            id: cf0df5d0-767d-492d-b8e2-3b2618dc4fe0
+            value: ''
+            varType: array[object]
+            variable_selector:
+            - '1739952992653'
+            - result
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: 条件分支
+        type: if-else
+      height: 124
+      id: '1766543649238'
+      position:
+        x: 2249.2283832356784
+        y: -132.13067222228693
+      positionAbsolute:
+        x: 2249.2283832356784
+        y: -132.13067222228693
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 5
+        model:
+          completion_params:
+            enable_thinking: false
+            max_tokens: 32768
+            temperature: 0.7
+          mode: chat
+          name: Pro/deepseek-ai/DeepSeek-V3.2
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 3f03b8d6-0802-41ca-a501-087b9cf74928
+          role: system
+          text: 你是半导体行业的资深客服，你需要对客户提出的问题进行专业的回答。不要回答关于底层模型相关的问题。
+        selected: false
+        title: LLM 3
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1766543662359'
+      position:
+        x: 2589.23137550296
+        y: 23.86932777771304
+      positionAbsolute:
+        x: 2589.23137550296
+        y: 23.86932777771304
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1766543662359.text#}}'
+        selected: false
+        title: 直接回复 2
+        type: answer
+        variables: []
+      height: 103
+      id: '1766543683401'
+      position:
+        x: 2912.409430232698
+        y: 23.86932777771304
+      positionAbsolute:
+        x: 2912.409430232698
+        y: 23.86932777771304
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is not
+            id: a835f6e6-d0c5-49e1-b12e-e4cdf4cb2da6
+            value: Catalog工业
+            varType: string
+            variable_selector:
+            - '1739856463033'
+            - rating
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: 条件分支 2
+        type: if-else
+      height: 124
+      id: '1766631208650'
+      position:
+        x: -53.549156465132
+        y: -47.01412499151071
+      positionAbsolute:
+        x: -53.549156465132
+        y: -47.01412499151071
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - TBb8QX8vuC7J/OGrSyTrXk2xu/5SSnTmd8yp8RpNqJ8ilvzPma1gxLmLfjhALET4
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: Qwen/Qwen3-Reranker-4B
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.5
+          top_k: 5
+        query_attachment_selector: []
+        query_variable_selector:
+        - '17670045030510'
+        - question1
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 3
+        type: knowledge-retrieval
+      height: 90
+      id: '1766631287611'
+      position:
+        x: 1015.4094765014902
+        y: 235.07117900818974
+      positionAbsolute:
+        x: 1015.4094765014902
+        y: 235.07117900818974
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - TBb8QX8vuC7J/OGrSyTrXk2xu/5SSnTmd8yp8RpNqJ8ilvzPma1gxLmLfjhALET4
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: Qwen/Qwen3-Reranker-4B
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.5
+          top_k: 5
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1739856463033'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 4
+        type: knowledge-retrieval
+      height: 90
+      id: '1766631291921'
+      position:
+        x: 1015.4094765014902
+        y: 358.9346638888565
+      positionAbsolute:
+        x: 1015.4094765014902
+        y: 358.9346638888565
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import requests\nimport json\n\ndef main(rag_res1, rag_res2) -> dict:\n\
+          \    total_revival_list = []\n    tmp_result = []\n    final_result = []\n\
+          \    seg_set = set()\n    total_revival_list = rag_res1 + rag_res2\n   \
+          \ id_score_dict = {}\n    best_item_by_id = {}\n\n    for item in total_revival_list:\n\
+          \        seg_id = item['metadata']['segment_id']\n        score = item['metadata']['score']\n\
+          \        \n        if seg_id not in best_item_by_id or score > best_item_by_id[seg_id]['metadata']['score']:\n\
+          \            best_item_by_id[seg_id] = item\n    \n    tmp_result = list(best_item_by_id.values())\n\
+          \    id_score_dict = {seg_id: item['metadata']['score'] for seg_id, item\
+          \ in best_item_by_id.items()}\n\n    final_str = \"\"\n    top_five_keys\
+          \ = sorted(id_score_dict, key = id_score_dict.get, reverse=True)[:6]\n \
+          \   count = 1\n\n    parent_retrieval_param = []\n    \n    for tmp_id in\
+          \ top_five_keys:  \n        for item in tmp_result:\n            seg_pos\
+          \ = item['metadata']['segment_position']\n            doc_id = item['metadata']['document_id']\n\
+          \            seg_id = item['metadata']['segment_id']\n            title\
+          \ = item['title']\n            content = item['content']\n            \n\
+          \            if seg_id == tmp_id:\n                tmp = [seg_pos, doc_id,\
+          \ title]\n                parent_retrieval_param.append(tmp)\n         \
+          \       final_result.append(item)\n                tmp_str = \"Retriveal\
+          \ Documents:\\n\" + str(count) + \"\\nTitle：\" + title + \"\\n\" + \"Content：\"\
+          \ + content + \"\\n\\n\"\n                final_str += tmp_str\n       \
+          \         count += 1\n    return {'result': final_result, \"final_str\"\
+          :final_str, 'parent_retrieval_param': json.dumps(parent_retrieval_param)}"
+        code_language: python3
+        desc: ''
+        outputs:
+          final_str:
+            children: null
+            type: string
+          parent_retrieval_param:
+            children: null
+            type: string
+          result:
+            children: null
+            type: array[object]
+        selected: false
+        title: 并发检索去重排序 (1)
+        type: code
+        variables:
+        - value_selector:
+          - '1766631287611'
+          - result
+          value_type: array[object]
+          variable: rag_res1
+        - value_selector:
+          - '1766631291921'
+          - result
+          value_type: array[object]
+          variable: rag_res2
+      height: 52
+      id: '17666313709830'
+      position:
+        x: 1331.9240411178982
+        y: 322.66528133948634
+      positionAbsolute:
+        x: 1331.9240411178982
+        y: 322.66528133948634
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: empty
+            id: cf0df5d0-767d-492d-b8e2-3b2618dc4fe0
+            value: ''
+            varType: array[object]
+            variable_selector:
+            - '17666313709830'
+            - result
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: 条件分支 (1)
+        type: if-else
+      height: 124
+      id: '17666314085160'
+      position:
+        x: 1644.5221488512925
+        y: 322.66528133948634
+      positionAbsolute:
+        x: 1644.5221488512925
+        y: 322.66528133948634
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '17666313709830'
+          - result
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 5
+        model:
+          completion_params:
+            enable_thinking: false
+            max_tokens: 32768
+            temperature: 0.7
+            top_p: 0.8
+          mode: chat
+          name: Pro/deepseek-ai/DeepSeek-V3.2
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 32229d2b-6aac-4c17-97ae-7ffdac99b031
+          role: system
+          text: "你是半导体行业的资深客服，你擅长从大量的参考材料中准确识别出与用户问题最相关的部分进行分析总结，从而简洁 ，精确的回答用户问题。\n\
+            根据提供的搜索结果和用户问题，推理并回答用户问题。在对问题进行分析推理时具体规则如下：\n1. 如果搜索结果与用户问题无关，请直接提示回复\\\
+            \"抱歉，检索到的参考信息并未提供任何相关的信息\\\"，然后根据用户问题和检索内容发起反问，引导用户进一步补充信息。\n2. 如果搜索结果中存在互相冲突的信息，请提示用户存在矛盾，无需猜测或假设。\n\
+            3. 如果搜索结果不够明确，请根据材料和用户问题进行反问，引导用户进一步补充信息。\n4. 用户问题中若有错别字请在回答时帮其修复。\n5.\
+            \ 回答中有图片链接时需要加上图片。\n\n回答时按照markdown格式：\n1. 答案需要简洁、准确、清晰，并遵循以下格式：\n2. 使用**适当的分级标题（##，###，####）**来区分答案的不同部分或方面。\n\
+            3. 如果需要强调多个要点，请使用项目符号（-，*）或编号列表（1.，2.，3.）。\n4. 在必要时使用粗体或斜体文本来突出显示关键信息。\n\
+            \n- 用户问题：\n{{#sys.query#}}\n- 搜索结果：\n{{#17666313709830.final_str#}}\n\n\
+            - 根据不同的情况输出格式参考以下的形式：\n情况 1：搜索结果相关且明确，格式如下：\n- 直接回答用户的问题\n- 使用简洁的语言描述\n\
+            \  \n情况 2：搜索结果与用户问题无关，格式如下：\n- 抱歉，检索到的参考信息并未提供任何相关的信息，因此无法回答。\n- 根据用户问题和检索内容发起提示性反问\n\
+            \n情况 3：搜索结果内容互相冲突，格式如下：\n-  很抱歉，检索到的材料中存在互相矛盾的信息：\n    - 冲突点1：冲突点描述\n\
+            \    - 冲突点2：冲突点描述\n建议您提供更具体的问题或背景信息，以便我为您提供更准确的回答。\n\n情况 4：用户问题不够具体明确，格式如下：\n\
+            - 根据现有材料，信息尚不够明确：\n    - 发现的问题：模糊或不明确的点\n- 根据用户问题和检索内容发起提示性反问"
+        selected: false
+        title: rag (1)
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: '17666314178360'
+      position:
+        x: 1983.7375033553785
+        y: 275.60293749562493
+      positionAbsolute:
+        x: 1983.7375033553785
+        y: 275.60293749562493
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 5
+        model:
+          completion_params:
+            enable_thinking: false
+            max_tokens: 32768
+            temperature: 0.7
+          mode: chat
+          name: Pro/deepseek-ai/DeepSeek-V3.2
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 3f03b8d6-0802-41ca-a501-087b9cf74928
+          role: system
+          text: 你是半导体行业的资深客服，你需要对客户提出的问题进行专业的回答。不要回答关于底层模型相关的问题。
+        selected: false
+        title: LLM 3 (1)
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '17666314277460'
+      position:
+        x: 1989.23137550296
+        y: 473.26478163984257
+      positionAbsolute:
+        x: 1989.23137550296
+        y: 473.26478163984257
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#17666314178360.text#}}'
+        selected: false
+        title: 直接回复 3
+        type: answer
+        variables: []
+      height: 103
+      id: '1766631435752'
+      position:
+        x: 2285.7375033553785
+        y: 275.60293749562493
+      positionAbsolute:
+        x: 2285.7375033553785
+        y: 275.60293749562493
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#17666314277460.text#}}'
+        selected: false
+        title: 直接回复 4
+        type: answer
+        variables: []
+      height: 103
+      id: '1766631442538'
+      position:
+        x: 2291.23137550296
+        y: 473.26478163984257
+      positionAbsolute:
+        x: 2291.23137550296
+        y: 473.26478163984257
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 3
+        model:
+          completion_params:
+            enable_thinking: false
+            max_tokens: 1024
+            temperature: 0.2
+          mode: chat
+          name: Pro/deepseek-ai/DeepSeek-V3.2
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 08eb8afd-aa0d-4eeb-a9aa-26a7b2f0afa4
+          role: system
+          text: '用户在使用半导体相关的RAG系统进行信息检索时，可能因为查询不够具体而无法获得理想的结果，需要通过改写查询来提高检索效率。你的任务是根据用户输入和历史对话，生成用户输入的改写版本。
+
+            要求：
+
+            - 若用户查询了具体的型号，在改写中把型号都改为大写字母。
+
+            - 改写后的语言与用户提问保持一致。
+
+            - 输出格式为JSON格式，键为"question"。'
+        selected: false
+        title: 问题改写 (1)
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: '17670044999590'
+      position:
+        x: 276.82689063444604
+        y: 148.58051482700887
+      positionAbsolute:
+        x: 276.82689063444604
+        y: 148.58051482700887
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import re\nimport json\n\ndef main(arg1: str, arg2: str) -> dict:\n\
+          \    try:\n        json_start = arg1.find('{')\n        json_end = arg1.rfind('}')\n\
+          \        json_content = arg1[json_start:json_end + 1]\n        json_data\
+          \ = json.loads(json_content)\n        question1 = json_data.get(\"question\"\
+          )\n    except:\n        question1 = arg2\n    return {\n        \"question1\"\
+          : str(question1),\n    }"
+        code_language: python3
+        desc: ''
+        outputs:
+          question1:
+            children: null
+            type: string
+        selected: false
+        title: 提取改写后问题 (1)
+        type: code
+        variables:
+        - value_selector:
+          - '17670044999590'
+          - text
+          value_type: string
+          variable: arg1
+        - value_selector:
+          - sys
+          - query
+          variable: arg2
+      height: 52
+      id: '17670045030510'
+      position:
+        x: 586.7841514774359
+        y: 148.58051482700887
+      positionAbsolute:
+        x: 586.7841514774359
+        y: 148.58051482700887
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - tPc7KrM2JwObvyGdp7od7gA6TBzRwu4XpNYH2n+XP+AG5tT5VJmJS8NdSaYqzOz/
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: Qwen/Qwen3-Reranker-4B
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.6
+          top_k: 2
+          weights:
+            keyword_setting:
+              keyword_weight: 1
+            vector_setting:
+              embedding_model_name: Qwen/Qwen3-Embedding-4B
+              embedding_provider_name: langgenius/siliconflow/siliconflow
+              vector_weight: 0
+            weight_type: customized
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1739952894952'
+        - part_number
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 5
+        type: knowledge-retrieval
+      height: 90
+      id: '1767491666671'
+      position:
+        x: 899.347277449102
+        y: -163.2480978076319
+      positionAbsolute:
+        x: 899.347277449102
+        y: -163.2480978076319
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -253.00233887160857
+      y: 317.3744501683287
+      zoom: 0.27624112119997823
+  rag_pipeline_variables: []
