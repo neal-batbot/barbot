@@ -232,6 +232,12 @@ export async function getSettingGroups() {
       tab: 'ai',
     },
     {
+      name: 'dify',
+      title: t('groups.dify'),
+      description: `Custom <a href="https://dify.ai" class="text-primary" target="_blank">Dify</a> AI Bot settings`,
+      tab: 'ai',
+    },
+    {
       name: 'adsense',
       title: t('groups.adsense'),
       description: 'custom your adsense settings',
@@ -274,7 +280,7 @@ export async function getSettings() {
     {
       name: 'app_name',
       title: 'App Name',
-      placeholder: 'ShipAny',
+      placeholder: 'Vector',
       type: 'text',
       group: 'appinfo',
       tab: 'general',
@@ -283,7 +289,7 @@ export async function getSettings() {
       name: 'app_description',
       title: 'App Description',
       placeholder:
-        'ShipAny is a NextJS boilerplate for building AI SaaS startups. ',
+        'Vector is an AI-Native LLM-powered FAE platform for hardware engineers.',
       type: 'textarea',
       group: 'appinfo',
       tab: 'general',
@@ -743,6 +749,31 @@ export async function getSettings() {
       tip: 'Dify API base URL',
       group: 'dify',
       tab: 'ai',
+    },
+    {
+      name: 'dify_bots',
+      title: 'Dify Bots Configuration',
+      type: 'textarea',
+      attributes: { rows: 12 },
+      placeholder: `[
+  {
+    "id": "ti-chatbot",
+    "title": "TI ChatBot Assistant",
+    "api_key": "app-xxx",
+    "has_rating": true,
+    "ratings": ["Catalog工业", "Automotive汽车"],
+    "default_rating": "Catalog工业"
+  },
+  {
+    "id": "general-assistant",
+    "title": "General Assistant",
+    "api_key": "app-xxx",
+    "has_rating": false
+  }
+]`,
+      group: 'dify',
+      tab: 'ai',
+      tip: 'JSON array of Dify bot configurations. Each bot can have its own API key and optional rating selector.',
     },
     {
       name: 'replicate_api_token',
