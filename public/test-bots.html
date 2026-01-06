@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天机器人诊断 - Vector AI FAE</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .bot-list {
+            list-style: none;
+            padding: 0;
+        }
+        .bot-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 聊天机器人诊断工具</h1>
+
+    <div class="card">
+        <h2>1. API 测试</h2>
+        <button onclick="testAPI()">测试 /api/chat/bots</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="card">
+        <h2>2. 机器人列表</h2>
+        <div id="bot-list"></div>
+    </div>
+
+    <div class="card">
+        <h2>3. 诊断信息</h2>
+        <div id="diagnostics"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            const botListDiv = document.getElementById('bot-list');
+            const diagDiv = document.getElementById('diagnostics');
+
+            resultDiv.innerHTML = '<div class="status info">正在测试 API...</div>';
+
+            try {
+                // 记录开始时间
+                const startTime = performance.now();
+
+                // 调用 API
+                const response = await fetch('/api/chat/bots');
+
+                // 计算响应时间
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+
+                // 检查响应状态
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                // 解析 JSON
+                const data = await response.json();
+
+                // 显示结果
+                resultDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ API 调用成功<br>
+                        状态码: ${response.status}<br>
+                        响应时间: ${duration}ms<br>
+                        数据: <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+
+                // 显示机器人列表
+                if (data.code === 0 && data.data) {
+                    const bots = data.data;
+                    botListDiv.innerHTML = `
+                        <p><strong>找到 ${bots.length} 个机器人:</strong></p>
+                        <ul class="bot-list">
+                            ${bots.map(bot => `
+                                <li class="bot-item">
+                                    <strong>${bot.title}</strong><br>
+                                    ID: ${bot.id}<br>
+                                    有评分选项: ${bot.has_rating ? '是' : '否'}<br>
+                                    ${bot.ratings ? `评分选项: ${bot.ratings.join(', ')}` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+
+                    // 验证是否有两个机器人
+                    if (bots.length === 2) {
+                        botListDiv.innerHTML += `
+                            <div class="status success">
+                                ✅ 配置正确！找到 2 个机器人：
+                                <br>1. ${bots[0].title} (${bots[0].id})
+                                <br>2. ${bots[1].title} (${bots[1].id})
+                            </div>
+                        `;
+                    } else {
+                        botListDiv.innerHTML += `
+                            <div class="status error">
+                                ⚠️ 机器人数量不正确！期望 2 个，实际 ${bots.length} 个
+                            </div>
+                        `;
+                    }
+                }
+
+                // 显示诊断信息
+                diagDiv.innerHTML = `
+                    <h3>浏览器信息</h3>
+                    <pre>
+User Agent: ${navigator.userAgent}
+语言: ${navigator.language}
+平台: ${navigator.platform}
+Cookie 启用: ${navigator.cookieEnabled}
+                    </pre>
+
+                    <h3>页面信息</h3>
+                    <pre>
+当前 URL: ${window.location.href}
+协议: ${window.location.protocol}
+主机: ${window.location.hostname}
+                    </pre>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ API 调用失败<br>
+                        错误: ${error.message}
+                    </div>
+                `;
+                console.error('API Error:', error);
+            }
+        }
+
+        // 页面加载时自动测试
+        window.addEventListener('load', () => {
+            setTimeout(testAPI, 500);
+        });
+    </script>
+</body>
+</html>
