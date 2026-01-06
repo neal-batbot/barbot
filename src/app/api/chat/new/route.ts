@@ -3,6 +3,7 @@ import { generateId } from 'ai';
 import { respData, respErr } from '@/shared/lib/resp';
 import { ChatStatus, createChat, NewChat } from '@/shared/models/chat';
 import { getUserInfo } from '@/shared/models/user';
+import { getAllConfigs } from '@/shared/models/config';
 
 export async function POST(req: Request) {
   try {
@@ -21,11 +22,33 @@ export async function POST(req: Request) {
 
     // todo: check user credits
 
-    // todo: get provider from settings
-    const provider = 'openrouter';
+    // Determine provider from model
+    let provider = 'openrouter';
+    let title = message.text.substring(0, 100);
 
-    // todo: auto generate title
-    const title = message.text.substring(0, 100);
+    if (body.model.startsWith('dify/')) {
+      provider = 'dify';
+
+      // Get Dify bots config to use bot title
+      try {
+        const configs = await getAllConfigs();
+        const difyBotsConfig = configs.dify_bots;
+
+        if (difyBotsConfig) {
+          const bots = JSON.parse(difyBotsConfig);
+          const botId = body.model.replace('dify/', '');
+          const bot = bots.find((b: any) => b.id === botId);
+
+          if (bot) {
+            title = bot.title;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to get bot title:', e);
+        // Fallback to message text
+        title = message.text.substring(0, 100);
+      }
+    }
 
     const chatId = generateId().toLowerCase();
     const currentTime = new Date();
