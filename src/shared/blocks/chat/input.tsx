@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { UIMessage, UseChatHelpers } from '@ai-sdk/react';
 import { BrainCircuitIcon, GlobeIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -37,6 +37,20 @@ import {
 import { useChatContext } from '@/shared/contexts/chat';
 import { ChatModel } from '@/shared/types/chat';
 
+interface DifyBot {
+  id: string;
+  title: string;
+  has_rating: boolean;
+  ratings?: string[];
+  default_rating?: string;
+}
+
+interface ExtendedChatModel extends ChatModel {
+  has_rating?: boolean;
+  ratings?: string[];
+  default_rating?: string;
+}
+
 export function ChatInput({
   handleSubmit,
   status,
@@ -53,13 +67,8 @@ export function ChatInput({
 }) {
   const t = useTranslations('ai.chat.generator');
 
-  // todo: get models from api
-  const models: ChatModel[] = [
-    {
-      title: 'TI ChatBot Assistant',
-      name: 'dify/default',
-      provider: 'dify',
-    },
+  // Static OpenRouter models
+  const staticModels: ExtendedChatModel[] = [
     {
       title: 'Kimi K2 Thinking',
       name: 'moonshotai/kimi-k2-thinking',
@@ -82,21 +91,85 @@ export function ChatInput({
     },
   ];
 
-  const [model, setModel] = useState<string>(models[0].name);
+  const [difyBots, setDifyBots] = useState<DifyBot[]>([]);
+  const [model, setModel] = useState<string>('');
   const [input, setInput] = useState('');
   const [webSearch, setWebSearch] = useState(false);
   const [reasoning, setReasoning] = useState(false);
-  const [rating, setRating] = useState<string>('Catalog工业'); // Dify industry rating
+  const [rating, setRating] = useState<string>('');
   const [mounted, setMounted] = useState(false);
-  
+
+  // Fetch Dify bots from API
   useEffect(() => {
     setMounted(true);
+    fetch('/api/chat/bots')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === 0 && data.data) {
+          setDifyBots(data.data);
+          // Set default model to first Dify bot if available
+          if (data.data.length > 0) {
+            const firstBot = data.data[0];
+            setModel(`dify/${firstBot.id}`);
+            if (firstBot.default_rating) {
+              setRating(firstBot.default_rating);
+            } else if (firstBot.ratings && firstBot.ratings.length > 0) {
+              setRating(firstBot.ratings[0]);
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to fetch bots:', err);
+        // Fallback to default bot
+        setDifyBots([
+          {
+            id: 'default',
+            title: 'TI ChatBot Assistant',
+            has_rating: true,
+            ratings: ['Catalog工业', 'Automotive汽车'],
+            default_rating: 'Catalog工业',
+          },
+        ]);
+        setModel('dify/default');
+        setRating('Catalog工业');
+      });
   }, []);
-  
+
+  // Combine Dify bots with static models
+  const models: ExtendedChatModel[] = useMemo(() => {
+    const difyModels: ExtendedChatModel[] = difyBots.map((bot) => ({
+      title: bot.title,
+      name: `dify/${bot.id}`,
+      provider: 'dify',
+      has_rating: bot.has_rating,
+      ratings: bot.ratings,
+      default_rating: bot.default_rating,
+    }));
+    return [...difyModels, ...staticModels];
+  }, [difyBots]);
+
+  // Update rating when model changes
+  useEffect(() => {
+    if (!model) return;
+    const selectedModel = models.find((m) => m.name === model);
+    if (selectedModel?.provider === 'dify') {
+      if (selectedModel.default_rating) {
+        setRating(selectedModel.default_rating);
+      } else if (selectedModel.ratings && selectedModel.ratings.length > 0) {
+        setRating(selectedModel.ratings[0]);
+      } else {
+        setRating('');
+      }
+    }
+  }, [model, models]);
+
   const selectedModelLabel =
     models.find((item) => item.name === model)?.title ?? models[0]?.title ?? '';
   const selectedModel = models.find((m) => m.name === model);
   const isDifyModel = mounted && selectedModel?.provider === 'dify';
+  const showRatingSelector =
+    isDifyModel && selectedModel?.has_rating && selectedModel?.ratings?.length;
 
   return (
     <div className="w-full">
@@ -177,14 +250,14 @@ export function ChatInput({
                 </PromptInputSelectValue>
               </PromptInputSelectTrigger>
               <PromptInputSelectContent>
-                {models.map((model) => (
-                  <PromptInputSelectItem key={model.name} value={model.name}>
-                    {model.title}
+                {models.map((modelItem) => (
+                  <PromptInputSelectItem key={modelItem.name} value={modelItem.name}>
+                    {modelItem.title}
                   </PromptInputSelectItem>
                 ))}
               </PromptInputSelectContent>
             </PromptInputSelect>
-            {isDifyModel && (
+            {showRatingSelector && selectedModel?.ratings && (
               <PromptInputSelect
                 onValueChange={(value) => {
                   setRating(value);
@@ -195,12 +268,11 @@ export function ChatInput({
                   <PromptInputSelectValue>{rating}</PromptInputSelectValue>
                 </PromptInputSelectTrigger>
                 <PromptInputSelectContent>
-                  <PromptInputSelectItem value="Catalog工业">
-                    Catalog工业
-                  </PromptInputSelectItem>
-                  <PromptInputSelectItem value="Automotive汽车">
-                    Automotive汽车
-                  </PromptInputSelectItem>
+                  {selectedModel.ratings.map((ratingOption) => (
+                    <PromptInputSelectItem key={ratingOption} value={ratingOption}>
+                      {ratingOption}
+                    </PromptInputSelectItem>
+                  ))}
                 </PromptInputSelectContent>
               </PromptInputSelect>
             )}

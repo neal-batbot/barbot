@@ -227,14 +227,43 @@ async function handleDifyChat({
   fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:entry',message:'handleDifyChat called',data:{chatId,model,rating},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
   // #endregion
 
-  const { getDifyConfig, streamDifyChatMessages, parseDifyStream } = await import(
+  const { streamDifyChatMessages, parseDifyStream } = await import(
     '@/extensions/ai/dify'
   );
 
-  const difyConfig = await getDifyConfig();
-  if (!difyConfig) {
+  // Extract botId from model name (e.g., "dify/ti-chatbot" -> "ti-chatbot")
+  const botId = model.replace('dify/', '');
+
+  // Get Dify config - try bot-specific config first, then fall back to global
+  let difyApiKey: string | undefined;
+  let difyApiUrl: string | undefined;
+
+  // Try to get bot-specific API key from dify_bots config
+  if (configs.dify_bots) {
+    try {
+      const botsConfig = JSON.parse(configs.dify_bots);
+      const bot = botsConfig.find((b: any) => b.id === botId);
+      if (bot && bot.api_key) {
+        difyApiKey = bot.api_key;
+      }
+    } catch (e) {
+      console.warn('Failed to parse dify_bots config:', e);
+    }
+  }
+
+  // Fall back to global dify_api_key if not found in bots config
+  if (!difyApiKey) {
+    difyApiKey = configs.dify_api_key || process.env.DIFY_API_KEY;
+  }
+
+  // Get API URL from config or env
+  difyApiUrl = configs.dify_api_url || process.env.DIFY_API_URL;
+
+  if (!difyApiKey || !difyApiUrl) {
     throw new Error('Dify API not configured');
   }
+
+  const difyConfig = { apiKey: difyApiKey, apiUrl: difyApiUrl };
 
   // Get conversation_id from chat metadata
   const chatMetadata = chat.metadata ? JSON.parse(chat.metadata) : {};

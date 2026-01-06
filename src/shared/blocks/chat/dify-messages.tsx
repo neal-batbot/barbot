@@ -117,21 +117,10 @@ export function DifyMessages({
 }) {
   const { messages, isLoading, workflowStatus } = difyChat;
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  // 平滑滚动到底部
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
-  }, [messages, isLoading, workflowStatus.nodes]);
 
   return (
     <Conversation className="h-full">
-      <ConversationContent ref={containerRef}>
+      <ConversationContent>
         {messages.map((message, index) => {
           const isLastAssistant =
             message.role === 'assistant' && index === messages.length - 1;
