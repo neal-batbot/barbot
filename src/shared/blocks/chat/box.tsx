@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, UIMessage } from 'ai';
 
 import { useChatContext } from '@/shared/contexts/chat';
+import { useDifyChat, DifyMessage } from '@/shared/hooks/use-dify-chat';
 import { Chat } from '@/shared/types/chat';
 
+import { DifyFollowUp } from './dify-follow-up';
+import { DifyMessages } from './dify-messages';
 import { FollowUp } from './follow-up';
 import { ChatHeader } from './header';
 import { ChatMessages } from './messages';
@@ -19,9 +22,10 @@ export function ChatBox({
   initialMessages?: UIMessage[];
 }) {
   const { chat, setChat } = useChatContext();
+  const [selectedProvider, setSelectedProvider] = useState<string>('dify');
 
-  // create chat instance
-  const chatInstance = useChat({
+  // AI SDK chat instance (for OpenRouter, etc.)
+  const aiSdkChat = useChat({
     id: initialChat?.id,
     messages: initialMessages,
 
@@ -40,22 +44,56 @@ export function ChatBox({
     }),
   });
 
+  // Convert initial UIMessage[] to DifyMessage[]
+  const initialDifyMessages = useMemo(() => {
+    if (!initialMessages) return [];
+    return initialMessages.map((msg): DifyMessage => ({
+      id: msg.id,
+      role: msg.role as 'user' | 'assistant',
+      content: msg.parts
+        ?.filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+        .map((p) => p.text)
+        .join('\n') || '',
+      createdAt: new Date(),
+    }));
+  }, [initialMessages]);
+
+  // Dify chat instance
+  const difyChat = useDifyChat({
+    chatId: initialChat?.id || '',
+    initialMessages: initialDifyMessages,
+  });
+
   useEffect(() => {
     if (initialChat) {
       setChat(initialChat);
     }
-  }, [initialChat]);
+  }, [initialChat, setChat]);
+
+  const isDify = selectedProvider === 'dify';
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <ChatHeader />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full px-4 py-6 md:max-w-3xl">
-          <ChatMessages chatInstance={chatInstance} />
+          {isDify ? (
+            <DifyMessages difyChat={difyChat} />
+          ) : (
+            <ChatMessages chatInstance={aiSdkChat} />
+          )}
         </div>
       </div>
       <div className="mx-auto w-full px-4 pb-4 md:max-w-3xl">
-        <FollowUp chatInstance={chatInstance} />
+        {isDify ? (
+          <DifyFollowUp
+            difyChat={difyChat}
+            onProviderChange={setSelectedProvider}
+            selectedProvider={selectedProvider}
+          />
+        ) : (
+          <FollowUp chatInstance={aiSdkChat} />
+        )}
       </div>
     </div>
   );

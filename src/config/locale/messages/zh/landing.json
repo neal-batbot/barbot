@@ -33,26 +33,26 @@
           "icon": "RiRobot2Line",
           "children": [
             {
-              "title": "AI 虚拟 FAE",
-              "description": "原生 LLM 驱动的设计导入技术支持",
+              "title": "AI 原生 FAE",
+              "description": "原生 LLM 驱动的 Design-in 技术支持",
               "url": "/#hero",
               "icon": "RiRobot2Line"
             },
             {
               "title": "文档搜索 API",
-              "description": "跨数据表和应用笔记的程序化搜索",
+              "description": "跨数据手册和应用笔记的程序化搜索",
               "url": "/docs",
               "icon": "RiSearch2Line"
             },
             {
               "title": "多语言支持",
-              "description": "为工程师提供 50+ 语言的全天候服务",
+              "description": "50+ 语言全天候服务工程师",
               "url": "/#introduce",
               "icon": "RiGlobalLine"
             },
             {
               "title": "工程师对话",
-              "description": "提出技术问题，获得 FAE 级别的解答",
+              "description": "提问技术问题，获取 FAE 级别的回答",
               "url": "/chat",
               "icon": "RiMessage2Line"
             }
@@ -108,15 +108,15 @@
   },
   "hero": {
     "id": "hero",
-    "title": "原生 LLM 驱动的半导体设计导入 FAE",
+    "title": "AI原生 LLM 驱动的FAE",
     "highlight_text": "原生 LLM 驱动",
-    "description": "Vector 是<b>大型语言模型原生 FAE</b>，帮助硬件和采购工程师选择、设计和承诺您的组件。<br/>24/7 即时回答 · 50+ 语言 · 近乎零边际成本。",
+    "description": "Vector 是<b>大型语言模型原生 FAE</b>，帮助硬件、采购工程师、器件工程师快速选型。<br/>24/7 即时回答 · 50+ 语言 · 近乎零边际成本。",
     "announcement": {
       "badge": "全新",
       "title": "Vector 现已可用于试点部署",
       "url": "/pricing"
     },
-    "tip": "⚡ 捕捉设计导入时刻，就在它们发生之时",
+    "tip": "捕捉Design-in时刻，就在它们发生之时",
     "buttons": [
       {
         "title": "请求演示",
@@ -134,16 +134,16 @@
       }
     ],
     "show_avatars": true,
-    "avatars_tip": "受服务全球大众市场的团队信赖",
+    "avatars_tip": "服务全球大众市场的团队信赖",
     "show_award": false,
     "image": {
-      "src": "/imgs/features/admin.png",
+      "src": "https://picsum.photos/1200/800?random=1",
       "alt": "hero",
       "width": 1200,
       "height": 800
     },
     "image_invert": {
-      "src": "/imgs/features/admin-dark.png",
+      "src": "https://picsum.photos/1200/800?random=2",
       "alt": "hero",
       "width": 1200,
       "height": 800
@@ -159,35 +159,35 @@
       {
         "title": "数据表",
         "image": {
-          "src": "/imgs/logos/nextjs.svg",
+          "src": "https://picsum.photos/200?random=10",
           "alt": "数据表"
         }
       },
       {
         "title": "应用笔记",
         "image": {
-          "src": "/imgs/logos/react.svg",
+          "src": "https://picsum.photos/200?random=11",
           "alt": "应用笔记"
         }
       },
       {
         "title": "参考设计",
         "image": {
-          "src": "/imgs/logos/tailwindcss.svg",
+          "src": "https://picsum.photos/200?random=12",
           "alt": "参考设计"
         }
       },
       {
         "title": "BOM 与备选方案",
         "image": {
-          "src": "/imgs/logos/shadcn.svg",
+          "src": "https://picsum.photos/200?random=13",
           "alt": "BOM 与备选方案"
         }
       },
       {
         "title": "全球支持",
         "image": {
-          "src": "/imgs/logos/vercel.svg",
+          "src": "https://picsum.photos/200?random=14",
           "alt": "全球支持"
         }
       }
@@ -198,18 +198,18 @@
     "id": "introduce",
     "title": "Vector 是什么？",
     "label": "产品简介",
-    "description": "Vector 是<b>原生 LLM 驱动的 FAE</b>，专为半导体公司和分销商打造。它激活您的技术知识库，为全球工程师即时提供专家级答案 —— 全天候、24/7。",
+    "description": "Vector 是AI 原生 LLM 驱动的 FAE，服务于硬件研发、采购、器件工程师。它激活您的技术知识库，为全球工程师即时提供专家级答案 —— 全天候、24/7。",
     "image": {
-      "src": "/imgs/features/landing-page.png",
+      "src": "https://picsum.photos/1200/800?random=20",
       "alt": "introduce"
     },
     "items": [
       {
         "title": "深度数据表推理",
-        "description": "理解参数、限制和权衡，在数据表和应用笔记中提供 FAE 级别的解释。",
+        "description": "理解参数、技术文档，在数据手册和应用笔记中提供 FAE 级别的解释。",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "https://picsum.photos/800/600?random=21",
           "alt": "introduce"
         }
       },
@@ -218,7 +218,7 @@
         "description": "推荐替代品并提供明确理由，在设计周期早期锁定 BOM。",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "/imgs/features/2.png",
+          "src": "https://picsum.photos/800/600?random=22",
           "alt": "introduce"
         }
       },
@@ -227,7 +227,7 @@
         "description": "工程师用母语提问；Vector 从全球文档中检索并精确回答 —— 无翻译损失。",
         "icon": "RiCloudyFill",
         "image": {
-          "src": "/imgs/features/3.png",
+          "src": "https://picsum.photos/800/600?random=23",
           "alt": "introduce"
         }
       },
@@ -236,7 +236,7 @@
         "description": "为大众市场提供一致支持质量，无需增加人员。",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "/imgs/features/4.png",
+          "src": "https://picsum.photos/800/600?random=24",
           "alt": "introduce"
         }
       }
@@ -255,7 +255,7 @@
         "description": "为数千工程师提供一致的专家级指导，无需让您的资深 FAE 应接不暇。",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/features/user-billing.png",
+          "src": "https://picsum.photos/800/600?random=30",
           "alt": "benefits"
         }
       },
@@ -264,7 +264,7 @@
         "description": "在决策制定的确切时间提供即时答案，减少流失并防止设计导入转向竞争对手。",
         "icon": "RiClapperboardAiLine",
         "image": {
-          "src": "/imgs/features/admin-settings.png",
+          "src": "https://picsum.photos/800/600?random=31",
           "alt": "benefits"
         }
       },
@@ -273,7 +273,7 @@
         "description": "通过 AI 驱动指导缩短取样时间、提高转化率，并更早锁定 BOM —— 跨越整个设计周期。",
         "icon": "RiCodeFill",
         "image": {
-          "src": "/imgs/features/landing-page.png",
+          "src": "https://picsum.photos/800/600?random=32",
           "alt": "benefits"
         }
       }
@@ -285,7 +285,7 @@
     "title": "部署 Vector 的四个步骤",
     "description": "数周内启动原生 LLM 驱动的 FAE —— 而非数月：",
     "image": {
-      "src": "/imgs/features/1.png",
+      "src": "https://picsum.photos/800/600?random=40",
       "alt": "usage"
     },
     "image_position": "left",
@@ -295,7 +295,7 @@
         "title": "连接知识源",
         "description": "导入数据表、应用笔记、FAQ、参考设计，以及内部手册与知识库。",
         "image": {
-          "src": "/imgs/features/5.png",
+          "src": "https://picsum.photos/800/600?random=41",
           "alt": "usage"
         }
       },
@@ -303,7 +303,7 @@
         "title": "配置产品与分类体系",
         "description": "映射 SKU、系列与关键属性，让 Vector 能准确对比器件并推荐备选方案。",
         "image": {
-          "src": "/imgs/features/6.png",
+          "src": "https://picsum.photos/800/600?random=42",
           "alt": "usage"
         }
       },
@@ -311,7 +311,7 @@
         "title": "在工程师提问处无处不在地嵌入",
         "description": "部署到文档站、分销商门户、社区与内部工具 —— 同时提供 API 与小组件。",
         "image": {
-          "src": "/imgs/features/7.png",
+          "src": "https://picsum.photos/800/600?random=43",
           "alt": "usage"
         }
       },
@@ -319,7 +319,7 @@
         "title": "度量与持续改进",
         "description": "跟踪意图、话题与转化信号，持续改进答案并解锁更多设计导入。",
         "image": {
-          "src": "/imgs/features/8.png",
+          "src": "https://picsum.photos/800/600?random=44",
           "alt": "usage"
         }
       }
@@ -393,7 +393,7 @@
         "role": "半导体厂商",
         "quote": "Vector 能即时处理长尾问题，让我们的资深 FAE 聚焦在最有影响力的客户与项目上。",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "https://picsum.photos/200?random=50",
           "alt": "testimonial 1"
         }
       },
@@ -402,7 +402,7 @@
         "role": "消费电子",
         "quote": "就像随时有专家待命。我在实验室里就能拿到答案，而不是两天之后。",
         "image": {
-          "src": "/imgs/avatars/2.png",
+          "src": "https://picsum.photos/200?random=51",
           "alt": "testimonial 2"
         }
       },
@@ -411,7 +411,7 @@
         "role": "分销渠道伙伴",
         "quote": "我们无需增加人手就能支持更多全球工程师，并且从文档流量带来更多取样请求。",
         "image": {
-          "src": "/imgs/avatars/3.png",
+          "src": "https://picsum.photos/200?random=52",
           "alt": "testimonial 3"
         }
       }
@@ -603,6 +603,6 @@
       ]
     },
     "show_theme": true,
-    "show_locale": true
+    "show_locale": false
   }
 }

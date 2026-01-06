@@ -728,6 +728,23 @@ export async function getSettings() {
       tab: 'ai',
     },
     {
+      name: 'dify_api_key',
+      title: 'Dify API Key',
+      type: 'password',
+      placeholder: 'app-xxx',
+      group: 'dify',
+      tab: 'ai',
+    },
+    {
+      name: 'dify_api_url',
+      title: 'Dify API URL',
+      type: 'url',
+      placeholder: 'http://156.224.28.114',
+      tip: 'Dify API base URL',
+      group: 'dify',
+      tab: 'ai',
+    },
+    {
       name: 'replicate_api_token',
       title: 'Replicate API Token',
       type: 'password',
