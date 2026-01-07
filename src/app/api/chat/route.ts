@@ -237,6 +237,7 @@ async function handleDifyChat({
   // Get Dify config - try bot-specific config first, then fall back to global
   let difyApiKey: string | undefined;
   let difyApiUrl: string | undefined;
+  let botConfig: any = null;
 
   // Try to get bot-specific API key from dify_bots config
   if (configs.dify_bots) {
@@ -245,6 +246,7 @@ async function handleDifyChat({
       const bot = botsConfig.find((b: any) => b.id === botId);
       if (bot && bot.api_key) {
         difyApiKey = bot.api_key;
+        botConfig = bot; // Save complete bot configuration
       }
     } catch (e) {
       console.warn('Failed to parse dify_bots config:', e);
@@ -267,23 +269,84 @@ async function handleDifyChat({
 
   // Get conversation_id from chat metadata
   const chatMetadata = chat.metadata ? JSON.parse(chat.metadata) : {};
-  const conversationId = chatMetadata.dify_conversation_id || '';
+  let conversationId = chatMetadata.dify_conversation_id || '';
 
   // Extract text from message parts
   const textParts = message.parts.filter((part: any) => part.type === 'text');
   const query = textParts.map((part: any) => part.text).join('\n');
 
-  // Call Dify API with user-selected rating
-  const difyStream = await streamDifyChatMessages(difyConfig, {
-    inputs: {
-      rating: rating || 'Catalog工业'
-    },
-    query,
-    response_mode: 'streaming',
-    conversation_id: conversationId,
-    user: user.id,
-    files: [],
-  });
+  // Build inputs object - only include rating if bot supports it
+  const inputs: Record<string, any> = {};
+
+  // Only pass rating if bot has has_rating: true
+  if (botConfig && botConfig.has_rating) {
+    if (rating) {
+      inputs.rating = rating;
+    } else if (botConfig.default_rating) {
+      inputs.rating = botConfig.default_rating;
+    } else if (botConfig.ratings && botConfig.ratings.length > 0) {
+      inputs.rating = botConfig.ratings[0];
+    }
+  }
+  // If bot's has_rating is false, don't pass rating parameter at all
+
+  // Call Dify API with dynamically built inputs
+  // Handle case where conversation_id might not exist in Dify (404 error)
+  let difyStream: ReadableStream;
+  try {
+    const requestBody: any = {
+      inputs,
+      query,
+      response_mode: 'streaming',
+      user: user.id,
+      files: [],
+    };
+    
+    // Only include conversation_id if it's not empty
+    if (conversationId) {
+      requestBody.conversation_id = conversationId;
+    }
+
+    difyStream = await streamDifyChatMessages(difyConfig, requestBody);
+  } catch (err: any) {
+    // If we get a 404 error about conversation not existing, retry without conversation_id
+    const is404Error = err.status === 404 || (err.message && err.message.includes('404'));
+    const errorMessage = err.message || '';
+    const errorData = err.data || {};
+    
+    // Check if error is about conversation not existing
+    const isConversationNotFound = 
+      errorData.code === 'not_found' ||
+      (errorData.message && errorData.message.includes('Conversation Not Exists')) ||
+      errorMessage.includes('Conversation Not Exists') ||
+      (errorMessage.includes('conversation') && errorMessage.includes('Not Exists'));
+    
+    if (is404Error && isConversationNotFound && conversationId) {
+      console.warn(`[Dify] Conversation ${conversationId} not found, retrying without conversation_id`);
+      conversationId = ''; // Clear invalid conversation_id
+      
+      // Update chat metadata to remove invalid conversation_id
+      const { updateChat } = await import('@/shared/models/chat');
+      await updateChat(chatId, {
+        metadata: JSON.stringify({
+          ...chatMetadata,
+          dify_conversation_id: '',
+        }),
+      });
+
+      // Retry without conversation_id
+      const requestBody: any = {
+        inputs,
+        query,
+        response_mode: 'streaming',
+        user: user.id,
+        files: [],
+      };
+      difyStream = await streamDifyChatMessages(difyConfig, requestBody);
+    } else {
+      throw err;
+    }
+  }
 
   // #region agent log
   fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:difyStreamReady',message:'Dify stream ready',timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});

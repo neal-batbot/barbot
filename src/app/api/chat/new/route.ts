@@ -8,6 +8,10 @@ import { getAllConfigs } from '@/shared/models/config';
 export async function POST(req: Request) {
   try {
     const { message, body } = await req.json();
+
+    // Debug logging
+    console.log('[DEBUG POST /api/chat/new] Request body:', JSON.stringify({ message, body }, null, 2));
+
     if (!message || !message.text) {
       throw new Error('message is required');
     }
@@ -26,6 +30,9 @@ export async function POST(req: Request) {
     let provider = 'openrouter';
     let title = message.text.substring(0, 100);
 
+    console.log('[DEBUG POST /api/chat/new] Initial title:', title);
+    console.log('[DEBUG POST /api/chat/new] Model:', body.model);
+
     if (body.model.startsWith('dify/')) {
       provider = 'dify';
 
@@ -34,14 +41,17 @@ export async function POST(req: Request) {
         const configs = await getAllConfigs();
         const difyBotsConfig = configs.dify_bots;
 
+        console.log('[DEBUG POST /api/chat/new] Dify bots config from DB:', difyBotsConfig);
+
         if (difyBotsConfig) {
           const bots = JSON.parse(difyBotsConfig);
           const botId = body.model.replace('dify/', '');
           const bot = bots.find((b: any) => b.id === botId);
 
-          if (bot) {
-            title = bot.title;
-          }
+          console.log('[DEBUG POST /api/chat/new] Bot ID:', botId);
+          console.log('[DEBUG POST /api/chat/new] Found bot:', bot);
+          console.log('[DEBUG POST /api/chat/new] Bot title no longer overrides user message');
+          console.log('[DEBUG POST /api/chat/new] Using user message as title:', title);
         }
       } catch (e) {
         console.error('Failed to get bot title:', e);
@@ -49,6 +59,9 @@ export async function POST(req: Request) {
         title = message.text.substring(0, 100);
       }
     }
+
+    console.log('[DEBUG POST /api/chat/new] Final title:', title);
+    console.log('[DEBUG POST /api/chat/new] Final provider:', provider);
 
     const chatId = generateId().toLowerCase();
     const currentTime = new Date();

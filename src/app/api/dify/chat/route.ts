@@ -39,16 +39,52 @@ export async function POST(req: Request) {
 
     // Get Dify config
     const configs = await getAllConfigs();
-    const difyApiKey = configs.dify_api_key;
-    const difyApiUrl = configs.dify_api_url;
+    const difyApiUrl = configs.dify_api_url || process.env.DIFY_API_URL;
 
-    if (!difyApiKey || !difyApiUrl) {
+    if (!difyApiUrl) {
       return new Response('Dify API not configured', { status: 500 });
+    }
+
+    // Determine which bot's API key to use based on chat.model
+    let difyApiKey = configs.dify_api_key; // Fallback to global key
+    let botConfig = null;
+
+    if (chat.model && chat.model.startsWith('dify/')) {
+      const botId = chat.model.replace('dify/', '');
+
+      try {
+        const difyBotsConfig = configs.dify_bots;
+        if (difyBotsConfig) {
+          const bots = JSON.parse(difyBotsConfig);
+          botConfig = bots.find((b: any) => b.id === botId);
+
+          if (botConfig && botConfig.api_key) {
+            difyApiKey = botConfig.api_key;
+            console.log('[DEBUG POST /api/dify/chat] Using bot API key for:', botConfig.title);
+          } else {
+            console.log('[DEBUG POST /api/dify/chat] Bot not found or no API key, using fallback');
+          }
+        }
+      } catch (e) {
+        console.error('[DEBUG POST /api/dify/chat] Failed to parse dify_bots config:', e);
+      }
+    }
+
+    if (!difyApiKey) {
+      return new Response('Dify API key not configured', { status: 500 });
     }
 
     // Get conversation_id from chat metadata
     const chatMetadata = chat.metadata ? JSON.parse(chat.metadata) : {};
     const conversationId = chatMetadata.dify_conversation_id || '';
+
+    // Debug logging
+    console.log('[DEBUG POST /api/dify/chat] Chat ID:', chatId);
+    console.log('[DEBUG POST /api/dify/chat] Chat Model:', chat.model);
+    console.log('[DEBUG POST /api/dify/chat] Conversation ID:', conversationId || '(empty)');
+    console.log('[DEBUG POST /api/dify/chat] Using bot:', botConfig?.title || 'default');
+    console.log('[DEBUG POST /api/dify/chat] API Key:', difyApiKey.substring(0, 15) + '...');
+    console.log('[DEBUG POST /api/dify/chat] API URL:', difyApiUrl);
 
     // Save user message to database
     const currentTime = new Date();
@@ -68,25 +104,74 @@ export async function POST(req: Request) {
     await createChatMessage(userMessage);
 
     // Call Dify API
+    // Determine if we should send rating based on bot config
+    const inputs: Record<string, any> = {};
+    if (rating) {
+      inputs.rating = rating;
+    } else if (botConfig && botConfig.has_rating && botConfig.ratings && botConfig.ratings.length > 0) {
+      // Only use default rating if bot has rating feature
+      inputs.rating = botConfig.default_rating || botConfig.ratings[0];
+    }
+    // If bot doesn't have rating feature, don't send rating at all
+
+    // Build request body
+    const requestBody: Record<string, any> = {
+      inputs,
+      query,
+      response_mode: 'streaming',
+      user: user.id,
+      files: [],
+    };
+
+    // Only include conversation_id if it exists and is not empty
+    if (conversationId && conversationId.trim()) {
+      requestBody.conversation_id = conversationId;
+      console.log('[DEBUG POST /api/dify/chat] Using existing conversation_id:', conversationId);
+    } else {
+      console.log('[DEBUG POST /api/dify/chat] Starting new conversation (no conversation_id)');
+    }
+
     const difyResponse = await fetch(`${difyApiUrl}/v1/chat-messages`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${difyApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        inputs: { rating: rating || 'Catalog工业' },
-        query,
-        response_mode: 'streaming',
-        conversation_id: conversationId,
-        user: user.id,
-        files: [],
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!difyResponse.ok) {
       const errorText = await difyResponse.text();
       console.error('Dify API error:', errorText);
+
+      // Special handling for 404 conversation not found error
+      if (difyResponse.status === 404 && conversationId) {
+        console.log('[DEBUG] Conversation not found, clearing invalid conversation_id from database...');
+
+        try {
+          // Clear the invalid conversation_id from database
+          await updateChat(chatId, {
+            metadata: JSON.stringify({
+              ...chatMetadata,
+              dify_conversation_id: undefined,
+            }),
+          });
+
+          console.log('[DEBUG] Conversation_id cleared. User should retry the message.');
+        } catch (e) {
+          console.error('[DEBUG] Failed to clear conversation_id:', e);
+        }
+
+        // Return a clear error message to the client
+        return new Response(
+          JSON.stringify({
+            error: 'conversation_not_found',
+            message: 'The conversation has expired or been deleted. A new conversation will be created automatically when you send your message again.',
+          }),
+          { status: 404 }
+        );
+      }
+
       return new Response(`Dify API error: ${errorText}`, { status: difyResponse.status });
     }
 

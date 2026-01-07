@@ -98,7 +98,7 @@ export function ChatInput({
   const [reasoning, setReasoning] = useState(false);
   const [rating, setRating] = useState<string>('');
   const [mounted, setMounted] = useState(false);
-
+  
   // Fetch Dify bots from API
   useEffect(() => {
     setMounted(true);
@@ -163,7 +163,7 @@ export function ChatInput({
       }
     }
   }, [model, models]);
-
+  
   const selectedModelLabel =
     models.find((item) => item.name === model)?.title ?? models[0]?.title ?? '';
   const selectedModel = models.find((m) => m.name === model);
@@ -271,7 +271,7 @@ export function ChatInput({
                   {selectedModel.ratings.map((ratingOption) => (
                     <PromptInputSelectItem key={ratingOption} value={ratingOption}>
                       {ratingOption}
-                    </PromptInputSelectItem>
+                  </PromptInputSelectItem>
                   ))}
                 </PromptInputSelectContent>
               </PromptInputSelect>

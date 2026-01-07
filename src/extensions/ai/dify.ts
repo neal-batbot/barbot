@@ -51,7 +51,29 @@ export async function streamDifyChatMessages(
   });
 
   if (!response.ok) {
-    throw new Error(`Dify API request failed: ${response.status} ${response.statusText}`);
+    // Try to get error details from response body
+    let errorMessage = `Dify API request failed: ${response.status} ${response.statusText}`;
+    let errorData: any = null;
+    try {
+      const errorText = await response.text();
+      if (errorText) {
+        // Try to parse as JSON first
+        try {
+          errorData = JSON.parse(errorText);
+          errorMessage = errorText; // Use full JSON string
+        } catch (e) {
+          // If not JSON, use as plain text
+          errorMessage = errorText;
+        }
+      }
+    } catch (e) {
+      // Ignore error parsing error response
+    }
+    const error = new Error(errorMessage) as any;
+    error.status = response.status;
+    error.statusText = response.statusText;
+    error.data = errorData; // Attach parsed error data if available
+    throw error;
   }
 
   if (!response.body) {
