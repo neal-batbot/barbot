@@ -19,6 +19,40 @@ if (
 
 export type ConfigMap = Record<string, string>;
 
+function resolveAuthUrl() {
+  const envUrl =
+    process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || '';
+  if (typeof window === 'undefined') {
+    return envUrl || 'http://localhost:3000';
+  }
+
+  const browserOrigin = window.location.origin;
+  if (!envUrl) {
+    return browserOrigin;
+  }
+
+  try {
+    const parsed = new URL(envUrl);
+    const envIsLoopback =
+      parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+    const browserIsLoopback =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+    if (
+      envIsLoopback &&
+      browserIsLoopback &&
+      parsed.port === window.location.port &&
+      parsed.hostname !== window.location.hostname
+    ) {
+      return browserOrigin;
+    }
+  } catch (e) {
+    return browserOrigin;
+  }
+
+  return envUrl;
+}
+
 export const envConfigs = {
   app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Vector',
@@ -29,7 +63,7 @@ export const envConfigs = {
   database_provider: process.env.DATABASE_PROVIDER ?? 'postgresql',
   db_singleton_enabled: process.env.DB_SINGLETON_ENABLED || 'false',
   db_max_connections: process.env.DB_MAX_CONNECTIONS || '1',
-  auth_url: process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || '',
+  auth_url: resolveAuthUrl(),
   auth_secret: process.env.AUTH_SECRET ?? '', // openssl rand -base64 32
   version: packageJson.version,
 };

@@ -20,14 +20,22 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
+import {
+  ContinueAuthRedirect,
+  setContinueAuthIntent,
+} from './continue-auth-redirect';
 import { SocialProviders } from './social-providers';
 
 export function SignIn({
   configs,
   callbackUrl = '/',
+  state,
+  redirectUri,
 }: {
   configs: Record<string, string>;
   callbackUrl: string;
+  state?: string;
+  redirectUri?: string;
 }) {
   const router = useRouter();
   const t = useTranslations('common.sign');
@@ -41,6 +49,13 @@ export function SignIn({
   const isEmailAuthEnabled =
     configs.email_auth_enabled !== 'false' ||
     (!isGoogleAuthEnabled && !isGithubAuthEnabled); // no social providers enabled, auto enable email auth
+
+  const authQuery =
+    state && redirectUri
+      ? `?state=${encodeURIComponent(state)}&redirectUri=${encodeURIComponent(
+          redirectUri
+        )}`
+      : '';
 
   if (callbackUrl) {
     const locale = useLocale();
@@ -61,6 +76,10 @@ export function SignIn({
     if (!email || !password) {
       toast.error('email and password are required');
       return;
+    }
+
+    if (state && redirectUri) {
+      setContinueAuthIntent(state);
     }
 
     await signIn.email(
@@ -87,6 +106,7 @@ export function SignIn({
 
   return (
     <Card className="mx-auto w-full md:max-w-md">
+      <ContinueAuthRedirect state={state} redirectUri={redirectUri} />
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">
           <h1>{t('sign_in_title')}</h1>
@@ -164,6 +184,11 @@ export function SignIn({
             callbackUrl={callbackUrl || '/'}
             loading={loading}
             setLoading={setLoading}
+            onBeforeSignIn={() => {
+              if (state && redirectUri) {
+                setContinueAuthIntent(state);
+              }
+            }}
           />
         </div>
       </CardContent>
@@ -172,7 +197,7 @@ export function SignIn({
           <div className="flex w-full justify-center border-t py-4">
             <p className="text-center text-xs text-neutral-500">
               {t('no_account')}
-              <Link href="/sign-up" className="underline">
+              <Link href={`/sign-up${authQuery}`} className="underline">
                 <span className="cursor-pointer dark:text-white/70">
                   {t('sign_up_title')}
                 </span>

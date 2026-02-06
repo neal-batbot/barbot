@@ -17,11 +17,13 @@ export function SocialProviders({
   callbackUrl,
   loading,
   setLoading,
+  onBeforeSignIn,
 }: {
   configs: Record<string, string>;
   callbackUrl: string;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  onBeforeSignIn?: () => void;
 }) {
   const t = useTranslations('common.sign');
   const router = useRouter();
@@ -40,6 +42,7 @@ export function SocialProviders({
   }
 
   const handleSignIn = async ({ provider }: { provider: string }) => {
+    onBeforeSignIn?.();
     await signIn.social(
       {
         provider: provider,

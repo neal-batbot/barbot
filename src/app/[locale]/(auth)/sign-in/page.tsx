@@ -28,11 +28,29 @@ export async function generateMetadata({
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{
+    callbackUrl?: string;
+    state?: string;
+    redirectUri?: string;
+  }>;
 }) {
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, state, redirectUri } = await searchParams;
 
   const configs = await getConfigs();
 
-  return <SignIn configs={configs} callbackUrl={callbackUrl || '/'} />;
+  const continueCallbackUrl =
+    state && redirectUri
+      ? `/sign-in?state=${encodeURIComponent(
+          state
+        )}&redirectUri=${encodeURIComponent(redirectUri)}`
+      : undefined;
+
+  return (
+    <SignIn
+      configs={configs}
+      callbackUrl={callbackUrl || continueCallbackUrl || '/'}
+      state={state}
+      redirectUri={redirectUri}
+    />
+  );
 }

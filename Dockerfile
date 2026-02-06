@@ -15,6 +15,10 @@ FROM deps AS builder
 
 WORKDIR /app
 
+# Increase memory and reduce telemetry noise
+ENV NODE_OPTIONS=--max-old-space-size=6144
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Install dependencies based on the preferred package manager
 COPY . .
 RUN pnpm build

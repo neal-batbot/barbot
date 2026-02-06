@@ -5,6 +5,39 @@ import { db } from '@/core/db';
 import { envConfigs } from '@/config';
 import * as schema from '@/config/db/schema';
 import { getUuid } from '@/shared/lib/hash';
+
+const DEFAULT_DEV_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
+function buildTrustedOrigins() {
+  const originSet = new Set<string>();
+
+  const addOrigin = (value?: string) => {
+    if (!value) {
+      return;
+    }
+    try {
+      const parsed = new URL(value);
+      originSet.add(parsed.origin);
+      if (parsed.hostname === 'localhost') {
+        originSet.add(`http://127.0.0.1:${parsed.port || '3000'}`);
+      }
+      if (parsed.hostname === '127.0.0.1') {
+        originSet.add(`http://localhost:${parsed.port || '3000'}`);
+      }
+    } catch (e) {
+      // Ignore invalid URLs
+    }
+  };
+
+  addOrigin(envConfigs.app_url);
+  addOrigin(envConfigs.auth_url);
+
+  if (process.env.NODE_ENV !== 'production') {
+    DEFAULT_DEV_ORIGINS.forEach((origin) => addOrigin(origin));
+  }
+
+  return Array.from(originSet);
+}
 import { grantCreditsForNewUser } from '@/shared/models/credit';
 
 // Static auth options - NO database connection
@@ -13,7 +46,7 @@ const authOptions = {
   appName: envConfigs.app_name,
   baseURL: envConfigs.auth_url,
   secret: envConfigs.auth_secret,
-  trustedOrigins: envConfigs.app_url ? [envConfigs.app_url] : [],
+  trustedOrigins: buildTrustedOrigins(),
   advanced: {
     database: {
       generateId: () => getUuid(),
