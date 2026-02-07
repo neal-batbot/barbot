@@ -21,6 +21,8 @@
     "email_sign_in": "Sign in with Email",
     "google_sign_in_title": "Sign in with Google",
     "github_sign_in_title": "Sign in with GitHub",
+    "continue_login_success": "Signed in successfully.",
+    "continue_open_vscode": "Opening VS Code...",
     "close_title": "Close",
     "cancel_title": "Cancel",
     "sign_out_title": "Sign Out",

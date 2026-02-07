@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { useSession } from '@/core/auth/client';
@@ -77,6 +78,7 @@ export function ContinueAuthRedirect({
   redirectUri?: string;
 }) {
   const { data: session, isPending } = useSession();
+  const t = useTranslations('common.sign');
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -130,6 +132,10 @@ export function ContinueAuthRedirect({
         }
 
         clearContinueAuthIntent(state);
+        toast.success(
+          `${t('continue_login_success')} ${t('continue_open_vscode')}`
+        );
+        await new Promise((resolve) => setTimeout(resolve, 900));
         window.location.href = redirectUrl.toString();
       } catch (e) {
         toast.error('Unexpected error during authentication.');
