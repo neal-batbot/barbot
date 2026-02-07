@@ -11,10 +11,10 @@ async function handleConfigs() {
   }
 }
 
-export async function POST() {
+export async function GET() {
   return handleConfigs();
 }
 
-export async function GET() {
+export async function POST() {
   return handleConfigs();
 }
