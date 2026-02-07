@@ -26,9 +26,6 @@ async function addDifyUrl() {
       .values({
         name: 'dify_api_url',
         value: difyUrl,
-        category: 'ai',
-        description: 'Dify API base URL',
-        isPublic: false,
       });
 
     console.log('✅ Inserted successfully');

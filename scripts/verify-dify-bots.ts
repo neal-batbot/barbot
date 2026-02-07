@@ -13,6 +13,11 @@ async function verifyDifyBots() {
   const currentConfig = configs[0].value;
   console.log('当前配置:', currentConfig);
 
+  if (!currentConfig) {
+    console.log('❌ dify_bots 配置为空，需要插入');
+    return false;
+  }
+
   try {
     const bots = JSON.parse(currentConfig);
     console.log('✅ 配置格式正确');
