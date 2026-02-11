@@ -384,14 +384,21 @@ const transformStream = new TransformStream({
   },
 });
 
-// 将 Dify 的流通过转换流
-const responseStream = difyResponse.body.pipeThrough(transformStream);
+// 将 Dify 的流转换为 OpenAI SSE（同时透传 workflow/node 自定义事件）
+const { stream: responseStream } = createDifyOpenAIStream(difyResponse.body, {
+  model: chat.model || 'dify/default',
+  showNodeEvents: true,
+  onMessageEnd: async (state) => {
+    // 保存消息与 metadata
+  },
+});
 return new Response(responseStream, { headers: {...} });
 ```
 
-**为什么用 TransformStream？**
-- 我们需要在数据流中"偷看"内容，但又要保证数据能正常传递到前端
-- TransformStream 就像一个"管道"，数据经过时可以处理，但不会阻塞
+**为什么用 OpenAI SSE 转换器？**
+- 统一 Dify 的流式输出为 OpenAI Chat Completions SSE 规范
+- 自定义事件 `event: workflow` / `event: node` 仍可用于前端进度显示
+- `message_end.metadata` 会被保留到 DB，便于获取参考文档/检索信息
 
 ---
 

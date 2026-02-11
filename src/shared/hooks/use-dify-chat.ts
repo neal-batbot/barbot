@@ -160,6 +160,7 @@ export function useDifyChat({
 
         const decoder = new TextDecoder();
         let buffer = '';
+        let pendingEventName: string | null = null;
 
         // 3. Stream read and update UI
         while (true) {
@@ -173,83 +174,172 @@ export function useDifyChat({
           buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
+            if (line.startsWith('event: ')) {
+              pendingEventName = line.slice(7).trim();
+              continue;
+            }
 
-                // Handle workflow events
-                if (data.event === 'workflow_started') {
-                  setWorkflowStatus((prev) => ({
-                    ...prev,
-                    isRunning: true,
-                    startedAt: new Date(),
-                  }));
-                }
+            if (!line.startsWith('data: ')) {
+              continue;
+            }
 
-                if (data.event === 'node_started') {
-                  const node: WorkflowNode = {
-                    id: data.data?.id || '',
-                    nodeId: data.data?.node_id || '',
-                    nodeType: data.data?.node_type || '',
-                    title: data.data?.title || '',
-                    status: 'running',
-                  };
-                  setWorkflowStatus((prev) => ({
-                    ...prev,
-                    currentNode: node.title,
-                    nodes: [...prev.nodes.filter(n => n.nodeId !== node.nodeId), node],
-                  }));
-                }
+            const dataStr = line.slice(6).trim();
+            if (!dataStr) {
+              continue;
+            }
 
-                if (data.event === 'node_finished') {
-                  const nodeId = data.data?.node_id || '';
-                  const status = data.data?.status || 'succeeded';
-                  const elapsedTime = data.data?.elapsed_time;
-                  setWorkflowStatus((prev) => ({
-                    ...prev,
-                    nodes: prev.nodes.map(n => 
-                      n.nodeId === nodeId 
-                        ? { ...n, status, elapsedTime } 
-                        : n
-                    ),
-                  }));
-                }
+            if (dataStr === '[DONE]') {
+              if (rafIdRef.current) {
+                cancelAnimationFrame(rafIdRef.current);
+              }
+              flushContent();
+              break;
+            }
 
-                if (data.event === 'workflow_finished') {
-                  setWorkflowStatus((prev) => ({
-                    ...prev,
-                    isRunning: false,
-                    currentNode: undefined,
-                  }));
-                }
+            try {
+              const data = JSON.parse(dataStr);
 
-                // Handle message events - 使用批量更新
-                if (data.event === 'message' || data.event === 'agent_message') {
-                  if (data.answer) {
-                    contentBufferRef.current += data.answer;
-                    scheduleUpdate();
+              if (pendingEventName) {
+                if (pendingEventName === 'workflow') {
+                  if (data.status === 'started') {
+                    setWorkflowStatus((prev) => ({
+                      ...prev,
+                      isRunning: true,
+                      startedAt: new Date(),
+                    }));
+                  }
+                  if (data.status === 'finished') {
+                    setWorkflowStatus((prev) => ({
+                      ...prev,
+                      isRunning: false,
+                      currentNode: undefined,
+                    }));
                   }
                 }
 
-                // Handle message_end event
-                if (data.event === 'message_end') {
-                  // 确保最后一次更新被执行
+                if (pendingEventName === 'node') {
+                  if (data.status === 'started') {
+                    const node: WorkflowNode = {
+                      id: data.node_id || '',
+                      nodeId: data.node_id || '',
+                      nodeType: data.node_type || '',
+                      title: data.title || '',
+                      status: 'running',
+                    };
+                    setWorkflowStatus((prev) => ({
+                      ...prev,
+                      currentNode: node.title,
+                      nodes: [...prev.nodes.filter(n => n.nodeId !== node.nodeId), node],
+                    }));
+                  }
+
+                  if (data.status === 'finished') {
+                    const nodeId = data.node_id || '';
+                    const status = data.status || 'succeeded';
+                    const elapsedTime = data.elapsed_ms ?? data.elapsed_time;
+                    setWorkflowStatus((prev) => ({
+                      ...prev,
+                      nodes: prev.nodes.map(n =>
+                        n.nodeId === nodeId
+                          ? { ...n, status, elapsedTime }
+                          : n
+                      ),
+                    }));
+                  }
+                }
+
+                pendingEventName = null;
+                continue;
+              }
+
+              // OpenAI SSE chunk format
+              if (data.choices && data.choices[0]?.delta) {
+                const delta = data.choices[0].delta;
+                if (typeof delta.content === 'string') {
+                  contentBufferRef.current += delta.content;
+                  scheduleUpdate();
+                }
+                if (data.choices[0]?.finish_reason === 'stop') {
                   if (rafIdRef.current) {
                     cancelAnimationFrame(rafIdRef.current);
                   }
                   flushContent();
-                  break;
                 }
+                continue;
+              }
 
-                // Handle error event
-                if (data.event === 'error') {
-                  throw new Error(data.message || 'Dify API error');
+              // Handle workflow events (Dify SSE)
+              if (data.event === 'workflow_started') {
+                setWorkflowStatus((prev) => ({
+                  ...prev,
+                  isRunning: true,
+                  startedAt: new Date(),
+                }));
+              }
+
+              if (data.event === 'node_started') {
+                const node: WorkflowNode = {
+                  id: data.data?.id || '',
+                  nodeId: data.data?.node_id || '',
+                  nodeType: data.data?.node_type || '',
+                  title: data.data?.title || '',
+                  status: 'running',
+                };
+                setWorkflowStatus((prev) => ({
+                  ...prev,
+                  currentNode: node.title,
+                  nodes: [...prev.nodes.filter(n => n.nodeId !== node.nodeId), node],
+                }));
+              }
+
+              if (data.event === 'node_finished') {
+                const nodeId = data.data?.node_id || '';
+                const status = data.data?.status || 'succeeded';
+                const elapsedTime = data.data?.elapsed_time;
+                setWorkflowStatus((prev) => ({
+                  ...prev,
+                  nodes: prev.nodes.map(n =>
+                    n.nodeId === nodeId
+                      ? { ...n, status, elapsedTime }
+                      : n
+                  ),
+                }));
+              }
+
+              if (data.event === 'workflow_finished') {
+                setWorkflowStatus((prev) => ({
+                  ...prev,
+                  isRunning: false,
+                  currentNode: undefined,
+                }));
+              }
+
+              // Handle message events - 使用批量更新
+              if (data.event === 'message' || data.event === 'agent_message') {
+                if (data.answer) {
+                  contentBufferRef.current += data.answer;
+                  scheduleUpdate();
                 }
-              } catch (parseError) {
-                // Ignore JSON parse errors for incomplete data
-                if (!(parseError instanceof SyntaxError)) {
-                  console.error('Error parsing SSE data:', parseError);
+              }
+
+              // Handle message_end event
+              if (data.event === 'message_end') {
+                // 确保最后一次更新被执行
+                if (rafIdRef.current) {
+                  cancelAnimationFrame(rafIdRef.current);
                 }
+                flushContent();
+                break;
+              }
+
+              // Handle error event
+              if (data.event === 'error') {
+                throw new Error(data.message || 'Dify API error');
+              }
+            } catch (parseError) {
+              // Ignore JSON parse errors for incomplete data
+              if (!(parseError instanceof SyntaxError)) {
+                console.error('Error parsing SSE data:', parseError);
               }
             }
           }

@@ -6,6 +6,7 @@ import {
   createChatMessage,
   NewChatMessage,
 } from '@/shared/models/chat_message';
+import { createDifyOpenAIStream } from '@/extensions/ai/dify';
 import { getAllConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
 
@@ -184,83 +185,40 @@ export async function POST(req: Request) {
       return new Response('No response body from Dify', { status: 500 });
     }
 
-    // Create a transform stream to intercept the response for saving to DB
-    let fullAnswer = '';
-    let newConversationId = conversationId;
-    let difyMessageId = '';
+    const { stream: responseStream } = createDifyOpenAIStream(difyResponse.body, {
+      model: chat.model || 'dify/default',
+      showNodeEvents: true,
+      onMessageEnd: async (state) => {
+        const assistantMessage: NewChatMessage = {
+          id: generateId().toLowerCase(),
+          chatId,
+          userId: user.id,
+          status: ChatMessageStatus.CREATED,
+          createdAt: currentTime,
+          updatedAt: currentTime,
+          role: 'assistant',
+          parts: JSON.stringify([{ type: 'text', text: state.fullAnswer }]),
+          metadata: JSON.stringify({
+            conversation_id: state.conversationId,
+            message_id: state.messageId,
+            task_id: state.taskId,
+            dify_metadata: state.metadata || null,
+          }),
+          model: 'dify/default',
+          provider: 'dify',
+        };
+        await createChatMessage(assistantMessage);
 
-    const transformStream = new TransformStream({
-      async transform(chunk, controller) {
-        // Pass through the chunk
-        controller.enqueue(chunk);
-
-        // Also parse it to extract data
-        const text = new TextDecoder().decode(chunk);
-        const lines = text.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-
-              // Capture conversation_id
-              if (data.conversation_id && !newConversationId) {
-                newConversationId = data.conversation_id;
-              }
-
-              // Capture message_id
-              if (data.message_id && !difyMessageId) {
-                difyMessageId = data.message_id;
-              }
-
-              // Accumulate answer
-              if (data.event === 'message' || data.event === 'agent_message') {
-                if (data.answer) {
-                  fullAnswer += data.answer;
-                }
-              }
-
-              // On message_end, save to database
-              if (data.event === 'message_end') {
-                // Save assistant message
-                const assistantMessage: NewChatMessage = {
-                  id: generateId().toLowerCase(),
-                  chatId,
-                  userId: user.id,
-                  status: ChatMessageStatus.CREATED,
-                  createdAt: currentTime,
-                  updatedAt: currentTime,
-                  role: 'assistant',
-                  parts: JSON.stringify([{ type: 'text', text: fullAnswer }]),
-                  metadata: JSON.stringify({
-                    conversation_id: newConversationId,
-                    message_id: difyMessageId,
-                  }),
-                  model: 'dify/default',
-                  provider: 'dify',
-                };
-                await createChatMessage(assistantMessage);
-
-                // Update chat metadata with conversation_id
-                if (newConversationId && newConversationId !== conversationId) {
-                  await updateChat(chatId, {
-                    metadata: JSON.stringify({
-                      ...chatMetadata,
-                      dify_conversation_id: newConversationId,
-                    }),
-                  });
-                }
-              }
-            } catch {
-              // Ignore parse errors
-            }
-          }
+        if (state.conversationId && state.conversationId !== conversationId) {
+          await updateChat(chatId, {
+            metadata: JSON.stringify({
+              ...chatMetadata,
+              dify_conversation_id: state.conversationId,
+            }),
+          });
         }
       },
     });
-
-    // Pipe Dify response through our transform stream
-    const responseStream = difyResponse.body.pipeThrough(transformStream);
 
     // Return the transformed stream
     return new Response(responseStream, {

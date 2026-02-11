@@ -47,6 +47,18 @@ export async function GET() {
         default_rating: bot.default_rating,
       }));
 
+      if (!bots.length) {
+        return respData([
+          {
+            id: 'default',
+            title: 'TI ChatBot Assistant',
+            has_rating: true,
+            ratings: ['Catalog工业', 'Automotive汽车'],
+            default_rating: 'Catalog工业',
+          },
+        ]);
+      }
+
       return respData(bots);
     } catch (parseError) {
       console.error('Failed to parse dify_bots config:', parseError);

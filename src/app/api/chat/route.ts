@@ -227,7 +227,7 @@ async function handleDifyChat({
   fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:entry',message:'handleDifyChat called',data:{chatId,model,rating},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
   // #endregion
 
-  const { streamDifyChatMessages, parseDifyStream } = await import(
+  const { streamDifyChatMessages, createDifyAiSdkStream } = await import(
     '@/extensions/ai/dify'
   );
 
@@ -352,110 +352,59 @@ async function handleDifyChat({
   fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:difyStreamReady',message:'Dify stream ready',timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
   // #endregion
 
-  // Track state outside the stream
-  let newConversationId = conversationId;
-  let fullAnswer = '';
-  let difyMessageId = '';
-
   // Create a manual ReadableStream with AI SDK Data Stream Protocol format
-  const encoder = new TextEncoder();
-  
-  const readable = new ReadableStream({
-    async start(controller) {
+  const { stream: readable } = createDifyAiSdkStream(difyStream, {
+    showNodeEvents: true,
+    onMessageEnd: async (state) => {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:start',message:'ReadableStream started',timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:messageEnd',message:'Dify message_end, saving to DB',data:{fullAnswerLength:state.fullAnswer.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
       // #endregion
-      
+
+      // Save assistant message to database
       try {
-        let chunkCount = 0;
-        
-        for await (const event of parseDifyStream(difyStream)) {
-          // Save conversation_id from first event
-          if (event.conversation_id && !newConversationId) {
-            newConversationId = event.conversation_id;
-          }
+        const assistantMessage: NewChatMessage = {
+          id: generateId().toLowerCase(),
+          chatId,
+          userId: user?.id,
+          status: ChatMessageStatus.CREATED,
+          createdAt: currentTime,
+          updatedAt: currentTime,
+          model: model,
+          provider: 'dify',
+          parts: JSON.stringify([{ type: 'text', text: state.fullAnswer }]),
+          role: 'assistant',
+          metadata: JSON.stringify({
+            conversation_id: state.conversationId,
+            message_id: state.messageId,
+            task_id: state.taskId,
+            dify_metadata: state.metadata || null,
+          }),
+        };
+        await createChatMessage(assistantMessage);
 
-          // Save message_id
-          if (event.message_id && !difyMessageId) {
-            difyMessageId = event.message_id;
-          }
-
-          // Stream answer chunks - AI SDK format: 0:"text"\n
-          if (event.event === 'agent_message' || event.event === 'message') {
-            if (event.answer) {
-              fullAnswer += event.answer;
-              chunkCount++;
-              
-              // AI SDK Data Stream Protocol: 0 = text delta
-              const chunk = `0:${JSON.stringify(event.answer)}\n`;
-              controller.enqueue(encoder.encode(chunk));
-            }
-          }
-
-          // Handle message_end event - save to DB and close stream
-          if (event.event === 'message_end') {
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:messageEnd',message:'Dify message_end, saving to DB',data:{fullAnswerLength:fullAnswer.length,chunkCount},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
-            // #endregion
-            
-            // Save assistant message to database
-            try {
-              const assistantMessage: NewChatMessage = {
-                id: generateId().toLowerCase(),
-                chatId,
-                userId: user?.id,
-                status: ChatMessageStatus.CREATED,
-                createdAt: currentTime,
-                updatedAt: currentTime,
-                model: model,
-                provider: 'dify',
-                parts: JSON.stringify([{ type: 'text', text: fullAnswer }]),
-                role: 'assistant',
-                metadata: JSON.stringify({
-                  conversation_id: newConversationId,
-                  message_id: difyMessageId,
-                }),
-              };
-              await createChatMessage(assistantMessage);
-              
-              // Update chat metadata with conversation_id
-              if (newConversationId && newConversationId !== conversationId) {
-                const { updateChat } = await import('@/shared/models/chat');
-                await updateChat(chatId, {
-                  metadata: JSON.stringify({
-                    ...chatMetadata,
-                    dify_conversation_id: newConversationId,
-                  }),
-                });
-              }
-              
-              // #region agent log
-              fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:dbSaved',message:'Message saved to DB successfully',data:{messageId:assistantMessage.id,fullAnswerLength:fullAnswer.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
-              // #endregion
-            } catch (dbErr: any) {
-              console.error('[Dify] DB save error:', dbErr);
-            }
-
-            // AI SDK Data Stream Protocol: d = finish message
-            const finishChunk = `d:${JSON.stringify({ finishReason: 'stop' })}\n`;
-            controller.enqueue(encoder.encode(finishChunk));
-            controller.close();
-            return;
-          }
+        // Update chat metadata with conversation_id
+        if (state.conversationId && state.conversationId !== conversationId) {
+          const { updateChat } = await import('@/shared/models/chat');
+          await updateChat(chatId, {
+            metadata: JSON.stringify({
+              ...chatMetadata,
+              dify_conversation_id: state.conversationId,
+            }),
+          });
         }
 
-        // If we exit the loop without message_end, still close properly
-        const finishChunk = `d:${JSON.stringify({ finishReason: 'stop' })}\n`;
-        controller.enqueue(encoder.encode(finishChunk));
-        controller.close();
-        
-      } catch (err: any) {
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:error',message:'Stream error',data:{error:err?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:dbSaved',message:'Message saved to DB successfully',data:{messageId:assistantMessage.id,fullAnswerLength:state.fullAnswer.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
         // #endregion
-        console.error('[Dify] Stream error:', err);
-        controller.error(err);
+      } catch (dbErr: any) {
+        console.error('[Dify] DB save error:', dbErr);
       }
+    },
+    onError: (err) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:error',message:'Stream error',data:{error:(err as any)?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
+      // #endregion
+      console.error('[Dify] Stream error:', err);
     },
   });
 
