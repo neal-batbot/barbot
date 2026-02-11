@@ -45,43 +45,15 @@ interface ExtendedChatModel extends ChatModel {
 
 interface DifyFollowUpProps {
   difyChat: UseDifyChatReturn;
-  onProviderChange: (provider: string) => void;
-  selectedProvider: string;
 }
 
 export function DifyFollowUp({
   difyChat,
-  onProviderChange,
-  selectedProvider,
 }: DifyFollowUpProps) {
   const t = useTranslations('ai.chat.generator');
   const params = useParams();
   const { chat } = useChatContext();
   const { messages, sendMessage, isLoading, error } = difyChat;
-
-  // Static OpenRouter models (non-Dify)
-  const staticModels: ExtendedChatModel[] = [
-    {
-      title: 'Kimi K2 Thinking',
-      name: 'moonshotai/kimi-k2-thinking',
-      provider: 'openrouter',
-    },
-    {
-      title: 'Deepseek R1',
-      name: 'deepseek/deepseek-r1',
-      provider: 'openrouter',
-    },
-    {
-      title: 'GPT-5',
-      name: 'openai/gpt-5',
-      provider: 'openrouter',
-    },
-    {
-      title: 'Claude 4.5 Sonnet',
-      name: 'anthropic/claude-4.5-sonnet',
-      provider: 'openrouter',
-    },
-  ];
 
   const [difyBots, setDifyBots] = useState<DifyBot[]>([]);
   const [model, setModel] = useState<string>('');
@@ -121,10 +93,15 @@ export function DifyFollowUp({
     if (chat?.model) {
       console.log('[DEBUG DifyFollowUp] Initializing model from chat.model:', chat.model);
       setModel(chat.model);
+      return;
     }
-  }, [chat?.model]);
 
-  // Combine Dify bots with static models
+    if (!model && difyBots.length > 0) {
+      setModel(`dify/${difyBots[0].id}`);
+    }
+  }, [chat?.model, difyBots, model]);
+
+  // Combine Dify bots
   const models: ExtendedChatModel[] = useMemo(() => {
     const difyModels: ExtendedChatModel[] = difyBots.map((bot) => ({
       title: bot.title,
@@ -134,7 +111,7 @@ export function DifyFollowUp({
       ratings: bot.ratings,
       default_rating: bot.default_rating,
     }));
-    return [...difyModels, ...staticModels];
+    return difyModels;
   }, [difyBots]);
 
   // Update rating when model changes
@@ -154,16 +131,12 @@ export function DifyFollowUp({
   const selectedModelLabel = selectedModel?.title ?? models[0]?.title ?? '';
   const isDifyModel = mounted && selectedModel?.provider === 'dify';
 
-  // Handle model change - notify parent about provider change
+  // Handle model change
   const handleModelChange = useCallback(
     (value: string) => {
       setModel(value);
-      const newModel = models.find((m) => m.name === value);
-      if (newModel?.provider) {
-        onProviderChange(newModel.provider);
-      }
     },
-    [models, onProviderChange]
+    []
   );
 
   // Auto send message for new chat

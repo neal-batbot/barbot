@@ -84,7 +84,12 @@ export async function POST(req: Request) {
     console.log('[DEBUG POST /api/dify/chat] Conversation ID:', conversationId || '(empty)');
     console.log('[DEBUG POST /api/dify/chat] Using bot:', botConfig?.title || 'default');
     console.log('[DEBUG POST /api/dify/chat] API Key:', difyApiKey.substring(0, 15) + '...');
-    console.log('[DEBUG POST /api/dify/chat] API URL:', difyApiUrl);
+    const normalizedDifyApiUrl = difyApiUrl.replace(/\/+$/, '');
+    const difyApiBase = normalizedDifyApiUrl.endsWith('/v1')
+      ? normalizedDifyApiUrl
+      : `${normalizedDifyApiUrl}/v1`;
+
+    console.log('[DEBUG POST /api/dify/chat] API URL:', difyApiBase);
 
     // Save user message to database
     const currentTime = new Date();
@@ -131,7 +136,7 @@ export async function POST(req: Request) {
       console.log('[DEBUG POST /api/dify/chat] Starting new conversation (no conversation_id)');
     }
 
-    const difyResponse = await fetch(`${difyApiUrl}/v1/chat-messages`, {
+    const difyResponse = await fetch(`${difyApiBase}/chat-messages`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${difyApiKey}`,
