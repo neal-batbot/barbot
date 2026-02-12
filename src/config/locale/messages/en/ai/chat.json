@@ -2,10 +2,10 @@
   "sidebar": {
     "header": {
       "brand": {
-        "title": "TI  ChatBot",
+      "title": "Vector ChatBot",
         "logo": {
           "src": "/logo.png",
-          "alt": "ChatBot"
+          "alt": "Vector ChatBot"
         },
         "url": "/chat"
       },

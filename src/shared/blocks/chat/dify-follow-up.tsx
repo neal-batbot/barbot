@@ -2,29 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { BrainCircuitIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { AnimatedChatInput } from '../../../../components/ui/animated-ai-input';
 import {
-  PromptInput,
-  PromptInputBody,
-  PromptInputFooter,
-  PromptInputSelect,
-  PromptInputSelectContent,
-  PromptInputSelectItem,
-  PromptInputSelectTrigger,
-  PromptInputSelectValue,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  PromptInputTools,
-} from '@/shared/components/ai-elements/prompt-input';
-import { Label } from '@/shared/components/ui/label';
-import { Switch } from '@/shared/components/ui/switch';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/shared/components/ui/tooltip';
+  AttachedFile,
+  ModelOption,
+  PastedContent,
+} from '../../../../components/ui/claude-style-chat-input';
 import { useChatContext } from '@/shared/contexts/chat';
 import { UseDifyChatReturn } from '@/shared/hooks/use-dify-chat';
 import { ChatModel } from '@/shared/types/chat';
@@ -57,11 +42,14 @@ export function DifyFollowUp({
 
   const [difyBots, setDifyBots] = useState<DifyBot[]>([]);
   const [model, setModel] = useState<string>('');
-  const [input, setInput] = useState('');
-  const [reasoning, setReasoning] = useState(false);
   const [rating, setRating] = useState<string>('');
   const [mounted, setMounted] = useState(false);
   const autoSentRef = useRef(false);
+
+  const formatDifyLabel = useCallback((title: string) => {
+    const trimmed = title.replace(/^Vector\s*/i, '').trim();
+    return `Vector-${trimmed || 'Assistant'}`;
+  }, []);
 
   // Fetch Dify bots from API
   useEffect(() => {
@@ -79,7 +67,7 @@ export function DifyFollowUp({
         setDifyBots([
           {
             id: 'default',
-            title: 'TI ChatBot Assistant',
+            title: 'Vector ChatBot Assistant',
             has_rating: true,
             ratings: ['Catalog工业', 'Automotive汽车'],
             default_rating: 'Catalog工业',
@@ -128,7 +116,6 @@ export function DifyFollowUp({
   }, [model, models]);
 
   const selectedModel = models.find((m) => m.name === model);
-  const selectedModelLabel = selectedModel?.title ?? models[0]?.title ?? '';
   const isDifyModel = mounted && selectedModel?.provider === 'dify';
 
   // Handle model change
@@ -164,90 +151,46 @@ export function DifyFollowUp({
     }
   }, [params.id, chat, messages.length, sendMessage, rating]);
 
-  const handleSubmit = useCallback(async () => {
-    if (!input.trim() || isLoading) return;
-
-    const text = input;
-    setInput('');
-
-    await sendMessage(text, { rating });
-  }, [input, isLoading, sendMessage, rating]);
+  const handleSendMessage = useCallback(
+    async (data: {
+      message: string;
+      files: AttachedFile[];
+      pastedContent: PastedContent[];
+      model: string;
+      isThinkingEnabled: boolean;
+    }) => {
+      if (!data.message.trim() || isLoading) return;
+      await sendMessage(data.message, { rating });
+    },
+    [isLoading, sendMessage, rating]
+  );
 
   if (!chat) {
     return null;
   }
 
-  // Map status for PromptInputSubmit
-  const status = isLoading ? 'submitted' : 'ready';
+  const uiModels = useMemo<ModelOption[]>(
+    () =>
+      models.map((m) => ({
+        id: m.name,
+        name: formatDifyLabel(m.title),
+        description: m.ratings?.length
+          ? 'Supports rating selection'
+          : 'Standard chat',
+      })),
+    [models, formatDifyLabel]
+  );
 
   return (
     <div className="w-full">
-      <PromptInput
-        onSubmit={handleSubmit}
-        className="mt-4"
-        globalDrop
-        multiple
-      >
-        <PromptInputBody>
-          <PromptInputTextarea
-            className="overflow-hidden p-4 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-            placeholder={t('input_placeholder')}
-            onChange={(e) => setInput(e.target.value)}
-            value={input}
-          />
-        </PromptInputBody>
-        <PromptInputFooter>
-          <PromptInputTools>
-            <div className="flex items-center">
-              <Switch
-                id="prompt-reasoning-switch"
-                checked={reasoning}
-                onCheckedChange={setReasoning}
-              />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Label
-                    htmlFor="prompt-reasoning-switch"
-                    className="text-muted-foreground hover:text-foreground peer-data-[state=checked]:text-primary inline-flex cursor-pointer items-center rounded-md p-2 transition-colors"
-                  >
-                    <BrainCircuitIcon size={16} />
-                  </Label>
-                </TooltipTrigger>
-                <TooltipContent sideOffset={6}>Reasoning</TooltipContent>
-              </Tooltip>
-            </div>
-            <PromptInputSelect onValueChange={handleModelChange} value={model}>
-              <PromptInputSelectTrigger>
-                <PromptInputSelectValue>
-                  {selectedModelLabel}
-                </PromptInputSelectValue>
-              </PromptInputSelectTrigger>
-              <PromptInputSelectContent>
-                {models.map((m) => (
-                  <PromptInputSelectItem key={m.name} value={m.name}>
-                    {m.title}
-                  </PromptInputSelectItem>
-                ))}
-              </PromptInputSelectContent>
-            </PromptInputSelect>
-            {isDifyModel && selectedModel?.ratings && selectedModel.ratings.length > 0 && (
-              <PromptInputSelect onValueChange={setRating} value={rating}>
-                <PromptInputSelectTrigger>
-                  <PromptInputSelectValue>{rating}</PromptInputSelectValue>
-                </PromptInputSelectTrigger>
-                <PromptInputSelectContent>
-                  {selectedModel.ratings.map((r) => (
-                    <PromptInputSelectItem key={r} value={r}>
-                      {r}
-                    </PromptInputSelectItem>
-                  ))}
-                </PromptInputSelectContent>
-              </PromptInputSelect>
-            )}
-          </PromptInputTools>
-          <PromptInputSubmit disabled={!input || isLoading} status={status} />
-        </PromptInputFooter>
-      </PromptInput>
+      <AnimatedChatInput
+        onSendMessage={handleSendMessage}
+        models={uiModels}
+        selectedModelId={model}
+        onSelectModel={handleModelChange}
+        placeholder={t('input_placeholder')}
+        disabled={isLoading}
+      />
       {error ? (
         <p className="text-destructive mt-2 text-sm" role="alert">
           {error.message}

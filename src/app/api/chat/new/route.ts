@@ -26,14 +26,16 @@ export async function POST(req: Request) {
 
     // todo: check user credits
 
-    // Determine provider from model
-    let provider = 'openrouter';
+    // Determine provider from request body or model
+    let provider =
+      body.provider ||
+      (body.model.startsWith('dify/') ? 'dify' : 'openrouter');
     let title = message.text.substring(0, 100);
 
     console.log('[DEBUG POST /api/chat/new] Initial title:', title);
     console.log('[DEBUG POST /api/chat/new] Model:', body.model);
 
-    if (body.model.startsWith('dify/')) {
+    if (provider === 'dify') {
       provider = 'dify';
 
       // Get Dify bots config to use bot title

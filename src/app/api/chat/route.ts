@@ -1,4 +1,6 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import {
   convertToModelMessages,
   createIdGenerator,
@@ -106,9 +108,10 @@ export async function POST(req: Request) {
         model,
         rating,
       });
-    } else {
-      // OpenRouter (default)
-      return handleOpenRouterChat({
+    }
+
+    if (provider === 'openai') {
+      return handleOpenAIChat({
         chatId,
         message,
         user,
@@ -118,11 +121,104 @@ export async function POST(req: Request) {
         reasoning,
       });
     }
+
+    if (provider === 'anthropic') {
+      return handleAnthropicChat({
+        chatId,
+        message,
+        user,
+        configs,
+        currentTime,
+        model,
+        reasoning,
+      });
+    }
+
+    if (provider === 'zhipu') {
+      return handleZhipuChat({
+        chatId,
+        message,
+        user,
+        configs,
+        currentTime,
+        model,
+        reasoning,
+      });
+    }
+
+    // OpenRouter (default)
+    return handleOpenRouterChat({
+      chatId,
+      message,
+      user,
+      configs,
+      currentTime,
+      model,
+      reasoning,
+    });
   } catch (e: any) {
     console.log('chat failed:', e);
     return new Response(e.message, { status: 500 });
   }
 }
+
+async function getValidatedMessages(chatId: string) {
+  const previousMessages = await getChatMessages({
+    chatId,
+    status: ChatMessageStatus.CREATED,
+    page: 1,
+    limit: 10,
+  });
+
+  if (!previousMessages.length) {
+    return [];
+  }
+
+  return previousMessages.reverse().map((message) => ({
+    id: message.id,
+    role: message.role,
+    parts: message.parts ? JSON.parse(message.parts) : [],
+  })) as UIMessage[];
+}
+
+async function saveAssistantMessage({
+  chatId,
+  userId,
+  currentTime,
+  model,
+  provider,
+  parts,
+}: {
+  chatId: string;
+  userId: string;
+  currentTime: Date;
+  model: string;
+  provider: string;
+  parts: any[];
+}) {
+  const assistantMessage: NewChatMessage = {
+    id: generateId().toLowerCase(),
+    chatId,
+    userId,
+    status: ChatMessageStatus.CREATED,
+    createdAt: currentTime,
+    updatedAt: currentTime,
+    model: model,
+    provider: provider,
+    parts: JSON.stringify(parts),
+    role: 'assistant',
+  };
+  await createChatMessage(assistantMessage);
+}
+
+const normalizeBaseUrl = (url?: string, suffix?: string) => {
+  if (!url) return undefined;
+  const trimmed = url.replace(/\/+$/, '');
+  if (!suffix) {
+    return trimmed;
+  }
+  return trimmed.endsWith(suffix) ? trimmed : `${trimmed}${suffix}`;
+};
 
 async function handleOpenRouterChat({
   chatId,
@@ -153,22 +249,7 @@ async function handleOpenRouterChat({
     baseURL: openrouterBaseUrl ? openrouterBaseUrl : undefined,
   });
 
-  // load previous messages from database
-  const previousMessages = await getChatMessages({
-    chatId,
-    status: ChatMessageStatus.CREATED,
-    page: 1,
-    limit: 10,
-  });
-
-  let validatedMessages: UIMessage[] = [];
-  if (previousMessages.length > 0) {
-    validatedMessages = previousMessages.reverse().map((message) => ({
-      id: message.id,
-      role: message.role,
-      parts: message.parts ? JSON.parse(message.parts) : [],
-    })) as UIMessage[];
-  }
+  const validatedMessages = await getValidatedMessages(chatId);
 
   const result = streamText({
     model: openrouter.chat(model),
@@ -186,19 +267,208 @@ async function handleOpenRouterChat({
     onFinish: async ({ messages }) => {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant') {
-        const assistantMessage: NewChatMessage = {
-          id: generateId().toLowerCase(),
+        await saveAssistantMessage({
           chatId,
           userId: user?.id,
-          status: ChatMessageStatus.CREATED,
-          createdAt: currentTime,
-          updatedAt: currentTime,
-          model: model,
+          currentTime,
+          model,
           provider: 'openrouter',
-          parts: JSON.stringify(lastMessage.parts),
-          role: 'assistant',
-        };
-        await createChatMessage(assistantMessage);
+          parts: lastMessage.parts,
+        });
+      }
+    },
+  });
+}
+
+async function handleOpenAIChat({
+  chatId,
+  message,
+  user,
+  configs,
+  currentTime,
+  model,
+  reasoning,
+}: {
+  chatId: string;
+  message: UIMessage;
+  user: any;
+  configs: any;
+  currentTime: Date;
+  model: string;
+  reasoning?: boolean;
+}) {
+  const openaiApiKey = configs.openai_api_key || process.env.OPENAI_API_KEY;
+  if (!openaiApiKey) {
+    throw new Error('openai_api_key is not set');
+  }
+
+  const openaiBaseUrl = normalizeBaseUrl(
+    configs.openai_base_url || process.env.OPENAI_BASE_URL,
+    '/v1'
+  );
+
+  const openai = createOpenAI({
+    apiKey: openaiApiKey,
+    baseURL: openaiBaseUrl ? openaiBaseUrl : undefined,
+  });
+
+  const validatedMessages = await getValidatedMessages(chatId);
+
+  const result = streamText({
+    model: openai.chat(model),
+    messages: convertToModelMessages(validatedMessages),
+  });
+
+  return result.toUIMessageStreamResponse({
+    sendSources: true,
+    sendReasoning: Boolean(reasoning),
+    originalMessages: validatedMessages,
+    generateMessageId: createIdGenerator({
+      size: 16,
+    }),
+    onFinish: async ({ messages }) => {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        await saveAssistantMessage({
+          chatId,
+          userId: user?.id,
+          currentTime,
+          model,
+          provider: 'openai',
+          parts: lastMessage.parts,
+        });
+      }
+    },
+  });
+}
+
+async function handleAnthropicChat({
+  chatId,
+  message,
+  user,
+  configs,
+  currentTime,
+  model,
+  reasoning,
+}: {
+  chatId: string;
+  message: UIMessage;
+  user: any;
+  configs: any;
+  currentTime: Date;
+  model: string;
+  reasoning?: boolean;
+}) {
+  const anthropicApiKey =
+    configs.anthropic_api_key || process.env.ANTHROPIC_API_KEY;
+  if (!anthropicApiKey) {
+    throw new Error('anthropic_api_key is not set');
+  }
+
+  const anthropicBaseUrl = normalizeBaseUrl(
+    configs.anthropic_base_url || process.env.ANTHROPIC_BASE_URL,
+    '/v1'
+  );
+  const anthropicVersion =
+    configs.anthropic_version || process.env.ANTHROPIC_VERSION || '2023-06-01';
+
+  const anthropic = createAnthropic({
+    apiKey: anthropicApiKey,
+    baseURL: anthropicBaseUrl ? anthropicBaseUrl : undefined,
+    headers: {
+      'anthropic-version': anthropicVersion,
+    },
+  });
+
+  const validatedMessages = await getValidatedMessages(chatId);
+
+  const result = streamText({
+    model: anthropic.messages(model),
+    messages: convertToModelMessages(validatedMessages),
+  });
+
+  return result.toUIMessageStreamResponse({
+    sendSources: true,
+    sendReasoning: Boolean(reasoning),
+    originalMessages: validatedMessages,
+    generateMessageId: createIdGenerator({
+      size: 16,
+    }),
+    onFinish: async ({ messages }) => {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        await saveAssistantMessage({
+          chatId,
+          userId: user?.id,
+          currentTime,
+          model,
+          provider: 'anthropic',
+          parts: lastMessage.parts,
+        });
+      }
+    },
+  });
+}
+
+async function handleZhipuChat({
+  chatId,
+  message,
+  user,
+  configs,
+  currentTime,
+  model,
+  reasoning,
+}: {
+  chatId: string;
+  message: UIMessage;
+  user: any;
+  configs: any;
+  currentTime: Date;
+  model: string;
+  reasoning?: boolean;
+}) {
+  const zhipuApiKey = configs.zhipu_api_key || process.env.ZHIPU_API_KEY;
+  if (!zhipuApiKey) {
+    throw new Error('zhipu_api_key is not set');
+  }
+
+  const zhipuBaseUrl = normalizeBaseUrl(
+    configs.zhipu_base_url ||
+      process.env.ZHIPU_BASE_URL ||
+      'https://open.bigmodel.cn/api/paas/v4',
+    '/v4'
+  );
+
+  const zhipu = createOpenAI({
+    apiKey: zhipuApiKey,
+    baseURL: zhipuBaseUrl ? zhipuBaseUrl : undefined,
+  });
+
+  const validatedMessages = await getValidatedMessages(chatId);
+
+  const result = streamText({
+    model: zhipu.chat(model),
+    messages: convertToModelMessages(validatedMessages),
+  });
+
+  return result.toUIMessageStreamResponse({
+    sendSources: true,
+    sendReasoning: Boolean(reasoning),
+    originalMessages: validatedMessages,
+    generateMessageId: createIdGenerator({
+      size: 16,
+    }),
+    onFinish: async ({ messages }) => {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        await saveAssistantMessage({
+          chatId,
+          userId: user?.id,
+          currentTime,
+          model,
+          provider: 'zhipu',
+          parts: lastMessage.parts,
+        });
       }
     },
   });
@@ -227,7 +497,7 @@ async function handleDifyChat({
   fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:entry',message:'handleDifyChat called',data:{chatId,model,rating},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
   // #endregion
 
-  const { streamDifyChatMessages, createDifyAiSdkStream } = await import(
+  const { streamDifyChatMessages, createDifyOpenAIStream } = await import(
     '@/extensions/ai/dify'
   );
 
@@ -352,8 +622,8 @@ async function handleDifyChat({
   fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:difyStreamReady',message:'Dify stream ready',timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
   // #endregion
 
-  // Create a manual ReadableStream with AI SDK Data Stream Protocol format
-  const { stream: readable } = createDifyAiSdkStream(difyStream, {
+  // Create OpenAI SSE formatted stream
+  const { stream: readable } = createDifyOpenAIStream(difyStream, {
     showNodeEvents: true,
     onMessageEnd: async (state) => {
       // #region agent log
@@ -408,11 +678,10 @@ async function handleDifyChat({
     },
   });
 
-  // Return Response with AI SDK headers + streaming headers to prevent buffering
+  // Return Response with SSE headers to prevent buffering
   return new Response(readable, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'X-Vercel-AI-Data-Stream': 'v1',
+      'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
       'Connection': 'keep-alive',
       'X-Accel-Buffering': 'no', // Disable nginx buffering

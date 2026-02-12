@@ -27,7 +27,7 @@ export async function GET() {
       return respData([
         {
           id: 'default',
-          title: 'TI ChatBot Assistant',
+          title: 'Vector ChatBot Assistant',
           has_rating: true,
           ratings: ['Catalog工业', 'Automotive汽车'],
           default_rating: 'Catalog工业',
@@ -51,7 +51,7 @@ export async function GET() {
         return respData([
           {
             id: 'default',
-            title: 'TI ChatBot Assistant',
+            title: 'Vector ChatBot Assistant',
             has_rating: true,
             ratings: ['Catalog工业', 'Automotive汽车'],
             default_rating: 'Catalog工业',

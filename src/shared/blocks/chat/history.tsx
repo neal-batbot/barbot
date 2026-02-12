@@ -262,7 +262,9 @@ export function ChatHistory() {
                     <div className="flex flex-wrap items-center gap-2">
                       {chat.model && (
                         <Badge variant="outline" className="">
-                          {chat.model}
+                          {chat.model.startsWith('dify/')
+                            ? `Vector-${chat.model.replace('dify/', '')}`
+                            : chat.model}
                         </Badge>
                       )}
                     </div>

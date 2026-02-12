@@ -1,40 +1,16 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { UIMessage, UseChatHelpers } from '@ai-sdk/react';
-import { BrainCircuitIcon, GlobeIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { AnimatedChatInput } from '../../../../components/ui/animated-ai-input';
 import {
-  PromptInput,
-  PromptInputActionAddAttachments,
-  PromptInputActionMenu,
-  PromptInputActionMenuContent,
-  PromptInputActionMenuTrigger,
-  PromptInputAttachment,
-  PromptInputAttachments,
-  PromptInputBody,
-  PromptInputButton,
-  PromptInputFooter,
-  PromptInputHeader,
-  PromptInputSelect,
-  PromptInputSelectContent,
-  PromptInputSelectItem,
-  PromptInputSelectTrigger,
-  PromptInputSelectValue,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  PromptInputTools,
-  type PromptInputMessage,
-} from '@/shared/components/ai-elements/prompt-input';
-import { Label } from '@/shared/components/ui/label';
-import { Switch } from '@/shared/components/ui/switch';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/shared/components/ui/tooltip';
-import { useChatContext } from '@/shared/contexts/chat';
+  AttachedFile,
+  ModelOption,
+  PastedContent,
+} from '../../../../components/ui/claude-style-chat-input';
+import { PromptInputMessage } from '@/shared/components/ai-elements/prompt-input';
 import { ChatModel } from '@/shared/types/chat';
 
 interface DifyBot {
@@ -67,37 +43,26 @@ export function ChatInput({
 }) {
   const t = useTranslations('ai.chat.generator');
 
-  // Static OpenRouter models
-  const staticModels: ExtendedChatModel[] = [
+  // Static non-Dify models
+  const zhipuModels: ExtendedChatModel[] = [
     {
-      title: 'Kimi K2 Thinking',
-      name: 'moonshotai/kimi-k2-thinking',
-      provider: 'openrouter',
-    },
-    {
-      title: 'Deepseek R1',
-      name: 'deepseek/deepseek-r1',
-      provider: 'openrouter',
-    },
-    {
-      title: 'GPT-5',
-      name: 'openai/gpt-5',
-      provider: 'openrouter',
-    },
-    {
-      title: 'Claude 4.5 Sonnet',
-      name: 'anthropic/claude-4.5-sonnet',
-      provider: 'openrouter',
+      title: 'GLM-5',
+      name: 'glm-5',
+      provider: 'zhipu',
     },
   ];
 
   const [difyBots, setDifyBots] = useState<DifyBot[]>([]);
   const [model, setModel] = useState<string>('');
-  const [input, setInput] = useState('');
   const [webSearch, setWebSearch] = useState(false);
   const [reasoning, setReasoning] = useState(false);
   const [rating, setRating] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+
+  const formatDifyLabel = useCallback((title: string) => {
+    const trimmed = title.replace(/^Vector\s*/i, '').trim();
+    return `Vector-${trimmed || 'Assistant'}`;
+  }, []);
   
   // Fetch Dify bots from API
   useEffect(() => {
@@ -125,7 +90,7 @@ export function ChatInput({
         setDifyBots([
           {
             id: 'default',
-            title: 'TI ChatBot Assistant',
+            title: 'Vector ChatBot Assistant',
             has_rating: true,
             ratings: ['Catalog工业', 'Automotive汽车'],
             default_rating: 'Catalog工业',
@@ -146,7 +111,7 @@ export function ChatInput({
       ratings: bot.ratings,
       default_rating: bot.default_rating,
     }));
-    return [...difyModels, ...staticModels];
+    return [...difyModels, ...zhipuModels];
   }, [difyBots]);
 
   // Update rating when model changes
@@ -164,127 +129,106 @@ export function ChatInput({
     }
   }, [model, models]);
   
-  const selectedModelLabel =
-    models.find((item) => item.name === model)?.title ?? models[0]?.title ?? '';
   const selectedModel = models.find((m) => m.name === model);
   const isDifyModel = mounted && selectedModel?.provider === 'dify';
-  const showRatingSelector =
-    isDifyModel && selectedModel?.has_rating && selectedModel?.ratings?.length;
+
+  const uiModels = useMemo<ModelOption[]>(
+    () =>
+      models.map((m) => ({
+        id: m.name,
+        name: m.provider === 'dify' ? formatDifyLabel(m.title) : m.title,
+        description:
+          m.provider === 'dify'
+            ? m.ratings?.length
+              ? 'Supports rating selection'
+              : 'Standard chat'
+            : `${m.provider} model`,
+      })),
+    [models, formatDifyLabel]
+  );
+
+  const handleModelChange = useCallback(
+    (value: string) => {
+      setModel(value);
+    },
+    []
+  );
+
+  const fileToDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSendMessage = useCallback(
+    async (data: {
+      message: string;
+      files: AttachedFile[];
+      pastedContent: PastedContent[];
+      model: string;
+      isThinkingEnabled: boolean;
+    }) => {
+      if ((!data.message.trim() && data.files.length === 0) || status === 'submitted') return;
+
+      try {
+        const provider = selectedModel?.provider || 'openrouter';
+        
+        // Convert files to FileUIPart[] format expected by handleSubmit
+        const convertedFiles = await Promise.all(
+          data.files.map(async (attachedFile) => {
+            const dataUrl = await fileToDataUrl(attachedFile.file);
+            return {
+              type: attachedFile.file.type.startsWith('image/') ? 'image' : 'file',
+              mediaType: attachedFile.file.type,
+              url: dataUrl,
+              filename: attachedFile.file.name,
+            };
+          })
+        );
+
+        // Also handle pasted content as text attachment or append to message
+        // For now, we'll append pasted content to the message text
+        let finalMessage = data.message;
+        if (data.pastedContent.length > 0) {
+          finalMessage += '\n\n' + data.pastedContent.map(pc => pc.content).join('\n\n');
+        }
+
+        handleSubmit(
+          { 
+            text: finalMessage, 
+            files: convertedFiles as any // Type assertion to match PromptInputMessage expectation
+          }, 
+          { 
+            model, 
+            webSearch, 
+            reasoning: data.isThinkingEnabled || reasoning, 
+            provider, 
+            rating 
+          }
+        );
+      } catch (err) {
+        console.error('Error submitting message:', err);
+      }
+    },
+    [handleSubmit, status, selectedModel, model, webSearch, reasoning, rating]
+  );
 
   return (
     <div className="w-full">
-      <PromptInput
-        onSubmit={async (message) => {
-          try {
-            const provider = selectedModel?.provider || 'openrouter';
-            handleSubmit(message, { model, webSearch, reasoning, provider, rating });
-            setInput('');
-          } catch (err) {
-            // Allow parent to control error display/state. Do not clear input.
-          }
-        }}
-        className="mt-4"
-        globalDrop
-        multiple
-      >
-        {/* <PromptInputHeader>
-        <PromptInputAttachments>
-          {(attachment) => <PromptInputAttachment data={attachment} />}
-        </PromptInputAttachments>
-      </PromptInputHeader> */}
-        <PromptInputBody>
-          <PromptInputTextarea
-            className="overflow-hidden p-4 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-            placeholder={t('input_placeholder')}
-            onChange={(e) => {
-              const value = e.target.value;
-              setInput(value);
-              onInputChange?.(value);
-            }}
-            value={input}
-          />
-        </PromptInputBody>
-        <PromptInputFooter>
-          <PromptInputTools>
-            {/* <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger />
-            <PromptInputActionMenuContent>
-              <PromptInputActionAddAttachments />
-            </PromptInputActionMenuContent>
-          </PromptInputActionMenu>
-          <PromptInputButton
-            variant={webSearch ? 'default' : 'ghost'}
-            onClick={() => setWebSearch(!webSearch)}
-          >
-            <GlobeIcon size={16} />
-            <span>Search</span>
-          </PromptInputButton> */}
-            <div className="flex items-center">
-              <Switch
-                id="prompt-reasoning-switch"
-                checked={reasoning}
-                onCheckedChange={setReasoning}
-                // className="peer sr-only"
-              />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Label
-                    htmlFor="prompt-reasoning-switch"
-                    className="text-muted-foreground hover:text-foreground peer-data-[state=checked]:text-primary inline-flex cursor-pointer items-center rounded-md p-2 transition-colors"
-                  >
-                    <BrainCircuitIcon size={16} />
-                  </Label>
-                </TooltipTrigger>
-                <TooltipContent sideOffset={6}>Reasoning</TooltipContent>
-              </Tooltip>
-            </div>
-            <PromptInputSelect
-              onValueChange={(value) => {
-                setModel(value);
-              }}
-              value={model}
-            >
-              <PromptInputSelectTrigger>
-                <PromptInputSelectValue>
-                  {selectedModelLabel}
-                </PromptInputSelectValue>
-              </PromptInputSelectTrigger>
-              <PromptInputSelectContent>
-                {models.map((modelItem) => (
-                  <PromptInputSelectItem key={modelItem.name} value={modelItem.name}>
-                    {modelItem.title}
-                  </PromptInputSelectItem>
-                ))}
-              </PromptInputSelectContent>
-            </PromptInputSelect>
-            {showRatingSelector && selectedModel?.ratings && (
-              <PromptInputSelect
-                onValueChange={(value) => {
-                  setRating(value);
-                }}
-                value={rating}
-              >
-                <PromptInputSelectTrigger>
-                  <PromptInputSelectValue>{rating}</PromptInputSelectValue>
-                </PromptInputSelectTrigger>
-                <PromptInputSelectContent>
-                  {selectedModel.ratings.map((ratingOption) => (
-                    <PromptInputSelectItem key={ratingOption} value={ratingOption}>
-                      {ratingOption}
-                  </PromptInputSelectItem>
-                  ))}
-                </PromptInputSelectContent>
-              </PromptInputSelect>
-            )}
-          </PromptInputTools>
-          <PromptInputSubmit
-            disabled={!input || status === 'submitted'}
-            status={status}
-          />
-        </PromptInputFooter>
-      </PromptInput>
+      <AnimatedChatInput
+        onSendMessage={handleSendMessage}
+        models={uiModels}
+        selectedModelId={model}
+        onSelectModel={handleModelChange}
+        placeholder={t('input_placeholder')}
+        disabled={status === 'submitted'}
+      />
+      
       {error ? (
-        <p className="text-destructive mt-2 text-sm" role="alert">
+        <p className="text-destructive mt-2 text-sm text-center" role="alert">
           {error}
         </p>
       ) : null}
