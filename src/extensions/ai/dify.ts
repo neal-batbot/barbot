@@ -32,6 +32,13 @@ export interface DifyStreamEvent {
   task_id?: string;
   metadata?: any;
   data?: any;
+  thought?: string;
+  tool?: string;
+  tool_input?: any;
+  observation?: any;
+  type?: string;
+  url?: string;
+  audio?: string;
 }
 
 export interface DifyStreamState {
@@ -158,7 +165,46 @@ export function createDifyAiSdkStream(
                 }
               }
 
+              if (event.event === 'message_replace') {
+                state.fullAnswer = event.answer || '';
+                writeSseEvent(controller, encoder, 'replace', {
+                  content: state.fullAnswer,
+                });
+              }
+
               if (showNodeEvents) {
+                if (event.event === 'message_file') {
+                  writeSseEvent(controller, encoder, 'file', {
+                    type: event.type || null,
+                    url: event.url || null,
+                  });
+                }
+                if (event.event === 'agent_log') {
+                  writeSseEvent(controller, encoder, 'tool', {
+                    label: event.data?.label || null,
+                    status: event.data?.status || null,
+                    error: event.data?.error || null,
+                    data: event.data?.data || null,
+                    message_id: event.message_id || null,
+                  });
+                }
+                if (event.event === 'agent_thought') {
+                  writeSseEvent(controller, encoder, 'tool', {
+                    thought: event.thought || null,
+                    tool: event.tool || null,
+                    tool_input: event.tool_input || null,
+                    observation: event.observation || null,
+                    message_id: event.message_id || null,
+                  });
+                }
+                if (event.event === 'tts_message') {
+                  writeSseEvent(controller, encoder, 'tts', {
+                    audio: event.audio || '',
+                  });
+                }
+                if (event.event === 'tts_message_end') {
+                  writeSseEvent(controller, encoder, 'tts_end', {});
+                }
                 if (event.event === 'workflow_started') {
                   writeSseEvent(controller, encoder, 'workflow', {
                     status: 'started',
@@ -284,6 +330,10 @@ export function createDifyOpenAIStream(
               }
 
               if (event.event === 'message_replace') {
+                state.fullAnswer = event.answer || '';
+                writeSseEvent(controller, encoder, 'replace', {
+                  content: state.fullAnswer,
+                });
                 const chunk = createOpenAIChunk({
                   id: chatId,
                   created,
@@ -294,6 +344,38 @@ export function createDifyOpenAIStream(
               }
 
               if (showNodeEvents) {
+                if (event.event === 'message_file') {
+                  writeSseEvent(controller, encoder, 'file', {
+                    type: event.type || null,
+                    url: event.url || null,
+                  });
+                }
+                if (event.event === 'agent_log') {
+                  writeSseEvent(controller, encoder, 'tool', {
+                    label: event.data?.label || null,
+                    status: event.data?.status || null,
+                    error: event.data?.error || null,
+                    data: event.data?.data || null,
+                    message_id: event.message_id || null,
+                  });
+                }
+                if (event.event === 'agent_thought') {
+                  writeSseEvent(controller, encoder, 'tool', {
+                    thought: event.thought || null,
+                    tool: event.tool || null,
+                    tool_input: event.tool_input || null,
+                    observation: event.observation || null,
+                    message_id: event.message_id || null,
+                  });
+                }
+                if (event.event === 'tts_message') {
+                  writeSseEvent(controller, encoder, 'tts', {
+                    audio: event.audio || '',
+                  });
+                }
+                if (event.event === 'tts_message_end') {
+                  writeSseEvent(controller, encoder, 'tts_end', {});
+                }
                 if (event.event === 'workflow_started') {
                   writeSseEvent(controller, encoder, 'workflow', {
                     status: 'started',
@@ -348,6 +430,7 @@ export function createDifyOpenAIStream(
                   message_id: state.messageId || event.message_id || null,
                   task_id: state.taskId || event.task_id || null,
                   retriever_resources: event.metadata?.retriever_resources || null,
+                  message_files: event.metadata?.message_files || null,
                 };
 
                 const endChunk = createOpenAIChunk({
@@ -418,7 +501,11 @@ export async function streamDifyChatMessages(
   config: DifyConfig,
   request: DifyChatRequest
 ): Promise<ReadableStream> {
-  const url = `${config.apiUrl}/v1/chat-messages`;
+  const normalizedApiUrl = config.apiUrl.replace(/\/+$/, '');
+  const baseUrl = normalizedApiUrl.endsWith('/v1')
+    ? normalizedApiUrl
+    : `${normalizedApiUrl}/v1`;
+  const url = `${baseUrl}/chat-messages`;
 
   const response = await fetch(url, {
     method: 'POST',

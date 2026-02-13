@@ -7,6 +7,23 @@ export interface DifyMessage {
   role: 'user' | 'assistant';
   content: string;
   createdAt?: Date;
+  references?: ReferenceItem[];
+  files?: MessageFile[];
+  audioUrl?: string;
+  difyMessageId?: string;
+  feedback?: 'like' | 'dislike' | null;
+}
+
+export interface ReferenceItem {
+  document_name?: string;
+  dataset_name?: string;
+  score?: number;
+  content?: string;
+}
+
+export interface MessageFile {
+  type?: string;
+  url?: string;
 }
 
 // 工作流节点状态
@@ -27,6 +44,80 @@ export interface WorkflowStatus {
   startedAt?: Date;
 }
 
+export interface ToolEvent {
+  id: string;
+  tool?: string;
+  thought?: string;
+  tool_input?: any;
+  observation?: any;
+  label?: string;
+  status?: string;
+  error?: any;
+  data?: any;
+  createdAt?: Date;
+}
+
+function extractFileUrlsFromToolResponse(text: string): MessageFile[] {
+  if (!text) return [];
+  const urls = new Set<string>();
+  // Match Dify file URLs including any query parameters (?timestamp=...&nonce=...&sign=...)
+  // Patterns: file-preview, image-preview, and general /files/ paths
+  const pattern =
+    /https?:\/\/[^\s"'<>\\)}\]]+(?:file-preview|image-preview|\/files\/[^\s"'<>\\)}\]]*)(?:\?[^\s"'<>\\)}\]]+)?/gi;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match[0]) urls.add(match[0]);
+  }
+  return Array.from(urls).map((url) => ({ type: 'image', url }));
+}
+
+function proxyFileUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('/api/dify/file')) return url;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return `/api/dify/file?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
+function rewriteFileUrlsInText(text: string): string {
+  if (!text) return text;
+  // Match Dify file URLs: file-preview, image-preview, and general /files/ paths
+  return text.replace(
+    /https?:\/\/[^\s"'\\)]+(?:file-preview|image-preview|\/files\/[^\s"'\\)]*)/gi,
+    (match) => proxyFileUrl(match) || match
+  );
+}
+
+function extractReferencesFromToolResponse(text: string): ReferenceItem[] {
+  if (!text) return [];
+  const refs: ReferenceItem[] = [];
+  const docPattern = /document_name['"]\s*:\s*['"]([^'"]+)['"]/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = docPattern.exec(text)) !== null) {
+    const document_name = match[1];
+    const slice = text.slice(match.index, match.index + 300);
+    const datasetMatch = /dataset_name['"]\s*:\s*['"]([^'"]+)['"]/.exec(slice);
+    const scoreMatch = /score['"]?\s*:\s*([0-9.]+)/.exec(slice);
+    const contentMatch = /content['"]\s*:\s*['"]([^'"]+)['"]/.exec(slice);
+    refs.push({
+      document_name,
+      dataset_name: datasetMatch?.[1],
+      score: scoreMatch ? Number(scoreMatch[1]) : undefined,
+      content: contentMatch?.[1] ? rewriteFileUrlsInText(contentMatch[1]) : undefined,
+    });
+  }
+
+  const unique = new Map<string, ReferenceItem>();
+  for (const ref of refs) {
+    const key = ref.document_name || ref.dataset_name || JSON.stringify(ref);
+    if (!unique.has(key)) unique.set(key, ref);
+  }
+
+  return Array.from(unique.values());
+}
+
 export interface UseDifyChatOptions {
   chatId: string;
   initialMessages?: DifyMessage[];
@@ -37,10 +128,12 @@ export interface UseDifyChatReturn {
   messages: DifyMessage[];
   setMessages: React.Dispatch<React.SetStateAction<DifyMessage[]>>;
   sendMessage: (text: string, options?: { rating?: string }) => Promise<void>;
+  sendFeedback: (messageId: string, rating: 'like' | 'dislike' | null) => Promise<void>;
   isLoading: boolean;
   error: Error | null;
   stop: () => void;
   workflowStatus: WorkflowStatus;
+  toolEvents: ToolEvent[];
 }
 
 export function useDifyChat({
@@ -55,12 +148,18 @@ export function useDifyChat({
     isRunning: false,
     nodes: [],
   });
+  const [toolEvents, setToolEvents] = useState<ToolEvent[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
   
   // 用于批量更新的缓冲区
   const contentBufferRef = useRef<string>('');
   const rafIdRef = useRef<number | null>(null);
   const assistantIdRef = useRef<string>('');
+  const referencesRef = useRef<ReferenceItem[]>([]);
+  const filesRef = useRef<MessageFile[]>([]);
+  const ttsAudioRef = useRef<string>('');
+  const difyMessageIdRef = useRef<string>('');
+  const ignoreNextDeltaRef = useRef<boolean>(false);
 
   const stop = useCallback(() => {
     if (abortControllerRef.current) {
@@ -73,6 +172,7 @@ export function useDifyChat({
     }
     setIsLoading(false);
     setWorkflowStatus({ isRunning: false, nodes: [] });
+    setToolEvents([]);
   }, []);
 
   // 批量更新消息内容，使用 requestAnimationFrame 减少跳动
@@ -83,10 +183,21 @@ export function useDifyChat({
     if (content && assistantId) {
       setMessages((prev) => {
         const lastMessage = prev[prev.length - 1];
+        // NOTE: 不再对 content 做 URL 重写，保持原始绝对 URL。
+        // 相对代理 URL 会被 Streamdown 的 rehype-harden 插件阻止。
+        // 图片 URL 的代理由 Response 组件的 urlTransform 在渲染阶段处理。
+        const normalizedContent = content;
         if (lastMessage?.id === assistantId) {
           return [
             ...prev.slice(0, -1),
-            { ...lastMessage, content },
+            {
+              ...lastMessage,
+              content: normalizedContent,
+              references: referencesRef.current,
+              files: filesRef.current,
+              audioUrl: ttsAudioRef.current || lastMessage.audioUrl,
+              difyMessageId: difyMessageIdRef.current || lastMessage.difyMessageId,
+            },
           ];
         } else {
           return [
@@ -94,7 +205,11 @@ export function useDifyChat({
             {
               id: assistantId,
               role: 'assistant' as const,
-              content,
+              content: normalizedContent,
+              references: referencesRef.current,
+              files: filesRef.current,
+              audioUrl: ttsAudioRef.current || undefined,
+              difyMessageId: difyMessageIdRef.current || undefined,
               createdAt: new Date(),
             },
           ];
@@ -120,6 +235,10 @@ export function useDifyChat({
 
       // Reset state
       contentBufferRef.current = '';
+      referencesRef.current = [];
+      filesRef.current = [];
+      ttsAudioRef.current = '';
+      difyMessageIdRef.current = '';
       const assistantId = `assistant-${Date.now()}`;
       assistantIdRef.current = assistantId;
 
@@ -134,6 +253,7 @@ export function useDifyChat({
       setIsLoading(true);
       setError(null);
       setWorkflowStatus({ isRunning: true, nodes: [], startedAt: new Date() });
+      setToolEvents([]);
 
       try {
         // 2. Call API
@@ -248,6 +368,82 @@ export function useDifyChat({
                   }
                 }
 
+                if (pendingEventName === 'file') {
+                  if (data.url) {
+                    filesRef.current = [
+                      ...filesRef.current,
+                      { type: data.type || undefined, url: proxyFileUrl(data.url) },
+                    ];
+                  }
+                }
+
+                if (pendingEventName === 'tts') {
+                  if (typeof data.audio === 'string') {
+                    ttsAudioRef.current += data.audio;
+                  }
+                }
+
+                if (pendingEventName === 'tts_end') {
+                  if (ttsAudioRef.current) {
+                    const audioUrl = `data:audio/mp3;base64,${ttsAudioRef.current}`;
+                    ttsAudioRef.current = audioUrl;
+                  }
+                }
+
+                if (pendingEventName === 'replace') {
+                  if (typeof data.content === 'string') {
+                    contentBufferRef.current = data.content;
+                    ignoreNextDeltaRef.current = true;
+                    scheduleUpdate();
+                  }
+                }
+
+                if (pendingEventName === 'tool') {
+                  if (typeof data?.data?.output?.tool_response === 'string') {
+                    const toolResponse = data.data.output.tool_response;
+                    const refs = extractReferencesFromToolResponse(toolResponse);
+                    const files = extractFileUrlsFromToolResponse(toolResponse).map((file) => ({
+                      ...file,
+                      url: proxyFileUrl(file.url),
+                    }));
+                    if (refs.length) {
+                      referencesRef.current = [
+                        ...referencesRef.current,
+                        ...refs.filter(
+                          (ref) =>
+                            !referencesRef.current.some(
+                              (existing) => existing.document_name === ref.document_name
+                            )
+                        ),
+                      ];
+                    }
+                    if (files.length) {
+                      filesRef.current = [
+                        ...filesRef.current,
+                        ...files.filter(
+                          (file) =>
+                            !filesRef.current.some((existing) => existing.url === file.url)
+                        ),
+                      ];
+                    }
+                  }
+                  setToolEvents((prev) => [
+                    ...prev,
+                    {
+                      id: `tool-${Date.now()}`,
+                      label: data.label || undefined,
+                      status: data.status || undefined,
+                      error: data.error,
+                      data: data.data,
+                      tool: data.tool || undefined,
+                      thought: data.thought || undefined,
+                      tool_input: data.tool_input,
+                      observation: data.observation,
+                      createdAt: new Date(),
+                    },
+                  ]);
+                }
+
                 pendingEventName = null;
                 continue;
               }
@@ -256,10 +452,32 @@ export function useDifyChat({
               if (data.choices && data.choices[0]?.delta) {
                 const delta = data.choices[0].delta;
                 if (typeof delta.content === 'string') {
-                  contentBufferRef.current += delta.content;
+                  if (ignoreNextDeltaRef.current) {
+                    contentBufferRef.current = delta.content;
+                    ignoreNextDeltaRef.current = false;
+                  } else {
+                    contentBufferRef.current += delta.content;
+                  }
                   scheduleUpdate();
                 }
                 if (data.choices[0]?.finish_reason === 'stop') {
+                  if (data._dify?.message_id) {
+                    difyMessageIdRef.current = data._dify.message_id;
+                  }
+                  if (data._dify?.retriever_resources) {
+                    referencesRef.current = data._dify.retriever_resources;
+                  }
+                  if (Array.isArray(data._dify?.message_files)) {
+                    const files = data._dify.message_files
+                      .filter((file: any) => file?.url)
+                      .map((file: any) => ({
+                        type: file.type || undefined,
+                        url: proxyFileUrl(file.url),
+                      }));
+                    if (files.length) {
+                      filesRef.current = [...filesRef.current, ...files];
+                    }
+                  }
                   if (rafIdRef.current) {
                     cancelAnimationFrame(rafIdRef.current);
                   }
@@ -324,12 +542,115 @@ export function useDifyChat({
 
               // Handle message_end event
               if (data.event === 'message_end') {
+                if (data.message_id) {
+                  difyMessageIdRef.current = data.message_id;
+                }
+                if (data.metadata?.retriever_resources) {
+                  referencesRef.current = data.metadata.retriever_resources;
+                }
+                if (Array.isArray(data.metadata?.message_files)) {
+                  const files = data.metadata.message_files
+                    .filter((file: any) => file?.url)
+                    .map((file: any) => ({
+                      type: file.type || undefined,
+                        url: proxyFileUrl(file.url),
+                    }));
+                  if (files.length) {
+                    filesRef.current = [...filesRef.current, ...files];
+                  }
+                }
                 // 确保最后一次更新被执行
                 if (rafIdRef.current) {
                   cancelAnimationFrame(rafIdRef.current);
                 }
                 flushContent();
                 break;
+              }
+
+              if (data.event === 'message_file') {
+                if (data.url) {
+                  filesRef.current = [
+                    ...filesRef.current,
+                    { type: data.type || undefined, url: proxyFileUrl(data.url) },
+                  ];
+                }
+              }
+
+              if (data.event === 'tts_message') {
+                if (typeof data.audio === 'string') {
+                  ttsAudioRef.current += data.audio;
+                }
+              }
+
+              if (data.event === 'tts_message_end') {
+                if (ttsAudioRef.current) {
+                  const audioUrl = `data:audio/mp3;base64,${ttsAudioRef.current}`;
+                  ttsAudioRef.current = audioUrl;
+                }
+              }
+
+              if (data.event === 'message_replace') {
+                if (typeof data.answer === 'string') {
+                  contentBufferRef.current = data.answer;
+                  ignoreNextDeltaRef.current = true;
+                  scheduleUpdate();
+                }
+              }
+
+              if (data.event === 'agent_log') {
+                const toolResponse = data.data?.data?.output?.tool_response;
+                if (typeof toolResponse === 'string') {
+                  const refs = extractReferencesFromToolResponse(toolResponse);
+                  const files = extractFileUrlsFromToolResponse(toolResponse).map((file) => ({
+                    ...file,
+                    url: proxyFileUrl(file.url),
+                  }));
+                  if (refs.length) {
+                    referencesRef.current = [
+                      ...referencesRef.current,
+                      ...refs.filter(
+                        (ref) =>
+                          !referencesRef.current.some(
+                            (existing) => existing.document_name === ref.document_name
+                          )
+                      ),
+                    ];
+                  }
+                  if (files.length) {
+                    filesRef.current = [
+                      ...filesRef.current,
+                      ...files.filter(
+                        (file) =>
+                          !filesRef.current.some((existing) => existing.url === file.url)
+                      ),
+                    ];
+                  }
+                }
+                setToolEvents((prev) => [
+                  ...prev,
+                  {
+                    id: `tool-${Date.now()}`,
+                    label: data.data?.label || undefined,
+                    status: data.data?.status || undefined,
+                    error: data.data?.error,
+                    data: data.data?.data,
+                    createdAt: new Date(),
+                  },
+                ]);
+              }
+
+              if (data.event === 'agent_thought') {
+                setToolEvents((prev) => [
+                  ...prev,
+                  {
+                    id: `tool-${Date.now()}`,
+                    tool: data.tool || undefined,
+                    thought: data.thought || undefined,
+                    tool_input: data.tool_input,
+                    observation: data.observation,
+                    createdAt: new Date(),
+                  },
+                ]);
               }
 
               // Handle error event
@@ -377,14 +698,35 @@ export function useDifyChat({
     [chatId, onError, scheduleUpdate, flushContent]
   );
 
+  const sendFeedback = useCallback(
+    async (messageId: string, rating: 'like' | 'dislike' | null) => {
+      if (!messageId) return;
+      await fetch('/api/dify/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chatId, messageId, rating }),
+      });
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.difyMessageId === messageId
+            ? { ...msg, feedback: rating }
+            : msg
+        )
+      );
+    },
+    [chatId]
+  );
+
   return {
     messages,
     setMessages,
     sendMessage,
+    sendFeedback,
     isLoading,
     error,
     stop,
     workflowStatus,
+    toolEvents,
   };
 }
 

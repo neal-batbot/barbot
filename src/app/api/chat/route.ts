@@ -251,9 +251,11 @@ async function handleOpenRouterChat({
 
   const validatedMessages = await getValidatedMessages(chatId);
 
+  const modelMessages = await convertToModelMessages(validatedMessages);
+
   const result = streamText({
-    model: openrouter.chat(model),
-    messages: convertToModelMessages(validatedMessages),
+    model: openrouter.chat(model as any),
+    messages: modelMessages,
   });
 
   // send sources and reasoning back to the client
@@ -314,9 +316,11 @@ async function handleOpenAIChat({
 
   const validatedMessages = await getValidatedMessages(chatId);
 
+  const modelMessages = await convertToModelMessages(validatedMessages);
+
   const result = streamText({
     model: openai.chat(model),
-    messages: convertToModelMessages(validatedMessages),
+    messages: modelMessages,
   });
 
   return result.toUIMessageStreamResponse({
@@ -382,9 +386,11 @@ async function handleAnthropicChat({
 
   const validatedMessages = await getValidatedMessages(chatId);
 
+  const modelMessages = await convertToModelMessages(validatedMessages);
+
   const result = streamText({
     model: anthropic.messages(model),
-    messages: convertToModelMessages(validatedMessages),
+    messages: modelMessages,
   });
 
   return result.toUIMessageStreamResponse({
@@ -446,9 +452,11 @@ async function handleZhipuChat({
 
   const validatedMessages = await getValidatedMessages(chatId);
 
+  const modelMessages = await convertToModelMessages(validatedMessages);
+
   const result = streamText({
     model: zhipu.chat(model),
-    messages: convertToModelMessages(validatedMessages),
+    messages: modelMessages,
   });
 
   return result.toUIMessageStreamResponse({
