@@ -244,6 +244,15 @@ const defaultPermissions = [
     description: 'Delete AI tasks',
   },
 
+  // Chat models
+  {
+    code: 'chat.model.use',
+    resource: 'chat',
+    action: 'use',
+    title: 'Use Chat Models',
+    description: 'Access chat model APIs',
+  },
+
   // Wildcard permission for super admin
   {
     code: '*',
@@ -281,6 +290,7 @@ const defaultRoles = [
       'admin.apikeys.*',
       'admin.settings.read',
       'admin.ai-tasks.*',
+      'chat.model.use',
     ],
   },
   {

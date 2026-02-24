@@ -53,6 +53,20 @@ pnpm build
 pnpm start
 ```
 
+## RBAC 权限初始化与分配
+
+Chat 模型访问已加入权限控制，权限码为 `chat.model.use`。
+
+```bash
+# 初始化 RBAC（创建权限与默认角色）
+pnpm rbac:init
+
+# 给测试账号分配角色（默认 admin 角色包含 chat.model.use）
+pnpm rbac:assign --email=user@example.com --role=admin
+```
+
+如果 RBAC 已经初始化过，请重新运行 `pnpm rbac:init` 以创建新增权限。
+
 ## 技术栈
 
 - **框架**: Next.js 16.0.7

@@ -1,5 +1,6 @@
 import { generateId } from 'ai';
 
+import { PERMISSIONS } from '@/core/rbac';
 import { findChatById, updateChat } from '@/shared/models/chat';
 import {
   ChatMessageStatus,
@@ -9,6 +10,7 @@ import {
 import { createDifyOpenAIStream } from '@/extensions/ai/dify';
 import { getAllConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
+import { hasPermission } from '@/shared/services/rbac';
 
 // Force dynamic to ensure streaming works properly
 export const dynamic = 'force-dynamic';
@@ -26,6 +28,11 @@ export async function POST(req: Request) {
     const user = await getUserInfo();
     if (!user) {
       return new Response('Unauthorized', { status: 401 });
+    }
+
+    const allowed = await hasPermission(user.id, PERMISSIONS.CHAT_MODEL_USE);
+    if (!allowed) {
+      return new Response('Forbidden', { status: 403 });
     }
 
     // Check chat exists and belongs to user

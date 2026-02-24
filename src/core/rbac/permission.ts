@@ -60,6 +60,9 @@ export const PERMISSIONS = {
   AITASKS_READ: 'admin.ai-tasks.read',
   AITASKS_WRITE: 'admin.ai-tasks.write',
   AITASKS_DELETE: 'admin.ai-tasks.delete',
+
+  // Chat
+  CHAT_MODEL_USE: 'chat.model.use',
 } as const;
 
 /**

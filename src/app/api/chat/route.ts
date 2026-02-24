@@ -9,6 +9,7 @@ import {
   UIMessage,
 } from 'ai';
 
+import { PERMISSIONS } from '@/core/rbac';
 import { findChatById } from '@/shared/models/chat';
 
 // Force dynamic to ensure streaming works properly
@@ -22,6 +23,7 @@ import {
 } from '@/shared/models/chat_message';
 import { getAllConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
+import { hasPermission } from '@/shared/services/rbac';
 
 export async function POST(req: Request) {
   try {
@@ -54,7 +56,12 @@ export async function POST(req: Request) {
     // check user sign
     const user = await getUserInfo();
     if (!user) {
-      throw new Error('no auth, please sign in');
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    const allowed = await hasPermission(user.id, PERMISSIONS.CHAT_MODEL_USE);
+    if (!allowed) {
+      return new Response('Forbidden', { status: 403 });
     }
 
     // check chat
