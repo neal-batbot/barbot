@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-import { signIn } from '@/core/auth/client';
+import { authClient, signIn } from '@/core/auth/client';
 import { Link, useRouter } from '@/core/i18n/navigation';
 import { defaultLocale } from '@/config/locale';
 import { Button } from '@/shared/components/ui/button';
@@ -26,6 +26,9 @@ export function SignInForm({
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [useOtp, setUseOtp] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { configs } = useAppContext();
@@ -86,6 +89,68 @@ export function SignInForm({
     }
   };
 
+  const handleSendOtp = async () => {
+    if (sendingOtp) {
+      return;
+    }
+
+    if (!email) {
+      toast.error('email is required');
+      return;
+    }
+
+    try {
+      setSendingOtp(true);
+      await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: 'sign-in',
+      });
+      toast.success(t('email_verification_sent'));
+    } catch (e: any) {
+      toast.error(e?.error?.message || 'send verification code failed');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleOtpSignIn = async () => {
+    if (loading) {
+      return;
+    }
+
+    if (!email || !otp) {
+      toast.error(t('otp_required'));
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await signIn.emailOtp(
+        {
+          email,
+          otp,
+        },
+        {
+          onRequest: () => {
+            setLoading(true);
+          },
+          onResponse: () => {
+            setLoading(false);
+          },
+          onSuccess: () => {},
+          onError: (e: any) => {
+            toast.error(e?.error?.message || 'sign in failed');
+            setLoading(false);
+          },
+        }
+      );
+    } catch (e: any) {
+      toast.error(e.message || 'sign in failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={`w-full md:max-w-md ${className}`}>
       <div className="grid gap-4">
@@ -105,24 +170,54 @@ export function SignInForm({
               />
             </div>
 
-            <div className="grid gap-2">
-              {/* <div className="flex items-center">
-              <Label htmlFor="password">{t("password_title")}</Label>
-              <Link href="#" className="ml-auto inline-block text-sm underline">
-                Forgot your password?
-              </Link>
-            </div> */}
+            {!useOtp ? (
+              <div className="grid gap-2">
+                {/* <div className="flex items-center">
+                <Label htmlFor="password">{t("password_title")}</Label>
+                <Link href="#" className="ml-auto inline-block text-sm underline">
+                  Forgot your password?
+                </Link>
+              </div> */}
 
-              <Input
-                id="password"
-                type="password"
-                placeholder={t('password_placeholder')}
-                autoComplete="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={t('password_placeholder')}
+                  autoComplete="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="otp">{t('otp_title')}</Label>
+                  <Input
+                    id="otp"
+                    type="text"
+                    placeholder={t('otp_placeholder')}
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  disabled={sendingOtp}
+                  onClick={handleSendOtp}
+                >
+                  {sendingOtp ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <p>{t('send_code')}</p>
+                  )}
+                </Button>
+              </>
+            )}
 
             {/* <div className="flex items-center gap-2">
             <Checkbox
@@ -138,13 +233,27 @@ export function SignInForm({
               type="submit"
               className="w-full"
               disabled={loading}
-              onClick={handleSignIn}
+              onClick={useOtp ? handleOtpSignIn : handleSignIn}
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
-                <p> {t('sign_in_title')} </p>
+                <p>
+                  {useOtp ? t('sign_in_with_code') : t('sign_in_title')}
+                </p>
               )}
+            </Button>
+
+            <Button
+              type="button"
+              className="w-full"
+              variant="ghost"
+              onClick={() => {
+                setUseOtp((prev) => !prev);
+                setOtp('');
+              }}
+            >
+              <p>{useOtp ? t('use_password') : t('use_otp')}</p>
             </Button>
           </>
         )}

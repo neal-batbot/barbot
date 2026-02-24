@@ -1030,13 +1030,33 @@ export const publicSettingNames = [
   'tawk_enabled',
 ];
 
+const ALL_SETTING_NAMES = [
+  'app_name', 'app_description', 'app_logo', 'app_preview_image',
+  'initial_credits_enabled', 'initial_credits_amount', 'initial_credits_valid_days', 'initial_credits_description',
+  'email_auth_enabled', 'google_auth_enabled', 'google_one_tap_enabled', 'google_client_id', 'google_client_secret',
+  'github_auth_enabled', 'github_client_id', 'github_client_secret',
+  'select_payment_enabled', 'default_payment_provider',
+  'stripe_enabled', 'stripe_publishable_key', 'stripe_secret_key', 'stripe_signing_secret', 'stripe_payment_methods', 'stripe_promotion_codes', 'stripe_allow_promotion_codes',
+  'creem_enabled', 'creem_environment', 'creem_api_key', 'creem_signing_secret', 'creem_product_ids',
+  'paypal_enabled', 'paypal_environment', 'paypal_client_id', 'paypal_client_secret',
+  'google_analytics_id', 'clarity_id', 'plausible_domain', 'plausible_src', 'openpanel_client_id', 'vercel_analytics_enabled',
+  'resend_api_key', 'resend_sender_email',
+  'r2_access_key', 'r2_secret_key', 'r2_bucket_name', 'r2_upload_path', 'r2_endpoint', 'r2_domain',
+  'openrouter_api_key', 'openrouter_base_url', 'openai_api_key', 'openai_base_url',
+  'anthropic_api_key', 'anthropic_base_url', 'anthropic_version',
+  'zhipu_api_key', 'zhipu_base_url',
+  'dify_api_key', 'dify_api_url', 'dify_bots', 'dify_console_email', 'dify_console_password',
+  'replicate_api_token', 'replicate_custom_storage',
+  'fal_api_key', 'fal_custom_storage',
+  'gemini_api_key',
+  'kie_api_key', 'kie_custom_storage',
+  'adsense_code',
+  'affonso_enabled', 'affonso_id', 'affonso_cookie_duration',
+  'promotekit_enabled', 'promotekit_id',
+  'crisp_enabled', 'crisp_website_id',
+  'tawk_enabled', 'tawk_property_id', 'tawk_widget_id',
+];
+
 export async function getAllSettingNames() {
-  const settings = await getSettings();
-  const settingNames: string[] = [];
-
-  settings.forEach((setting: Setting) => {
-    settingNames.push(setting.name);
-  });
-
-  return settingNames;
+  return ALL_SETTING_NAMES;
 }

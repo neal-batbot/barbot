@@ -50,25 +50,22 @@ export function db() {
       return dbInstance;
     }
 
-    // Create connection pool only once
     client = postgres(databaseUrl, {
       prepare: false,
-      max: Number(envConfigs.db_max_connections) || 1, // Maximum connections in pool (default 1)
-      idle_timeout: 30, // Idle connection timeout (seconds)
-      connect_timeout: 10, // Connection timeout (seconds)
+      max: Number(envConfigs.db_max_connections) || 10,
+      idle_timeout: 60,
+      connect_timeout: 5,
     });
 
     dbInstance = drizzle({ client });
     return dbInstance;
   }
 
-  // Non-singleton mode: create new connection each time (good for serverless)
-  // In serverless, the connection will be cleaned up when the function instance is destroyed
   const serverlessClient = postgres(databaseUrl, {
     prepare: false,
-    max: 1, // Use single connection in serverless
+    max: 1,
     idle_timeout: 20,
-    connect_timeout: 10,
+    connect_timeout: 5,
   });
 
   return drizzle({ client: serverlessClient });

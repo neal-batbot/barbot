@@ -50,30 +50,19 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [isShowPaymentModal, setIsShowPaymentModal] = useState(false);
 
   const fetchConfigs = async function () {
-    const endpoints = [
-      { url: '/api/config/get-configs', method: 'POST' },
-      { url: '/api/configs', method: 'GET' },
-      { url: '/api/config', method: 'GET' },
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const resp = await fetch(endpoint.url, {
-          method: endpoint.method,
-        });
-        if (!resp.ok) {
-          throw new Error(`fetch failed with status: ${resp.status}`);
-        }
-        const { code, message, data } = await resp.json();
-        if (code !== 0) {
-          throw new Error(message);
-        }
-
-        setConfigs(data);
-        return;
-      } catch (e) {
-        console.log('fetch configs failed:', e);
+    try {
+      const resp = await fetch('/api/config');
+      if (!resp.ok) {
+        throw new Error(`fetch failed with status: ${resp.status}`);
       }
+      const { code, message, data } = await resp.json();
+      if (code !== 0) {
+        throw new Error(message);
+      }
+
+      setConfigs(data);
+    } catch (e) {
+      console.log('fetch configs failed:', e);
     }
   };
 

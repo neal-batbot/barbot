@@ -3,14 +3,13 @@
 services:
   app:
     build: .
-    ports:
-      - "3000:3000"
+    network_mode: "host"
     environment:
       NODE_ENV: production
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
-      # 连接宿主机 PostgreSQL（Windows/Mac Docker Desktop 使用 host.docker.internal）
-      DATABASE_URL: "postgresql://postgres:123456@host.docker.internal:5432/postgres"
+      # 连接宿主机 PostgreSQL
+      DATABASE_URL: "postgresql://postgres:123456@localhost:5432/postgres"
       DATABASE_PROVIDER: "postgresql"
       DB_SINGLETON_ENABLED: "true"
       NEXT_PUBLIC_APP_URL: "https://vectoraifae.online"
@@ -18,5 +17,3 @@ services:
       DIFY_API_KEY: "app-DedVoF7OO1fGXB1svOFBAgJw"
       # 生产环境请自行生成：openssl rand -base64 32，并设置环境变量 AUTH_SECRET
       AUTH_SECRET: "${AUTH_SECRET:-u7XHWVvSnGu15hGltwrh1t8VO4mLSCc2AxxeV8WxCNU=}"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"

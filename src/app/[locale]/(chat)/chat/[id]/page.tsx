@@ -16,20 +16,28 @@ export default function ChatPage() {
     null
   );
 
-  const fetchChat = async (chatId: string) => {
+  const loadChatData = async (chatId: string) => {
     try {
-      const resp = await fetch('/api/chat/info', {
-        method: 'POST',
-        body: JSON.stringify({ chatId }),
-      });
-      if (!resp.ok) {
-        throw new Error(`request failed with status: ${resp.status}`);
+      const [chatResp, messagesResp] = await Promise.all([
+        fetch('/api/chat/info', {
+          method: 'POST',
+          body: JSON.stringify({ chatId }),
+        }),
+        fetch('/api/chat/messages', {
+          method: 'POST',
+          body: JSON.stringify({ chatId, page: 1, limit: 100 }),
+        }),
+      ]);
+
+      if (!chatResp.ok) {
+        throw new Error(`fetch chat failed with status: ${chatResp.status}`);
       }
-      const { code, message, data } = await resp.json();
-      if (code !== 0) {
-        throw new Error(message);
+      const chatResult = await chatResp.json();
+      if (chatResult.code !== 0) {
+        throw new Error(chatResult.message);
       }
 
+      const data = chatResult.data;
       setInitialChat({
         id: data.id,
         title: data.title,
@@ -41,29 +49,17 @@ export default function ChatPage() {
         content: data.content ? JSON.parse(data.content) : undefined,
       } as Chat);
 
-      if (data.id) {
-        fetchMessages(data.id);
+      if (!messagesResp.ok) {
+        throw new Error(
+          `fetch messages failed with status: ${messagesResp.status}`
+        );
       }
-    } catch (e: any) {
-      console.log('fetch chat failed:', e);
-    }
-  };
-
-  const fetchMessages = async (chatId: string) => {
-    try {
-      const resp = await fetch('/api/chat/messages', {
-        method: 'POST',
-        body: JSON.stringify({ chatId, page: 1, limit: 100 }),
-      });
-      if (!resp.ok) {
-        throw new Error(`request failed with status: ${resp.status}`);
-      }
-      const { code, message, data } = await resp.json();
-      if (code !== 0) {
-        throw new Error(message);
+      const messagesResult = await messagesResp.json();
+      if (messagesResult.code !== 0) {
+        throw new Error(messagesResult.message);
       }
 
-      const { list } = data;
+      const { list } = messagesResult.data;
       setInitialMessages(
         list.map((item: any) => ({
           id: item.id,
@@ -73,12 +69,12 @@ export default function ChatPage() {
         })) as UIMessage[]
       );
     } catch (e: any) {
-      console.log('fetch messages failed:', e);
+      console.log('load chat data failed:', e);
     }
   };
 
   useEffect(() => {
-    fetchChat(params.id as string);
+    loadChatData(params.id as string);
   }, [params.id]);
 
   return initialChat && initialMessages ? (

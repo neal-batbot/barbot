@@ -1,4 +1,4 @@
-import { oneTapClient } from 'better-auth/client/plugins';
+import { emailOTPClient, oneTapClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
 import { envConfigs } from '@/config';
@@ -6,8 +6,9 @@ import { envConfigs } from '@/config';
 // create default auth client, without plugins
 export const authClient = createAuthClient({
   baseURL: envConfigs.auth_url,
+  plugins: [emailOTPClient()],
   fetchOptions: {
-    retry: 3,
+    retry: 1,
   },
 });
 
@@ -20,7 +21,7 @@ export function getAuthClient(configs: Record<string, string>) {
     baseURL: envConfigs.auth_url,
     plugins: getAuthPlugins(configs),
     fetchOptions: {
-      retry: 3,
+      retry: 1,
     },
   });
 
@@ -30,6 +31,8 @@ export function getAuthClient(configs: Record<string, string>) {
 // get auth plugins with configs
 function getAuthPlugins(configs: Record<string, string>) {
   const authPlugins = [];
+
+  authPlugins.push(emailOTPClient());
 
   // google one tap plugin
   if (configs.google_client_id && configs.google_one_tap_enabled === 'true') {

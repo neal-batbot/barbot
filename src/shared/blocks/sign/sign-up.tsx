@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-import { signUp } from '@/core/auth/client';
+import { authClient, signUp } from '@/core/auth/client';
 import { Link } from '@/core/i18n/navigation';
 import { defaultLocale } from '@/config/locale';
 import { Button } from '@/shared/components/ui/button';
@@ -44,6 +44,9 @@ export function SignUp({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState<'form' | 'verify'>('form');
+  const [sendingOtp, setSendingOtp] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const isGoogleAuthEnabled = configs.google_auth_enabled === 'true';
@@ -120,9 +123,7 @@ export function SignUp({
           setLoading(false);
         },
         onSuccess: (ctx) => {
-          // report affiliate
           reportAffiliate({ userEmail: email });
-          router.push(callbackUrl);
         },
         onError: (e: any) => {
           toast.error(e?.error?.message || 'sign up failed');
@@ -130,6 +131,65 @@ export function SignUp({
         },
       }
     );
+
+    try {
+      setSendingOtp(true);
+      await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: 'email-verification',
+      });
+      setStep('verify');
+      toast.success(t('email_verification_sent'));
+    } catch (e: any) {
+      toast.error(e?.error?.message || 'send verification code failed');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    if (!otp) {
+      toast.error(t('otp_required'));
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await authClient.emailOtp.verifyEmail({
+        email,
+        otp,
+      });
+
+      if (result?.error) {
+        throw new Error(result.error.message || 'verify email failed');
+      }
+
+      toast.success(t('email_verified'));
+      router.push(callbackUrl);
+    } catch (e: any) {
+      toast.error(e?.message || 'verify email failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (sendingOtp) {
+      return;
+    }
+
+    try {
+      setSendingOtp(true);
+      await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: 'email-verification',
+      });
+      toast.success(t('email_verification_sent'));
+    } catch (e: any) {
+      toast.error(e?.error?.message || 'send verification code failed');
+    } finally {
+      setSendingOtp(false);
+    }
   };
 
   return (
@@ -137,68 +197,118 @@ export function SignUp({
       <ContinueAuthRedirect state={state} redirectUri={redirectUri} />
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">
-          <h1>{t('sign_up_title')}</h1>
+          <h1>
+            {step === 'form' ? t('sign_up_title') : t('email_verify_title')}
+          </h1>
         </CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          <h2>{t('sign_up_description')}</h2>
+          <h2>
+            {step === 'form'
+              ? t('sign_up_description')
+              : t('email_verify_description')}
+          </h2>
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
           {isEmailAuthEnabled && (
             <>
-              <div className="grid gap-2">
-                <Label htmlFor="name">{t('name_title')}</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder={t('name_placeholder')}
-                  required
-                  onChange={(e) => {
-                    setName(e.target.value);
-                  }}
-                  value={name}
-                />
-              </div>
+              {step === 'form' ? (
+                <>
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">{t('name_title')}</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder={t('name_placeholder')}
+                      required
+                      onChange={(e) => {
+                        setName(e.target.value);
+                      }}
+                      value={name}
+                    />
+                  </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="email">{t('email_title')}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t('email_placeholder')}
-                  required
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                  }}
-                  value={email}
-                />
-              </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">{t('email_title')}</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder={t('email_placeholder')}
+                      required
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                      }}
+                      value={email}
+                    />
+                  </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="password">{t('password_title')}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={t('password_placeholder')}
-                  autoComplete="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">{t('password_title')}</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder={t('password_placeholder')}
+                      autoComplete="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-                onClick={handleSignUp}
-              >
-                {loading ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <p>{t('sign_up_title')}</p>
-                )}
-              </Button>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={loading || sendingOtp}
+                    onClick={handleSignUp}
+                  >
+                    {loading || sendingOtp ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <p>{t('sign_up_title')}</p>
+                    )}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="grid gap-2">
+                    <Label htmlFor="otp">{t('otp_title')}</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      placeholder={t('otp_placeholder')}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={loading}
+                    onClick={handleVerifyEmail}
+                  >
+                    {loading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <p>{t('verify_email_action')}</p>
+                    )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    className="w-full"
+                    variant="ghost"
+                    disabled={sendingOtp}
+                    onClick={handleResendOtp}
+                  >
+                    {sendingOtp ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <p>{t('resend_code')}</p>
+                    )}
+                  </Button>
+                </>
+              )}
             </>
           )}
 
@@ -215,7 +325,7 @@ export function SignUp({
           />
         </div>
       </CardContent>
-      {isEmailAuthEnabled && (
+      {isEmailAuthEnabled && step === 'form' && (
         <CardFooter>
           <div className="flex w-full justify-center border-t py-4">
             <p className="text-center text-xs text-neutral-500">

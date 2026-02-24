@@ -91,7 +91,12 @@ export async function getAllConfigs(): Promise<Configs> {
   // only get configs from db in server side
   if (typeof window === 'undefined' && envConfigs.database_url) {
     try {
-      dbConfigs = await getConfigs();
+      // Read directly from DB here to avoid stale cached values in auth/runtime-critical flows.
+      const result = await db().select().from(config);
+      dbConfigs = result.reduce<Configs>((acc, item) => {
+        acc[item.name] = item.value ?? '';
+        return acc;
+      }, {});
     } catch (e) {
       console.log(`get configs from db failed:`, e);
       dbConfigs = {};
@@ -118,20 +123,16 @@ export async function getAllConfigs(): Promise<Configs> {
 }
 
 export async function getPublicConfigs(): Promise<Configs> {
-  let allConfigs = await getAllConfigs();
+  let allConfigs = await getConfigs();
 
+  const publicSet = new Set(publicSettingNames);
   const publicConfigs: Record<string, string> = {};
 
-  // get public configs
   for (const key in allConfigs) {
-    if (publicSettingNames.includes(key)) {
+    if (publicSet.has(key)) {
       publicConfigs[key] = String(allConfigs[key]);
     }
   }
 
-  const configs = {
-    ...publicConfigs,
-  };
-
-  return configs;
+  return publicConfigs;
 }

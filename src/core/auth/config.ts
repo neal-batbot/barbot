@@ -1,10 +1,12 @@
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { oneTap } from 'better-auth/plugins';
+import { emailOTP, oneTap } from 'better-auth/plugins';
 
 import { db } from '@/core/db';
 import { envConfigs } from '@/config';
 import * as schema from '@/config/db/schema';
+import { VerificationCode } from '@/shared/blocks/email/verification-code';
 import { getUuid } from '@/shared/lib/hash';
+import { getEmailService } from '@/shared/services/email';
 
 const DEFAULT_DEV_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
@@ -64,6 +66,38 @@ const authOptions = {
 
 // get auth options with configs
 export async function getAuthOptions(configs: Record<string, string>) {
+  const emailService = await getEmailService(configs);
+  const plugins = [];
+
+  if (configs.google_client_id && configs.google_one_tap_enabled === 'true') {
+    plugins.push(oneTap());
+  }
+
+  plugins.push(
+    emailOTP({
+      otpLength: 6,
+      expiresIn: 300,
+      allowedAttempts: 5,
+      sendVerificationOnSignUp: true,
+      overrideDefaultEmailVerification: true,
+      async sendVerificationOTP({ email, otp, type }) {
+        let subject = 'Verification code';
+        if (type === 'sign-in') {
+          subject = 'Sign in verification code';
+        } else if (type === 'email-verification') {
+          subject = 'Email verification code';
+        } else if (type === 'forget-password') {
+          subject = 'Reset password code';
+        }
+        await emailService.sendEmail({
+          to: email,
+          subject,
+          react: VerificationCode({ code: otp }),
+        });
+      },
+    })
+  );
+
   return {
     ...authOptions,
     // Add database connection only when actually needed (runtime)
@@ -95,10 +129,7 @@ export async function getAuthOptions(configs: Record<string, string>) {
       enabled: configs.email_auth_enabled !== 'false',
     },
     socialProviders: await getSocialProviders(configs),
-    plugins:
-      configs.google_client_id && configs.google_one_tap_enabled === 'true'
-        ? [oneTap()]
-        : [],
+    plugins,
   };
 }
 

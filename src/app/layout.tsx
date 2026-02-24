@@ -6,7 +6,7 @@ import NextTopLoader from 'nextjs-toploader';
 
 import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
-import { getAllConfigs } from '@/shared/models/config';
+import { getConfigs } from '@/shared/models/config';
 import { getAdsService } from '@/shared/services/ads';
 import { getAffiliateService } from '@/shared/services/affiliate';
 import { getAnalyticsService } from '@/shared/services/analytics';
@@ -24,14 +24,14 @@ const merriweather = Merriweather({
   weight: ['400', '700'],
   variable: '--font-serif',
   display: 'swap',
-  preload: true,
+  preload: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
   display: 'swap',
-  preload: true,
+  preload: false,
 });
 
 export default async function RootLayout({
@@ -69,7 +69,7 @@ export default async function RootLayout({
   let customerServiceBodyScripts = null;
 
   if (isProduction || isDebug) {
-    const configs = await getAllConfigs();
+    const configs = await getConfigs();
 
     const [adsService, analyticsService, affiliateService, customerService] =
       await Promise.all([
