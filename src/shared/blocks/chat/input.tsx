@@ -43,12 +43,42 @@ export function ChatInput({
 }) {
   const t = useTranslations('ai.chat.generator');
 
-  // Static non-Dify models
-  const zhipuModels: ExtendedChatModel[] = [
+  // Static non-Dify models (mainstream package)
+  const staticModels: ExtendedChatModel[] = [
     {
       title: 'GLM-5',
       name: 'glm-5',
       provider: 'zhipu',
+    },
+    {
+      title: 'GPT-4o',
+      name: 'gpt-4o',
+      provider: 'openai',
+    },
+    {
+      title: 'GPT-4.1 mini',
+      name: 'gpt-4.1-mini',
+      provider: 'openai',
+    },
+    {
+      title: 'Claude 3.5 Sonnet',
+      name: 'claude-3-5-sonnet-latest',
+      provider: 'anthropic',
+    },
+    {
+      title: 'Gemini 2.0 Flash',
+      name: 'google/gemini-2.0-flash-001',
+      provider: 'openrouter',
+    },
+    {
+      title: 'DeepSeek Chat',
+      name: 'deepseek/deepseek-chat',
+      provider: 'openrouter',
+    },
+    {
+      title: 'Qwen 2.5 72B Instruct',
+      name: 'qwen/qwen-2.5-72b-instruct',
+      provider: 'openrouter',
     },
   ];
 
@@ -111,7 +141,7 @@ export function ChatInput({
       ratings: bot.ratings,
       default_rating: bot.default_rating,
     }));
-    return [...difyModels, ...zhipuModels];
+    return [...difyModels, ...staticModels];
   }, [difyBots]);
 
   // Update rating when model changes
