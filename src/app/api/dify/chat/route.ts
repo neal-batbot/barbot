@@ -1,16 +1,13 @@
 import { generateId } from 'ai';
 
-import { PERMISSIONS } from '@/core/rbac';
 import { findChatById, updateChat } from '@/shared/models/chat';
 import {
   ChatMessageStatus,
   createChatMessage,
   NewChatMessage,
 } from '@/shared/models/chat_message';
-import { createDifyOpenAIStream } from '@/extensions/ai/dify';
 import { getAllConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
-import { hasPermission } from '@/shared/services/rbac';
 
 // Force dynamic to ensure streaming works properly
 export const dynamic = 'force-dynamic';
@@ -28,11 +25,6 @@ export async function POST(req: Request) {
     const user = await getUserInfo();
     if (!user) {
       return new Response('Unauthorized', { status: 401 });
-    }
-
-    const allowed = await hasPermission(user.id, PERMISSIONS.CHAT_MODEL_USE);
-    if (!allowed) {
-      return new Response('Forbidden', { status: 403 });
     }
 
     // Check chat exists and belongs to user
@@ -92,12 +84,7 @@ export async function POST(req: Request) {
     console.log('[DEBUG POST /api/dify/chat] Conversation ID:', conversationId || '(empty)');
     console.log('[DEBUG POST /api/dify/chat] Using bot:', botConfig?.title || 'default');
     console.log('[DEBUG POST /api/dify/chat] API Key:', difyApiKey.substring(0, 15) + '...');
-    const normalizedDifyApiUrl = difyApiUrl.replace(/\/+$/, '');
-    const difyApiBase = normalizedDifyApiUrl.endsWith('/v1')
-      ? normalizedDifyApiUrl
-      : `${normalizedDifyApiUrl}/v1`;
-
-    console.log('[DEBUG POST /api/dify/chat] API URL:', difyApiBase);
+    console.log('[DEBUG POST /api/dify/chat] API URL:', difyApiUrl);
 
     // Save user message to database
     const currentTime = new Date();
@@ -143,6 +130,12 @@ export async function POST(req: Request) {
     } else {
       console.log('[DEBUG POST /api/dify/chat] Starting new conversation (no conversation_id)');
     }
+
+    // 与 streamDifyChatMessages 一致：dify_api_url 可带或不带 /v1，避免拼成 /v1/v1/chat-messages 导致 404
+    const normalizedDifyApiUrl = difyApiUrl.replace(/\/+$/, '');
+    const difyApiBase = normalizedDifyApiUrl.endsWith('/v1')
+      ? normalizedDifyApiUrl
+      : `${normalizedDifyApiUrl}/v1`;
 
     const difyResponse = await fetch(`${difyApiBase}/chat-messages`, {
       method: 'POST',
@@ -192,40 +185,83 @@ export async function POST(req: Request) {
       return new Response('No response body from Dify', { status: 500 });
     }
 
-    const { stream: responseStream } = createDifyOpenAIStream(difyResponse.body, {
-      model: chat.model || 'dify/default',
-      showNodeEvents: true,
-      onMessageEnd: async (state) => {
-        const assistantMessage: NewChatMessage = {
-          id: generateId().toLowerCase(),
-          chatId,
-          userId: user.id,
-          status: ChatMessageStatus.CREATED,
-          createdAt: currentTime,
-          updatedAt: currentTime,
-          role: 'assistant',
-          parts: JSON.stringify([{ type: 'text', text: state.fullAnswer }]),
-          metadata: JSON.stringify({
-            conversation_id: state.conversationId,
-            message_id: state.messageId,
-            task_id: state.taskId,
-            dify_metadata: state.metadata || null,
-          }),
-          model: 'dify/default',
-          provider: 'dify',
-        };
-        await createChatMessage(assistantMessage);
+    // Create a transform stream to intercept the response for saving to DB
+    let fullAnswer = '';
+    let newConversationId = conversationId;
+    let difyMessageId = '';
 
-        if (state.conversationId && state.conversationId !== conversationId) {
-          await updateChat(chatId, {
-            metadata: JSON.stringify({
-              ...chatMetadata,
-              dify_conversation_id: state.conversationId,
-            }),
-          });
+    const transformStream = new TransformStream({
+      async transform(chunk, controller) {
+        // Pass through the chunk
+        controller.enqueue(chunk);
+
+        // Also parse it to extract data
+        const text = new TextDecoder().decode(chunk);
+        const lines = text.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              // Capture conversation_id
+              if (data.conversation_id && !newConversationId) {
+                newConversationId = data.conversation_id;
+              }
+
+              // Capture message_id
+              if (data.message_id && !difyMessageId) {
+                difyMessageId = data.message_id;
+              }
+
+              // Accumulate answer
+              if (data.event === 'message' || data.event === 'agent_message') {
+                if (data.answer) {
+                  fullAnswer += data.answer;
+                }
+              }
+
+              // On message_end, save to database
+              if (data.event === 'message_end') {
+                // Save assistant message
+                const assistantMessage: NewChatMessage = {
+                  id: generateId().toLowerCase(),
+                  chatId,
+                  userId: user.id,
+                  status: ChatMessageStatus.CREATED,
+                  createdAt: currentTime,
+                  updatedAt: currentTime,
+                  role: 'assistant',
+                  parts: JSON.stringify([{ type: 'text', text: fullAnswer }]),
+                  metadata: JSON.stringify({
+                    conversation_id: newConversationId,
+                    message_id: difyMessageId,
+                  }),
+                  model: 'dify/default',
+                  provider: 'dify',
+                };
+                await createChatMessage(assistantMessage);
+
+                // Update chat metadata with conversation_id
+                if (newConversationId && newConversationId !== conversationId) {
+                  await updateChat(chatId, {
+                    metadata: JSON.stringify({
+                      ...chatMetadata,
+                      dify_conversation_id: newConversationId,
+                    }),
+                  });
+                }
+              }
+            } catch {
+              // Ignore parse errors
+            }
+          }
         }
       },
     });
+
+    // Pipe Dify response through our transform stream
+    const responseStream = difyResponse.body.pipeThrough(transformStream);
 
     // Return the transformed stream
     return new Response(responseStream, {

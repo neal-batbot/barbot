@@ -36,12 +36,17 @@ async function verifyDifyConfig() {
 
   console.log('\n=== Testing API Connection ===\n');
 
+  const normalizeDifyBase = (url: string) => {
+    const trimmed = url.replace(/\/+$/, '');
+    return trimmed.endsWith('/v1') ? trimmed : `${trimmed}/v1`;
+  };
+
   // Test API connection with each bot
   if (difyApiUrl && difyApiKey) {
     console.log('Testing with global API key...\n');
 
     try {
-      const response = await fetch(`${difyApiUrl}/v1/chat-messages`, {
+      const response = await fetch(`${normalizeDifyBase(difyApiUrl)}/chat-messages`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${difyApiKey}`,
@@ -83,7 +88,7 @@ async function verifyDifyConfig() {
         console.log(`Testing ${bot.title}...`);
 
         try {
-          const response = await fetch(`${difyApiUrl}/v1/chat-messages`, {
+          const response = await fetch(`${normalizeDifyBase(difyApiUrl!)}/chat-messages`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${bot.api_key}`,
