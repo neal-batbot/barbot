@@ -1,0 +1,71 @@
+# next-intl Reference
+# Source: https://next-intl-docs.vercel.app
+# Captured: 2026-03-28
+# Status: STABLE - update on major version changes
+# Scope: Patterns actually used in this project
+
+---
+
+## Message File Structure
+
+```
+src/config/locale/messages/
+├── en/
+│   ├── common.json
+│   ├── chat.json
+│   └── {feature}.json
+└── zh/
+    ├── common.json
+    ├── chat.json
+    └── {feature}.json
+```
+
+## Client Component
+
+```typescript
+'use client';
+import { useTranslations } from 'next-intl';
+
+export function MyComponent() {
+  const t = useTranslations('FeatureName');
+  return <p>{t('someKey')}</p>;
+}
+```
+
+## Server Component
+
+```typescript
+import { getTranslations } from 'next-intl/server';
+
+export default async function Page() {
+  const t = await getTranslations('FeatureName');
+  return <p>{t('someKey')}</p>;
+}
+```
+
+## Locale Detection (Middleware)
+
+```typescript
+// src/core/i18n/
+import createMiddleware from 'next-intl/middleware';
+
+export default createMiddleware({
+  locales: ['en', 'zh'],
+  defaultLocale: 'en',
+});
+```
+
+## Message with Variables
+
+```json
+{ "greeting": "Hello, {name}!" }
+```
+
+```typescript
+t('greeting', { name: 'World' })  // "Hello, World!"
+```
+
+## Locale in URL
+
+Routes are prefixed: `/en/...` and `/zh/...`
+The `[locale]` segment in `src/app/[locale]/` handles this automatically.

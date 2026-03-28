@@ -1,0 +1,75 @@
+# Better Auth Reference
+# Source: https://www.better-auth.com/docs
+# Captured: 2026-03-28
+# Status: STABLE - update on major version changes
+# Scope: Patterns actually used in this project
+
+---
+
+## Installation & Secret
+
+```bash
+pnpm add better-auth
+openssl rand -base64 32  # generate AUTH_SECRET
+```
+
+## Core Config Pattern
+
+```typescript
+// src/core/auth/index.ts
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+
+export const auth = betterAuth({
+  database: drizzleAdapter(db, { provider: 'pg' }),
+  secret: process.env.AUTH_SECRET,
+  // ...providers
+});
+```
+
+## Getting Session (Server)
+
+```typescript
+import { auth } from '@/core/auth';
+import { headers } from 'next/headers';
+
+const session = await auth.api.getSession({ headers: await headers() });
+if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const user = session.user;
+```
+
+## Getting Session (Client)
+
+```typescript
+import { authClient } from '@/core/auth/client';
+const { data: session } = authClient.useSession();
+```
+
+## OAuth Providers
+
+```typescript
+betterAuth({
+  socialProviders: {
+    google: { clientId: process.env.GOOGLE_CLIENT_ID!, clientSecret: process.env.GOOGLE_CLIENT_SECRET! },
+    github: { clientId: process.env.GITHUB_CLIENT_ID!, clientSecret: process.env.GITHUB_CLIENT_SECRET! },
+  }
+})
+```
+
+## RBAC Plugin
+
+```typescript
+import { admin } from 'better-auth/plugins';
+
+betterAuth({
+  plugins: [admin()],
+})
+```
+
+Role assignment via admin plugin or `pnpm rbac:assign` script.
+
+## Regenerate Auth Tables
+
+```bash
+pnpm auth:generate   # After changing auth config, regenerates migration
+```

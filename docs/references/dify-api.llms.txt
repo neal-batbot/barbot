@@ -1,3 +1,12 @@
+# Dify API Reference
+# Source: https://docs.dify.ai
+# Captured: 2026-03-28
+# Status: STABLE - update only when Dify releases breaking changes
+# Language: Chinese (original)
+
+---
+
+
 工作流编排对话型应用 API
 对话应用支持会话持久化，可将之前的聊天记录作为上下文进行回答，可适用于聊天/客服 AI 等。
 

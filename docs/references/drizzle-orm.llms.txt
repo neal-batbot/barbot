@@ -1,0 +1,75 @@
+# Drizzle ORM Reference
+# Source: https://orm.drizzle.team/docs
+# Captured: 2026-03-28
+# Status: STABLE - update on major version changes
+# Scope: Patterns actually used in this project
+
+---
+
+## Schema Definition
+
+```typescript
+// src/config/db/schema.postgres.ts
+import { pgTable, text, timestamp, boolean, integer } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('user', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+```
+
+## DB Singleton
+
+```typescript
+// src/core/db/index.ts
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+
+const client = postgres(process.env.DATABASE_URL!);
+export const db = drizzle(client, { schema });
+```
+
+## Queries
+
+```typescript
+import { db } from '@/core/db';
+import { users } from '@/config/db/schema.postgres';
+import { eq } from 'drizzle-orm';
+
+// Select
+const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+
+// Insert
+const [newUser] = await db.insert(users).values({ id, name, email }).returning();
+
+// Update
+await db.update(users).set({ name: 'New Name' }).where(eq(users.id, userId));
+
+// Delete
+await db.delete(users).where(eq(users.id, userId));
+```
+
+## Config (drizzle.config.ts)
+
+```typescript
+// src/core/db/config.ts
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  schema: './src/config/db/schema.postgres.ts',
+  out: './migrations',
+  dialect: 'postgresql',
+  dbCredentials: { url: process.env.DATABASE_URL! },
+});
+```
+
+## CLI Commands
+
+```bash
+pnpm db:generate    # Generate migration from schema changes
+pnpm db:migrate     # Apply migrations
+pnpm db:push        # Push schema directly (dev only, no migration files)
+pnpm db:studio      # Open Drizzle Studio at localhost:4983
+```
