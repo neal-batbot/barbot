@@ -1,6 +1,6 @@
 import '@/config/style/global.css';
 
-import { Inter, JetBrains_Mono, Merriweather } from 'next/font/google';
+import { DM_Sans, Geist_Mono, Lora } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -12,22 +12,21 @@ import { getAffiliateService } from '@/shared/services/affiliate';
 import { getAnalyticsService } from '@/shared/services/analytics';
 import { getCustomerService } from '@/shared/services/customer_service';
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
   preload: true,
 });
 
-const merriweather = Merriweather({
+const lora = Lora({
   subsets: ['latin'],
-  weight: ['400', '700'],
   variable: '--font-serif',
   display: 'swap',
   preload: false,
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const geistMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
   display: 'swap',
@@ -103,7 +102,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${merriweather.variable} ${jetbrainsMono.variable}`}
+      className={`${dmSans.variable} ${lora.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <head>

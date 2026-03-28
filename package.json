@@ -18,13 +18,16 @@
     "ai-saas-development"
   ],
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "NODE_OPTIONS='--no-warnings' next dev --turbopack",
     "build": "next build",
     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "docs:lint": "npx tsx scripts/docs-lint.ts",
+    "docs:gen-schema": "npx tsx scripts/docs-gen-schema.ts",
+    "docs:check": "pnpm docs:gen-schema && pnpm docs:lint",
     "db:generate": "npx drizzle-kit generate --config=src/core/db/config.ts",
     "db:migrate": "npx drizzle-kit migrate --config=src/core/db/config.ts",
     "db:push": "npx drizzle-kit push --config=src/core/db/config.ts",
