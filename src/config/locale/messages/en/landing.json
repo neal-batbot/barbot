@@ -91,6 +91,11 @@
       "show_sign_out": true,
       "items": [
         {
+          "title": "Dashboard",
+          "url": "/dashboard",
+          "icon": "LayoutDashboard"
+        },
+        {
           "title": "Billing",
           "url": "/settings/billing",
           "icon": "CreditCard"

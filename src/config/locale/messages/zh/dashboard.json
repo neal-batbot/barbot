@@ -1,0 +1,132 @@
+{
+  "sidebar": {
+    "title": "控制台",
+    "nav": {
+      "main": {
+        "title": "菜单",
+        "items": [
+          { "title": "总览", "url": "/dashboard", "icon": "LayoutDashboard" },
+          { "title": "用量", "url": "/dashboard/usage", "icon": "BarChart2" },
+          { "title": "账单", "url": "/dashboard/billing", "icon": "CreditCard" },
+          { "title": "设置", "url": "/dashboard/settings", "icon": "Settings" }
+        ]
+      }
+    }
+  },
+  "overview": {
+    "title": "总览",
+    "description": "账户概况",
+    "subscription": {
+      "title": "订阅计划",
+      "free": "免费版",
+      "badge_active": "生效中",
+      "badge_trial": "试用中",
+      "badge_canceled": "已取消",
+      "no_plan": "无活跃计划"
+    },
+    "credits": {
+      "title": "Credits 余额",
+      "balance": "可用",
+      "used": "本月已用"
+    },
+    "usage": {
+      "title": "本月用量",
+      "requests": "请求数",
+      "tokens": "Tokens"
+    },
+    "recent": {
+      "title": "最近活动",
+      "empty": "暂无活动记录",
+      "product": "产品",
+      "type": "类型",
+      "tokens": "Tokens",
+      "cost": "费用",
+      "status": "状态",
+      "date": "时间"
+    }
+  },
+  "usage": {
+    "title": "用量",
+    "description": "监控 API 用量和费用",
+    "period": {
+      "7d": "7 天",
+      "30d": "30 天",
+      "90d": "90 天"
+    },
+    "summary": {
+      "total_requests": "总请求数",
+      "total_tokens": "总 Tokens",
+      "total_cost": "总费用"
+    },
+    "chart": {
+      "by_day": "按日期",
+      "by_product": "按产品",
+      "tokens": "Tokens",
+      "requests": "请求"
+    },
+    "table": {
+      "product": "产品",
+      "model": "模型",
+      "type": "类型",
+      "tokens": "Tokens",
+      "cost": "费用",
+      "status": "状态",
+      "date": "时间",
+      "empty": "暂无用量记录"
+    },
+    "filter": {
+      "all_products": "全部产品",
+      "all_types": "全部类型"
+    },
+    "app_filter": {
+      "all": "全部应用",
+      "harvey": "Harvey"
+    },
+    "export": {
+      "button": "导出 CSV",
+      "filename": "usage-export"
+    },
+    "pagination": {
+      "prev": "上一页",
+      "next": "下一页",
+      "of": "共"
+    }
+  },
+  "billing": {
+    "title": "账单",
+    "description": "管理订阅和发票",
+    "plan": {
+      "title": "当前计划",
+      "free": "免费计划",
+      "upgrade": "升级计划",
+      "manage": "管理订阅",
+      "renews_at": "续费时间",
+      "status": "状态"
+    },
+    "included_usage": {
+      "title": "包含用量",
+      "item": "项目",
+      "tokens": "Tokens",
+      "usage": "使用情况"
+    },
+    "invoices": {
+      "title": "最近发票",
+      "date": "日期",
+      "amount": "金额",
+      "status": "状态",
+      "download": "下载",
+      "empty": "暂无发票",
+      "paid": "已付款",
+      "open": "待付款",
+      "draft": "草稿"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "tabs": {
+      "profile": "个人资料",
+      "security": "安全",
+      "api_keys": "API 密钥"
+    }
+  }
+}

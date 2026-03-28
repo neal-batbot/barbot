@@ -7,6 +7,8 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 
+// usage_log tracks per-request API usage for billing and analytics
+
 export const user = pgTable(
   'user',
   {
@@ -537,5 +539,31 @@ export const chatMessage = pgTable(
   (table) => [
     index('idx_chat_message_chat_id').on(table.chatId, table.status),
     index('idx_chat_message_user_id').on(table.userId, table.status),
+  ]
+);
+
+export const usageLog = pgTable(
+  'usage_log',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id),
+    appId: text('app_id').notNull().default('legacy'),
+    product: text('product').notNull(),
+    model: text('model'),
+    type: text('type').notNull(),
+    tokens: integer('tokens').default(0),
+    cost: text('cost').default('0'),
+    status: text('status').default('success'),
+    metadata: text('metadata'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_usage_user_date').on(table.userId, table.createdAt),
+    index('idx_usage_product').on(table.product, table.createdAt),
+    index('idx_usage_app').on(table.appId, table.createdAt),
   ]
 );

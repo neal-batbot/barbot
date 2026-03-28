@@ -91,6 +91,11 @@
       "show_sign_out": true,
       "items": [
         {
+          "title": "控制台",
+          "url": "/dashboard",
+          "icon": "LayoutDashboard"
+        },
+        {
           "title": "账单",
           "url": "/settings/billing",
           "icon": "CreditCard"

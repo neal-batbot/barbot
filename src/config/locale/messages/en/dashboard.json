@@ -1,0 +1,132 @@
+{
+  "sidebar": {
+    "title": "Dashboard",
+    "nav": {
+      "main": {
+        "title": "Menu",
+        "items": [
+          { "title": "Overview", "url": "/dashboard", "icon": "LayoutDashboard" },
+          { "title": "Usage", "url": "/dashboard/usage", "icon": "BarChart2" },
+          { "title": "Billing", "url": "/dashboard/billing", "icon": "CreditCard" },
+          { "title": "Settings", "url": "/dashboard/settings", "icon": "Settings" }
+        ]
+      }
+    }
+  },
+  "overview": {
+    "title": "Overview",
+    "description": "Your account at a glance",
+    "subscription": {
+      "title": "Subscription Plan",
+      "free": "Free",
+      "badge_active": "Active",
+      "badge_trial": "Trial",
+      "badge_canceled": "Canceled",
+      "no_plan": "No active plan"
+    },
+    "credits": {
+      "title": "Credits Balance",
+      "balance": "Available",
+      "used": "Used this month"
+    },
+    "usage": {
+      "title": "Monthly Usage",
+      "requests": "Requests",
+      "tokens": "Tokens"
+    },
+    "recent": {
+      "title": "Recent Activity",
+      "empty": "No recent activity",
+      "product": "Product",
+      "type": "Type",
+      "tokens": "Tokens",
+      "cost": "Cost",
+      "status": "Status",
+      "date": "Date"
+    }
+  },
+  "usage": {
+    "title": "Usage",
+    "description": "Monitor your API usage and costs",
+    "period": {
+      "7d": "7 Days",
+      "30d": "30 Days",
+      "90d": "90 Days"
+    },
+    "summary": {
+      "total_requests": "Total Requests",
+      "total_tokens": "Total Tokens",
+      "total_cost": "Total Cost"
+    },
+    "chart": {
+      "by_day": "By Day",
+      "by_product": "By Product",
+      "tokens": "Tokens",
+      "requests": "Requests"
+    },
+    "table": {
+      "product": "Product",
+      "model": "Model",
+      "type": "Type",
+      "tokens": "Tokens",
+      "cost": "Cost",
+      "status": "Status",
+      "date": "Date",
+      "empty": "No usage records found"
+    },
+    "filter": {
+      "all_products": "All Products",
+      "all_types": "All Types"
+    },
+    "app_filter": {
+      "all": "All Apps",
+      "harvey": "Harvey"
+    },
+    "export": {
+      "button": "Export CSV",
+      "filename": "usage-export"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "of": "of"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "description": "Manage your subscription and invoices",
+    "plan": {
+      "title": "Current Plan",
+      "free": "Free Plan",
+      "upgrade": "Upgrade Plan",
+      "manage": "Manage Subscription",
+      "renews_at": "Renews",
+      "status": "Status"
+    },
+    "included_usage": {
+      "title": "Included Usage",
+      "item": "Item",
+      "tokens": "Tokens",
+      "usage": "Usage"
+    },
+    "invoices": {
+      "title": "Recent Invoices",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status",
+      "download": "Download",
+      "empty": "No invoices found",
+      "paid": "Paid",
+      "open": "Open",
+      "draft": "Draft"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "profile": "Profile",
+      "security": "Security",
+      "api_keys": "API Keys"
+    }
+  }
+}
