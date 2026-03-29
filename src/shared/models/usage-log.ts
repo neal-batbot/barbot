@@ -20,9 +20,33 @@ export async function createUsageLog(data: NewUsageLog): Promise<UsageLog> {
   return result;
 }
 
+export async function createUsageLogIdempotent(
+  data: NewUsageLog
+): Promise<UsageLog | undefined> {
+  if (!data.requestId) {
+    return createUsageLog(data);
+  }
+
+  const [result] = await db()
+    .insert(usageLog)
+    .values(data)
+    .onConflictDoNothing({
+      target: [usageLog.userId, usageLog.requestId],
+    })
+    .returning();
+
+  return result;
+}
+
 export async function createUsageLogs(data: NewUsageLog[]): Promise<number> {
   if (data.length === 0) return 0;
-  const result = await db().insert(usageLog).values(data).returning({ id: usageLog.id });
+  const result = await db()
+    .insert(usageLog)
+    .values(data)
+    .onConflictDoNothing({
+      target: [usageLog.userId, usageLog.requestId],
+    })
+    .returning({ id: usageLog.id });
   return result.length;
 }
 

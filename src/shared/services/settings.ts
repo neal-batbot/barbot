@@ -309,6 +309,30 @@ export async function getSettings() {
       tab: 'general',
     },
     {
+      name: 'release_manifest_url',
+      title: 'Release Manifest URL',
+      type: 'url',
+      placeholder: 'https://cdn.example.com/harvey/releases/manifest.json',
+      tip: 'Primary download manifest endpoint for desktop release links.',
+      group: 'appinfo',
+      tab: 'general',
+    },
+    {
+      name: 'release_manifest_fallback',
+      title: 'Release Manifest Fallback JSON',
+      type: 'textarea',
+      attributes: { rows: 8 },
+      placeholder: `{
+  "version": "latest",
+  "artifacts": [
+    { "platform": "macos", "arch": "arm64", "url": "https://..." }
+  ]
+}`,
+      tip: 'Fallback JSON when manifest URL is unavailable.',
+      group: 'appinfo',
+      tab: 'general',
+    },
+    {
       name: 'initial_credits_enabled',
       title: 'Initial Credits Enabled',
       type: 'switch',
@@ -1031,7 +1055,7 @@ export const publicSettingNames = [
 ];
 
 const ALL_SETTING_NAMES = [
-  'app_name', 'app_description', 'app_logo', 'app_preview_image',
+  'app_name', 'app_description', 'app_logo', 'app_preview_image', 'release_manifest_url', 'release_manifest_fallback',
   'initial_credits_enabled', 'initial_credits_amount', 'initial_credits_valid_days', 'initial_credits_description',
   'email_auth_enabled', 'google_auth_enabled', 'google_one_tap_enabled', 'google_client_id', 'google_client_secret',
   'github_auth_enabled', 'github_client_id', 'github_client_secret',

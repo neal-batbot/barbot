@@ -11,6 +11,11 @@ import {
 
 import { PERMISSIONS } from '@/core/rbac';
 import { findChatById } from '@/shared/models/chat';
+import {
+  BillingEventSource,
+  BillingEventStatus,
+  upsertBillingEvent,
+} from '@/shared/models/billing-event';
 
 // Force dynamic to ensure streaming works properly
 export const dynamic = 'force-dynamic';
@@ -22,7 +27,9 @@ import {
   NewChatMessage,
 } from '@/shared/models/chat_message';
 import { getAllConfigs } from '@/shared/models/config';
+import { createUsageLogIdempotent } from '@/shared/models/usage-log';
 import { getUserInfo } from '@/shared/models/user';
+import { checkChatAccess, getBillingPeriodLabel } from '@/shared/services/entitlement';
 import { hasPermission } from '@/shared/services/rbac';
 
 export async function POST(req: Request) {
@@ -70,7 +77,7 @@ export async function POST(req: Request) {
       throw new Error('chat not found');
     }
 
-    if (chat.userId !== user?.id) {
+    if (chat.userId !== user.id) {
       throw new Error('no permission to access this chat');
     }
 
@@ -87,11 +94,26 @@ export async function POST(req: Request) {
       provider,
     };
 
+    const access = await checkChatAccess({
+      userId: user.id,
+      model,
+    });
+    if (!access.allowed) {
+      return Response.json(
+        {
+          code: access.code,
+          message: access.message,
+          upgrade_url: access.upgradeUrl || '/pricing',
+        },
+        { status: 402 }
+      );
+    }
+
     // save user message to database
     const userMessage: NewChatMessage = {
       id: generateId().toLowerCase(),
       chatId,
-      userId: user?.id,
+      userId: user.id,
       status: ChatMessageStatus.CREATED,
       createdAt: currentTime,
       updatedAt: currentTime,
@@ -218,6 +240,71 @@ async function saveAssistantMessage({
   await createChatMessage(assistantMessage);
 }
 
+function estimateTokensFromText(text: string): number {
+  if (!text) return 0;
+  return Math.max(1, Math.ceil(text.length / 4));
+}
+
+async function recordChatUsageAndBilling({
+  requestId,
+  userId,
+  model,
+  provider,
+  appId = 'web',
+  usageTokens,
+  promptText,
+  completionText,
+  metadata,
+}: {
+  requestId: string;
+  userId: string;
+  model: string;
+  provider: string;
+  appId?: string;
+  usageTokens?: number;
+  promptText?: string;
+  completionText?: string;
+  metadata?: Record<string, any>;
+}) {
+  const finalTokens =
+    usageTokens && usageTokens > 0
+      ? usageTokens
+      : estimateTokensFromText(`${promptText || ''}${completionText || ''}`);
+  const now = new Date();
+
+  await createUsageLogIdempotent({
+    userId,
+    appId,
+    product: 'chat',
+    model,
+    provider,
+    type: 'chat',
+    tokens: finalTokens,
+    cost: '0',
+    source: BillingEventSource.SERVER,
+    requestId,
+    status: 'success',
+    metadata: metadata ? JSON.stringify(metadata) : null,
+    createdAt: now,
+  });
+
+  await upsertBillingEvent({
+    userId,
+    appId,
+    requestId,
+    source: BillingEventSource.SERVER,
+    product: 'chat',
+    model,
+    provider,
+    billableTokens: finalTokens,
+    unitPrice: '0',
+    amount: '0',
+    period: getBillingPeriodLabel(now),
+    status: BillingEventStatus.BILLABLE,
+    metadata: metadata ? JSON.stringify(metadata) : null,
+  });
+}
+
 const normalizeBaseUrl = (url?: string, suffix?: string) => {
   if (!url) return undefined;
   const trimmed = url.replace(/\/+$/, '');
@@ -273,16 +360,49 @@ async function handleOpenRouterChat({
     generateMessageId: createIdGenerator({
       size: 16,
     }),
-    onFinish: async ({ messages }) => {
+    onFinish: async (event: any) => {
+      const messages = event?.messages || [];
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant') {
         await saveAssistantMessage({
           chatId,
-          userId: user?.id,
+          userId: user.id,
           currentTime,
           model,
           provider: 'openrouter',
           parts: lastMessage.parts,
+        });
+
+        const requestId = `${chatId}:${Date.now()}:openrouter`;
+        const promptText = validatedMessages
+          .map((item) =>
+            item.parts
+              ?.filter((part: any) => part.type === 'text')
+              ?.map((part: any) => part.text || '')
+              ?.join('\n') || ''
+          )
+          .join('\n');
+        const completionText =
+          lastMessage.parts
+            ?.filter((part: any) => part.type === 'text')
+            ?.map((part: any) => part.text || '')
+            ?.join('\n') || '';
+
+        const usageTokens = Number(
+          event?.usage?.totalTokens ??
+            event?.usage?.total_tokens ??
+            event?.totalUsage?.totalTokens ??
+            0
+        );
+
+        await recordChatUsageAndBilling({
+          requestId,
+          userId: user.id,
+          model,
+          provider: 'openrouter',
+          usageTokens,
+          promptText,
+          completionText,
         });
       }
     },
@@ -337,16 +457,47 @@ async function handleOpenAIChat({
     generateMessageId: createIdGenerator({
       size: 16,
     }),
-    onFinish: async ({ messages }) => {
+    onFinish: async (event: any) => {
+      const messages = event?.messages || [];
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant') {
         await saveAssistantMessage({
           chatId,
-          userId: user?.id,
+          userId: user.id,
           currentTime,
           model,
           provider: 'openai',
           parts: lastMessage.parts,
+        });
+
+        const requestId = `${chatId}:${Date.now()}:openai`;
+        const promptText = validatedMessages
+          .map((item) =>
+            item.parts
+              ?.filter((part: any) => part.type === 'text')
+              ?.map((part: any) => part.text || '')
+              ?.join('\n') || ''
+          )
+          .join('\n');
+        const completionText =
+          lastMessage.parts
+            ?.filter((part: any) => part.type === 'text')
+            ?.map((part: any) => part.text || '')
+            ?.join('\n') || '';
+        const usageTokens = Number(
+          event?.usage?.totalTokens ??
+            event?.usage?.total_tokens ??
+            event?.totalUsage?.totalTokens ??
+            0
+        );
+        await recordChatUsageAndBilling({
+          requestId,
+          userId: user.id,
+          model,
+          provider: 'openai',
+          usageTokens,
+          promptText,
+          completionText,
         });
       }
     },
@@ -407,16 +558,47 @@ async function handleAnthropicChat({
     generateMessageId: createIdGenerator({
       size: 16,
     }),
-    onFinish: async ({ messages }) => {
+    onFinish: async (event: any) => {
+      const messages = event?.messages || [];
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant') {
         await saveAssistantMessage({
           chatId,
-          userId: user?.id,
+          userId: user.id,
           currentTime,
           model,
           provider: 'anthropic',
           parts: lastMessage.parts,
+        });
+
+        const requestId = `${chatId}:${Date.now()}:anthropic`;
+        const promptText = validatedMessages
+          .map((item) =>
+            item.parts
+              ?.filter((part: any) => part.type === 'text')
+              ?.map((part: any) => part.text || '')
+              ?.join('\n') || ''
+          )
+          .join('\n');
+        const completionText =
+          lastMessage.parts
+            ?.filter((part: any) => part.type === 'text')
+            ?.map((part: any) => part.text || '')
+            ?.join('\n') || '';
+        const usageTokens = Number(
+          event?.usage?.totalTokens ??
+            event?.usage?.total_tokens ??
+            event?.totalUsage?.totalTokens ??
+            0
+        );
+        await recordChatUsageAndBilling({
+          requestId,
+          userId: user.id,
+          model,
+          provider: 'anthropic',
+          usageTokens,
+          promptText,
+          completionText,
         });
       }
     },
@@ -473,16 +655,47 @@ async function handleZhipuChat({
     generateMessageId: createIdGenerator({
       size: 16,
     }),
-    onFinish: async ({ messages }) => {
+    onFinish: async (event: any) => {
+      const messages = event?.messages || [];
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant') {
         await saveAssistantMessage({
           chatId,
-          userId: user?.id,
+          userId: user.id,
           currentTime,
           model,
           provider: 'zhipu',
           parts: lastMessage.parts,
+        });
+
+        const requestId = `${chatId}:${Date.now()}:zhipu`;
+        const promptText = validatedMessages
+          .map((item) =>
+            item.parts
+              ?.filter((part: any) => part.type === 'text')
+              ?.map((part: any) => part.text || '')
+              ?.join('\n') || ''
+          )
+          .join('\n');
+        const completionText =
+          lastMessage.parts
+            ?.filter((part: any) => part.type === 'text')
+            ?.map((part: any) => part.text || '')
+            ?.join('\n') || '';
+        const usageTokens = Number(
+          event?.usage?.totalTokens ??
+            event?.usage?.total_tokens ??
+            event?.totalUsage?.totalTokens ??
+            0
+        );
+        await recordChatUsageAndBilling({
+          requestId,
+          userId: user.id,
+          model,
+          provider: 'zhipu',
+          usageTokens,
+          promptText,
+          completionText,
         });
       }
     },
@@ -650,7 +863,7 @@ async function handleDifyChat({
         const assistantMessage: NewChatMessage = {
           id: generateId().toLowerCase(),
           chatId,
-          userId: user?.id,
+          userId: user.id,
           status: ChatMessageStatus.CREATED,
           createdAt: currentTime,
           updatedAt: currentTime,
@@ -666,6 +879,20 @@ async function handleDifyChat({
           }),
         };
         await createChatMessage(assistantMessage);
+
+        await recordChatUsageAndBilling({
+          requestId: state.messageId || `${chatId}:${Date.now()}:dify`,
+          userId: user.id,
+          model,
+          provider: 'dify',
+          usageTokens: Number(state?.metadata?.usage?.total_tokens || 0),
+          completionText: state.fullAnswer || '',
+          metadata: {
+            conversation_id: state.conversationId,
+            message_id: state.messageId,
+            task_id: state.taskId,
+          },
+        });
 
         // Update chat metadata with conversation_id
         if (state.conversationId && state.conversationId !== conversationId) {

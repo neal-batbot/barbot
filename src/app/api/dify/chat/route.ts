@@ -9,7 +9,14 @@ import {
 } from '@/shared/models/chat_message';
 import { createDifyOpenAIStream } from '@/extensions/ai/dify';
 import { getAllConfigs } from '@/shared/models/config';
+import {
+  BillingEventSource,
+  BillingEventStatus,
+  upsertBillingEvent,
+} from '@/shared/models/billing-event';
+import { createUsageLogIdempotent } from '@/shared/models/usage-log';
 import { getUserInfo } from '@/shared/models/user';
+import { checkChatAccess, getBillingPeriodLabel } from '@/shared/services/entitlement';
 import { hasPermission } from '@/shared/services/rbac';
 
 // Force dynamic to ensure streaming works properly
@@ -43,6 +50,21 @@ export async function POST(req: Request) {
 
     if (chat.userId !== user.id) {
       return new Response('Forbidden', { status: 403 });
+    }
+
+    const access = await checkChatAccess({
+      userId: user.id,
+      model: chat.model || 'dify/default',
+    });
+    if (!access.allowed) {
+      return Response.json(
+        {
+          code: access.code,
+          message: access.message,
+          upgrade_url: access.upgradeUrl || '/pricing',
+        },
+        { status: 402 }
+      );
     }
 
     // Get Dify config
@@ -196,6 +218,7 @@ export async function POST(req: Request) {
       model: chat.model || 'dify/default',
       showNodeEvents: true,
       onMessageEnd: async (state) => {
+        const now = new Date();
         const assistantMessage: NewChatMessage = {
           id: generateId().toLowerCase(),
           chatId,
@@ -215,6 +238,54 @@ export async function POST(req: Request) {
           provider: 'dify',
         };
         await createChatMessage(assistantMessage);
+
+        const usageTokens = Number(state?.metadata?.usage?.total_tokens || 0);
+        const fallbackTokens = Math.max(
+          1,
+          Math.ceil((state.fullAnswer?.length || 0) / 4)
+        );
+        const finalTokens = usageTokens > 0 ? usageTokens : fallbackTokens;
+        const requestId = state.messageId || `${chatId}:${now.getTime()}:dify`;
+
+        await createUsageLogIdempotent({
+          userId: user.id,
+          appId: 'web',
+          product: 'chat',
+          model: chat.model || 'dify/default',
+          provider: 'dify',
+          type: 'chat',
+          tokens: finalTokens,
+          cost: '0',
+          source: BillingEventSource.SERVER,
+          requestId,
+          status: 'success',
+          metadata: JSON.stringify({
+            conversation_id: state.conversationId,
+            message_id: state.messageId,
+            task_id: state.taskId,
+          }),
+          createdAt: now,
+        });
+
+        await upsertBillingEvent({
+          userId: user.id,
+          appId: 'web',
+          requestId,
+          source: BillingEventSource.SERVER,
+          product: 'chat',
+          model: chat.model || 'dify/default',
+          provider: 'dify',
+          billableTokens: finalTokens,
+          unitPrice: '0',
+          amount: '0',
+          period: getBillingPeriodLabel(now),
+          status: BillingEventStatus.BILLABLE,
+          metadata: JSON.stringify({
+            conversation_id: state.conversationId,
+            message_id: state.messageId,
+            task_id: state.taskId,
+          }),
+        });
 
         if (state.conversationId && state.conversationId !== conversationId) {
           await updateChat(chatId, {
@@ -244,6 +315,5 @@ export async function POST(req: Request) {
     );
   }
 }
-
 
 

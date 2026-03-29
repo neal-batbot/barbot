@@ -1,6 +1,7 @@
 import { getUserInfo } from '@/shared/models/user';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getOrders, OrderStatus } from '@/shared/models/order';
+import { resolveEntitlement } from '@/shared/services/entitlement';
 import { respData, respErr } from '@/shared/lib/resp';
 
 export async function GET() {
@@ -10,9 +11,10 @@ export async function GET() {
       return respErr('Unauthorized');
     }
 
-    const [subscription, orders] = await Promise.all([
+    const [subscription, orders, entitlement] = await Promise.all([
       getCurrentSubscription(user.id),
       getOrders({ userId: user.id, status: OrderStatus.PAID, page: 1, limit: 10 }),
+      resolveEntitlement(user.id),
     ]);
 
     const plan = subscription
@@ -43,11 +45,23 @@ export async function GET() {
       },
       includedUsage: {
         period: {
-          start: subscription?.currentPeriodStart ?? null,
-          end: subscription?.currentPeriodEnd ?? null,
+          start: entitlement.periodStart ?? subscription?.currentPeriodStart ?? null,
+          end: entitlement.periodEnd ?? subscription?.currentPeriodEnd ?? null,
         },
-        items: [],
+        items: [
+          {
+            name: 'chat',
+            included_quota: entitlement.quotaTokens,
+            used_tokens: entitlement.usedTokens,
+            remaining_tokens: entitlement.remainingTokens,
+          },
+        ],
       },
+      included_quota: entitlement.quotaTokens,
+      used_tokens: entitlement.usedTokens,
+      overage_tokens: entitlement.overageTokens,
+      overage_amount: Number(entitlement.overageAmount.toFixed(8)),
+      upgrade_url: '/pricing',
       invoices,
     });
   } catch (e) {
