@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED: Do not edit manually. Run: pnpm docs:gen-schema -->
 # Database Schema Reference
 
-Generated: 2026-03-28
+Generated: 2026-03-29
 Source: `src/config/db/schema.postgres.ts`
 
 ---
@@ -172,12 +172,62 @@ Source: `src/config/db/schema.postgres.ts`
 | appId | text | YES |  |
 | product | text | YES |  |
 | model | text | no |  |
+| provider | text | no |  |
 | type | text | YES |  |
 | tokens | integer | no |  |
 | cost | text | no |  |
+| source | text | no |  |
+| requestId | text | no |  |
 | status | text | no |  |
 | metadata | text | no |  |
 | createdAt | timestamp | YES | default: now() |
+
+## app_token
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| userId | text | no |  |
+
+## billing_event
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| userId | text | no |  |
+
+## product
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| code | text | YES | UNIQUE |
+| name | text | YES |  |
+| description | text | no |  |
+| isActive | boolean | YES |  |
+| createdAt | timestamp | YES | default: now() |
+| updatedAt | timestamp | no |  |
+
+## plan_entitlement
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| planName | text | YES |  |
+| productCode | text | YES |  |
+| isEnabled | boolean | YES |  |
+| quotaTokens | integer | no |  |
+| quotaRequests | integer | no |  |
+| features | text | no |  |
+| createdAt | timestamp | YES | default: now() |
+| updatedAt | timestamp | no |  |
+
+## device
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| userId | text | no |  |
 
 ---
 
@@ -203,6 +253,11 @@ Source: `src/config/db/schema.postgres.ts`
 | ai_task | 2 |
 | chat | 2 |
 | chat_message | 2 |
-| usage_log | 11 |
+| usage_log | 14 |
+| app_token | 2 |
+| billing_event | 2 |
+| product | 7 |
+| plan_entitlement | 9 |
+| device | 2 |
 
-_Total: 19 tables_
+_Total: 24 tables_

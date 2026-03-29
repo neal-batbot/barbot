@@ -9,4 +9,4 @@
 | [dify-integration.md](dify-integration.md) | Full Dify API integration tutorial |
 | [debugging-workflow.md](debugging-workflow.md) | General debugging process and diagnostic scripts |
 | [docker-setup.md](docker-setup.md) | Docker deployment guide |
-| [vercel-deployment.md](vercel-deployment.md) | Vercel deployment guide |
+| [platform-integration.md](platform-integration.md) | 各产品接入平台 API 的完整指南（Harvey / Vector-cline / pi-mono） |

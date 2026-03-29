@@ -5,6 +5,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
 // usage_log tracks per-request API usage for billing and analytics
@@ -554,9 +555,12 @@ export const usageLog = pgTable(
     appId: text('app_id').notNull().default('legacy'),
     product: text('product').notNull(),
     model: text('model'),
+    provider: text('provider'),
     type: text('type').notNull(),
     tokens: integer('tokens').default(0),
     cost: text('cost').default('0'),
+    source: text('source').default('client'),
+    requestId: text('request_id'),
     status: text('status').default('success'),
     metadata: text('metadata'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -565,5 +569,137 @@ export const usageLog = pgTable(
     index('idx_usage_user_date').on(table.userId, table.createdAt),
     index('idx_usage_product').on(table.product, table.createdAt),
     index('idx_usage_app').on(table.appId, table.createdAt),
+    uniqueIndex('idx_usage_user_request').on(table.userId, table.requestId),
+  ]
+);
+
+export const appToken = pgTable(
+  'app_token',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    tokenHash: text('token_hash').notNull().unique(),
+    tokenPrefix: text('token_prefix').notNull(),
+    status: text('status').notNull().default('active'),
+    lastUsedAt: timestamp('last_used_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_app_token_user_status').on(table.userId, table.status),
+  ]
+);
+
+export const billingEvent = pgTable(
+  'billing_event',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    appId: text('app_id').notNull().default('legacy'),
+    requestId: text('request_id').notNull(),
+    source: text('source').notNull().default('client'),
+    product: text('product').notNull().default('chat'),
+    model: text('model'),
+    provider: text('provider'),
+    billableTokens: integer('billable_tokens').notNull().default(0),
+    unitPrice: text('unit_price').notNull().default('0'),
+    amount: text('amount').notNull().default('0'),
+    period: text('period').notNull(),
+    status: text('status').notNull().default('billable'),
+    metadata: text('metadata'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_billing_event_user_period').on(table.userId, table.period),
+    index('idx_billing_event_user_created').on(table.userId, table.createdAt),
+    uniqueIndex('idx_billing_event_user_request').on(
+      table.userId,
+      table.requestId
+    ),
+  ]
+);
+
+// ─── Platform Tables ─────────────────────────────────────────────────────────
+
+export const product = pgTable(
+  'product',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    code: text('code').notNull().unique(),
+    name: text('name').notNull(),
+    description: text('description'),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_product_code').on(table.code),
+  ]
+);
+
+export const planEntitlement = pgTable(
+  'plan_entitlement',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    planName: text('plan_name').notNull(),
+    productCode: text('product_code').notNull(),
+    isEnabled: boolean('is_enabled').notNull().default(true),
+    quotaTokens: integer('quota_tokens'),
+    quotaRequests: integer('quota_requests'),
+    features: text('features'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_plan_entitlement_plan_product').on(table.planName, table.productCode),
+    uniqueIndex('idx_plan_entitlement_unique').on(table.planName, table.productCode),
+  ]
+);
+
+export const device = pgTable(
+  'device',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    productCode: text('product_code').notNull(),
+    deviceId: text('device_id').notNull(),
+    platform: text('platform'),
+    status: text('status').notNull().default('active'),
+    activatedAt: timestamp('activated_at').defaultNow().notNull(),
+    lastSeenAt: timestamp('last_seen_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_device_user_product').on(table.userId, table.productCode),
+    uniqueIndex('idx_device_unique').on(table.userId, table.productCode, table.deviceId),
   ]
 );
