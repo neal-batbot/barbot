@@ -744,3 +744,26 @@ export const desktopSession = pgTable(
     index('idx_desktop_session_refresh').on(table.refreshToken),
   ]
 );
+
+export const providerConfig = pgTable(
+  'provider_config',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    planName: text('plan_name').notNull(),
+    productCode: text('product_code').notNull(),
+    providerName: text('provider_name').notNull().default('anthropic'),
+    baseUrl: text('base_url').notNull(),
+    apiKey: text('api_key').notNull(),
+    modelName: text('model_name'),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_provider_config_plan_product').on(table.planName, table.productCode),
+  ]
+);
