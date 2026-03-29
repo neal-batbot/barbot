@@ -1,5 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 
+import { getAuth } from '@/core/auth';
 import { getThemePage } from '@/core/theme';
 import { DynamicPage, Section } from '@/shared/types/blocks/landing';
 
@@ -12,6 +15,18 @@ export default async function LandingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  // Redirect authenticated users to chat
+  try {
+    const auth = await getAuth();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
+    if (session?.user) {
+      redirect('/chat');
+    }
+  } catch {
+    // Continue to landing page if auth check fails
+  }
 
   const t = await getTranslations('landing');
 
@@ -29,7 +44,6 @@ export default async function LandingPage({
     'cta',
   ];
 
-  // build page sections
   const page: DynamicPage = {
     sections: showSections.reduce<Record<string, Section>>((acc, section) => {
       const sectionData = t.raw(section) as Section;
@@ -40,7 +54,6 @@ export default async function LandingPage({
     }, {}),
   };
 
-  // load page component
   const Page = await getThemePage('dynamic-page');
 
   return <Page locale={locale} page={page} />;
