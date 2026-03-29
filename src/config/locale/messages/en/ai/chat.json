@@ -2,7 +2,7 @@
   "sidebar": {
     "header": {
       "brand": {
-      "title": "Vector ChatBot",
+        "title": "Vector ChatBot",
         "logo": {
           "src": "/logo.png",
           "alt": "Vector ChatBot"
@@ -51,38 +51,7 @@
     },
     "footer": {
       "nav": {
-        "items": [
-          {
-            "title": "Home",
-            "url": "/",
-            "icon": "Home",
-            "target": "_blank"
-          },
-          {
-            "title": "GitHub",
-            "url": "https://github.com/your-app-name",
-            "icon": "Github",
-            "target": "_blank"
-          },
-          {
-            "title": "Twitter",
-            "url": "https://twitter.com/your-app-name",
-            "icon": "RiTwitterXFill",
-            "target": "_blank"
-          },
-          {
-            "title": "Discord",
-            "url": "https://discord.gg/your-app-name",
-            "icon": "RiDiscordFill",
-            "target": "_blank"
-          },
-          {
-            "title": "Email",
-            "url": "mailto:support@your-domain.com",
-            "icon": "Mail",
-            "target": "_blank"
-          }
-        ]
+        "items": []
       },
       "show_theme": true,
       "show_locale": false
