@@ -703,3 +703,44 @@ export const device = pgTable(
     uniqueIndex('idx_device_unique').on(table.userId, table.productCode, table.deviceId),
   ]
 );
+
+export const desktopAuthCode = pgTable(
+  'desktop_auth_code',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    code: text('code').notNull().unique(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    deviceInfo: text('device_info'),
+    exchanged: boolean('exchanged').notNull().default(false),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_desktop_auth_code').on(table.code),
+  ]
+);
+
+export const desktopSession = pgTable(
+  'desktop_session',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    token: text('token').notNull().unique(),
+    refreshToken: text('refresh_token').notNull().unique(),
+    deviceInfo: text('device_info'),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_desktop_session_token').on(table.token),
+    index('idx_desktop_session_refresh').on(table.refreshToken),
+  ]
+);
