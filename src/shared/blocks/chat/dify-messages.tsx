@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, memo, useState, useMemo } from 'react';
-import { CheckCircle2Icon, CircleDotIcon, CopyIcon, ExternalLinkIcon, Loader2Icon, PaperclipIcon, ThumbsDownIcon, ThumbsUpIcon, XCircleIcon } from 'lucide-react';
+import { BrainIcon, CheckCircle2Icon, ChevronDownIcon, CircleDotIcon, CopyIcon, ExternalLinkIcon, Loader2Icon, PaperclipIcon, ThumbsDownIcon, ThumbsUpIcon, XCircleIcon } from 'lucide-react';
 
 import { Action, Actions } from '@/shared/components/ai-elements/actions';
 import {
@@ -218,7 +218,75 @@ const ToolProgress = memo(function ToolProgress({
   );
 });
 
-// 单条消息组件 - 使用 memo 避免不必要的重渲染
+// 思考过程组件 - 流式时展开，完成后自动收起
+const ThinkingSection = memo(function ThinkingSection({
+  toolEvents,
+  isLoading,
+}: {
+  toolEvents: ToolEvent[];
+  isLoading: boolean;
+}) {
+  const thoughtEvents = toolEvents.filter((e) => e.thought);
+  if (thoughtEvents.length === 0) return null;
+
+  const first = thoughtEvents[0]?.createdAt;
+  const last = thoughtEvents[thoughtEvents.length - 1]?.createdAt;
+  const duration =
+    first && last
+      ? ((last.getTime() - first.getTime()) / 1000).toFixed(1)
+      : null;
+
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const timer = setTimeout(() => setOpen(false), 800);
+      return () => clearTimeout(timer);
+    } else {
+      setOpen(true);
+    }
+  }, [isLoading]);
+
+  return (
+    <div className="mb-3 rounded-lg border bg-muted/30 text-sm overflow-hidden">
+      <button
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-muted-foreground hover:text-foreground transition-colors"
+        onClick={() => setOpen((o) => !o)}
+      >
+        {isLoading ? (
+          <Loader2Icon className="size-3.5 animate-spin text-primary shrink-0" />
+        ) : (
+          <BrainIcon className="size-3.5 shrink-0" />
+        )}
+        <span className="text-xs">
+          {isLoading
+            ? '思考中...'
+            : `已深度思考${duration ? ` (${duration}s)` : ''}`}
+        </span>
+        <ChevronDownIcon
+          className={cn(
+            'ml-auto size-3.5 shrink-0 transition-transform duration-200',
+            open && 'rotate-180',
+          )}
+        />
+      </button>
+      {open && (
+        <div className="border-t px-3 py-2 space-y-2 max-h-60 overflow-y-auto">
+          {thoughtEvents.map((e) => (
+            <div key={e.id} className="text-xs text-muted-foreground leading-relaxed">
+              {e.tool && (
+                <span className="font-medium text-foreground mr-1.5">[{e.tool}]</span>
+              )}
+              {e.thought}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+
 const MessageItem = memo(function MessageItem({
   message,
   isLastAssistant,
@@ -267,10 +335,10 @@ const MessageItem = memo(function MessageItem({
         </MessageContent>
       </Message>
 
-      {/* 参考文档 */}
+      {/* 参考引用来源 */}
       {message.role === 'assistant' && message.references?.length ? (
         <details className="mt-2 rounded-md border bg-muted/30 p-2 text-xs text-muted-foreground">
-          <summary className="cursor-pointer text-foreground">参考文档</summary>
+          <summary className="cursor-pointer text-foreground">参考引用来源</summary>
           <div className="mt-2 space-y-1">
             {message.references.map((ref, index) => (
               <div key={`${ref.document_name || 'ref'}-${index}`}>
@@ -302,15 +370,6 @@ const MessageItem = memo(function MessageItem({
           </div>
         </details>
       ) : null}
-
-      {/* 附件图片 —— 内联展示，不再折叠 */}
-      {message.role === 'assistant' && remainingFiles.length > 0 && (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {remainingFiles.map((file, index) => (
-            <FileImageItem key={`${file.url || 'file'}-${index}`} file={file} />
-          ))}
-        </div>
-      )}
 
       {/* 音频 */}
       {message.role === 'assistant' && message.audioUrl ? (
@@ -386,16 +445,26 @@ export function DifyMessages({
             message.role === 'assistant' && index === messages.length - 1;
 
           return (
-            <MessageItem
-              key={message.id}
-              message={message}
-              isLastAssistant={isLastAssistant}
-              isLoading={isLoading}
-              onFeedback={sendFeedback}
-            />
+            <div key={message.id}>
+              {/* 思考过程显示在 assistant 回复之前 */}
+              {isLastAssistant && toolEvents.some((e) => e.thought) && (
+                <ThinkingSection toolEvents={toolEvents} isLoading={isLoading} />
+              )}
+              <MessageItem
+                message={message}
+                isLastAssistant={isLastAssistant}
+                isLoading={isLoading}
+                onFeedback={sendFeedback}
+              />
+            </div>
           );
         })}
-        
+
+        {/* 等待 assistant 消息出现前，先显示思考过程 */}
+        {isLoading && messages[messages.length - 1]?.role === 'user' && toolEvents.some((e) => e.thought) && (
+          <ThinkingSection toolEvents={toolEvents} isLoading={isLoading} />
+        )}
+
         {/* 工作流进度 */}
         {isLoading && (
           <WorkflowProgress
@@ -405,10 +474,8 @@ export function DifyMessages({
           />
         )}
 
-        {/* 工具调用过程 - 已隐藏 */}
-        
         {/* 只在没有消息输出时显示加载器 */}
-        {isLoading && messages[messages.length - 1]?.role === 'user' && !workflowStatus.nodes.length && (
+        {isLoading && messages[messages.length - 1]?.role === 'user' && !workflowStatus.nodes.length && !toolEvents.some((e) => e.thought) && (
           <Loader />
         )}
         
