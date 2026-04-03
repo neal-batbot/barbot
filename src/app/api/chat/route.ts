@@ -9,6 +9,13 @@ import {
   UIMessage,
 } from 'ai';
 
+import {
+  buildStaticProviderFailoverChain,
+  CLAUDE_PROXY,
+  inferChatProvider,
+  KIMI_CODING,
+  ZHIPU_CODING,
+} from '@/config/chat-providers';
 import { PERMISSIONS } from '@/core/rbac';
 import { findChatById } from '@/shared/models/chat';
 
@@ -77,8 +84,7 @@ export async function POST(req: Request) {
     const configs = await getAllConfigs();
     const currentTime = new Date();
     
-    // Determine provider from request or model name
-    const provider = requestProvider || (model.startsWith('dify/') ? 'dify' : 'openrouter');
+    const provider = requestProvider || inferChatProvider(model);
 
     const metadata = {
       model,
@@ -129,8 +135,8 @@ export async function POST(req: Request) {
       });
     }
 
-    if (provider === 'anthropic') {
-      return handleAnthropicChat({
+    if (provider === 'kimi' || provider === 'claude-proxy' || provider === 'zhipu') {
+      return handleStaticModelsWithFailover({
         chatId,
         message,
         user,
@@ -138,11 +144,12 @@ export async function POST(req: Request) {
         currentTime,
         model,
         reasoning,
+        initialProvider: provider,
       });
     }
 
-    if (provider === 'zhipu') {
-      return handleZhipuChat({
+    if (provider === 'anthropic') {
+      return handleAnthropicChat({
         chatId,
         message,
         user,
@@ -226,6 +233,286 @@ const normalizeBaseUrl = (url?: string, suffix?: string) => {
   }
   return trimmed.endsWith(suffix) ? trimmed : `${trimmed}${suffix}`;
 };
+
+type StreamTextResult = ReturnType<typeof streamText>;
+
+/** 探测上游是否已正常产出（利用 fullStream 的 tee，不破坏后续 toUIMessageStreamResponse） */
+async function probeStaticStreamOk(result: StreamTextResult): Promise<boolean> {
+  try {
+    for await (const part of result.fullStream) {
+      if (part.type === 'error') {
+        return false;
+      }
+      if (part.type === 'abort') {
+        return false;
+      }
+      if (part.type === 'finish' && part.finishReason === 'error') {
+        return false;
+      }
+      if (part.type === 'text-delta' || part.type === 'reasoning-delta') {
+        return true;
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function createAnthropicCompatibleStreamResult({
+  chatId,
+  model,
+  apiKey,
+  baseUrlInput,
+  provider,
+  anthropicVersion = '2023-06-01',
+}: {
+  chatId: string;
+  model: string;
+  apiKey: string | undefined;
+  baseUrlInput: string | undefined;
+  provider: string;
+  anthropicVersion?: string;
+}): Promise<{ result: StreamTextResult; validatedMessages: UIMessage[] }> {
+  if (!apiKey) {
+    throw new Error(`${provider} api key is not set`);
+  }
+
+  const anthropicBaseUrl = normalizeBaseUrl(baseUrlInput, '/v1');
+
+  const anthropic = createAnthropic({
+    apiKey,
+    baseURL: anthropicBaseUrl ? anthropicBaseUrl : undefined,
+    headers: {
+      'anthropic-version': anthropicVersion,
+    },
+  });
+
+  const validatedMessages = await getValidatedMessages(chatId);
+
+  const modelMessages = await convertToModelMessages(validatedMessages);
+
+  const result = streamText({
+    model: anthropic.messages(model),
+    messages: modelMessages,
+    maxRetries: 0,
+  });
+
+  return { result, validatedMessages };
+}
+
+async function streamAnthropicCompatible({
+  chatId,
+  message,
+  user,
+  currentTime,
+  model,
+  reasoning,
+  apiKey,
+  baseUrlInput,
+  provider,
+  anthropicVersion = '2023-06-01',
+}: {
+  chatId: string;
+  message: UIMessage;
+  user: any;
+  currentTime: Date;
+  model: string;
+  reasoning?: boolean;
+  apiKey: string | undefined;
+  baseUrlInput: string | undefined;
+  provider: string;
+  anthropicVersion?: string;
+}) {
+  const { result, validatedMessages } = await createAnthropicCompatibleStreamResult({
+    chatId,
+    model,
+    apiKey,
+    baseUrlInput,
+    provider,
+    anthropicVersion,
+  });
+
+  return result.toUIMessageStreamResponse({
+    sendSources: true,
+    sendReasoning: Boolean(reasoning),
+    originalMessages: validatedMessages,
+    generateMessageId: createIdGenerator({
+      size: 16,
+    }),
+    onFinish: async ({ messages }) => {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        await saveAssistantMessage({
+          chatId,
+          userId: user?.id,
+          currentTime,
+          model,
+          provider,
+          parts: lastMessage.parts,
+        });
+      }
+    },
+  });
+}
+
+async function createZhipuStreamResult({
+  chatId,
+  model,
+  configs,
+}: {
+  chatId: string;
+  model: string;
+  configs: any;
+}): Promise<{ result: StreamTextResult; validatedMessages: UIMessage[] }> {
+  const zhipuApiKey =
+    ZHIPU_CODING.apiKey || configs.zhipu_api_key || process.env.ZHIPU_API_KEY;
+  if (!zhipuApiKey) {
+    throw new Error('zhipu_api_key is not set');
+  }
+
+  const zhipuBaseUrl = normalizeBaseUrl(
+    ZHIPU_CODING.baseUrl ||
+      configs.zhipu_base_url ||
+      process.env.ZHIPU_BASE_URL ||
+      'https://open.bigmodel.cn/api/paas/v4',
+    '/v4'
+  );
+
+  const zhipu = createOpenAI({
+    apiKey: zhipuApiKey,
+    baseURL: zhipuBaseUrl ? zhipuBaseUrl : undefined,
+  });
+
+  const validatedMessages = await getValidatedMessages(chatId);
+
+  const modelMessages = await convertToModelMessages(validatedMessages);
+
+  const result = streamText({
+    model: zhipu.chat(model),
+    messages: modelMessages,
+    maxRetries: 0,
+  });
+
+  return { result, validatedMessages };
+}
+
+async function createStaticStreamResultForAttempt(
+  attempt: { provider: string; model: string },
+  params: {
+    chatId: string;
+    user: any;
+    configs: any;
+    currentTime: Date;
+  }
+): Promise<{ result: StreamTextResult; validatedMessages: UIMessage[] }> {
+  const { provider, model } = attempt;
+  const { chatId, configs } = params;
+
+  if (provider === 'kimi') {
+    return createAnthropicCompatibleStreamResult({
+      chatId,
+      model,
+      apiKey: KIMI_CODING.apiKey,
+      baseUrlInput: KIMI_CODING.baseUrl,
+      provider: 'kimi',
+    });
+  }
+
+  if (provider === 'claude-proxy') {
+    const baseUrlInput =
+      CLAUDE_PROXY.baseUrl?.trim() ||
+      configs.anthropic_base_url ||
+      process.env.ANTHROPIC_BASE_URL;
+    if (!baseUrlInput?.trim()) {
+      throw new Error(
+        'Claude 中转未配置：请在 src/config/chat-providers.ts 设置 CLAUDE_PROXY.baseUrl，或在后台配置 anthropic_base_url'
+      );
+    }
+    const anthropicVersion =
+      configs.anthropic_version || process.env.ANTHROPIC_VERSION || '2023-06-01';
+    return createAnthropicCompatibleStreamResult({
+      chatId,
+      model,
+      apiKey: CLAUDE_PROXY.apiKey,
+      baseUrlInput,
+      provider: 'claude-proxy',
+      anthropicVersion,
+    });
+  }
+
+  if (provider === 'zhipu') {
+    return createZhipuStreamResult({ chatId, model, configs });
+  }
+
+  throw new Error(`unsupported static provider: ${provider}`);
+}
+
+async function handleStaticModelsWithFailover({
+  chatId,
+  message,
+  user,
+  configs,
+  currentTime,
+  model,
+  reasoning,
+  initialProvider,
+}: {
+  chatId: string;
+  message: UIMessage;
+  user: any;
+  configs: any;
+  currentTime: Date;
+  model: string;
+  reasoning?: boolean;
+  initialProvider: string;
+}) {
+  const chain = buildStaticProviderFailoverChain(initialProvider, model);
+  const failures: string[] = [];
+
+  for (const attempt of chain) {
+    try {
+      const { result, validatedMessages } = await createStaticStreamResultForAttempt(
+        attempt,
+        { chatId, user, configs, currentTime }
+      );
+      const ok = await probeStaticStreamOk(result);
+      if (!ok) {
+        failures.push(`${attempt.provider}: 流式首包错误`);
+        console.warn('[chat static-failover] probe failed:', attempt);
+        continue;
+      }
+
+      return result.toUIMessageStreamResponse({
+        sendSources: true,
+        sendReasoning: Boolean(reasoning),
+        originalMessages: validatedMessages,
+        generateMessageId: createIdGenerator({
+          size: 16,
+        }),
+        onFinish: async ({ messages }) => {
+          const lastMessage = messages[messages.length - 1];
+          if (lastMessage.role === 'assistant') {
+            await saveAssistantMessage({
+              chatId,
+              userId: user?.id,
+              currentTime,
+              model: attempt.model,
+              provider: attempt.provider,
+              parts: lastMessage.parts,
+            });
+          }
+        },
+      });
+    } catch (e: any) {
+      const msg = e?.message ?? String(e);
+      failures.push(`${attempt.provider}: ${msg}`);
+      console.warn('[chat static-failover] attempt failed:', attempt, e);
+    }
+  }
+
+  throw new Error(`静态模型通道均不可用：${failures.join('；')}`);
+}
 
 async function handleOpenRouterChat({
   chatId,
@@ -372,120 +659,20 @@ async function handleAnthropicChat({
 }) {
   const anthropicApiKey =
     configs.anthropic_api_key || process.env.ANTHROPIC_API_KEY;
-  if (!anthropicApiKey) {
-    throw new Error('anthropic_api_key is not set');
-  }
-
-  const anthropicBaseUrl = normalizeBaseUrl(
-    configs.anthropic_base_url || process.env.ANTHROPIC_BASE_URL,
-    '/v1'
-  );
   const anthropicVersion =
     configs.anthropic_version || process.env.ANTHROPIC_VERSION || '2023-06-01';
-
-  const anthropic = createAnthropic({
+  return streamAnthropicCompatible({
+    chatId,
+    message,
+    user,
+    currentTime,
+    model,
+    reasoning,
     apiKey: anthropicApiKey,
-    baseURL: anthropicBaseUrl ? anthropicBaseUrl : undefined,
-    headers: {
-      'anthropic-version': anthropicVersion,
-    },
-  });
-
-  const validatedMessages = await getValidatedMessages(chatId);
-
-  const modelMessages = await convertToModelMessages(validatedMessages);
-
-  const result = streamText({
-    model: anthropic.messages(model),
-    messages: modelMessages,
-  });
-
-  return result.toUIMessageStreamResponse({
-    sendSources: true,
-    sendReasoning: Boolean(reasoning),
-    originalMessages: validatedMessages,
-    generateMessageId: createIdGenerator({
-      size: 16,
-    }),
-    onFinish: async ({ messages }) => {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant') {
-        await saveAssistantMessage({
-          chatId,
-          userId: user?.id,
-          currentTime,
-          model,
-          provider: 'anthropic',
-          parts: lastMessage.parts,
-        });
-      }
-    },
-  });
-}
-
-async function handleZhipuChat({
-  chatId,
-  message,
-  user,
-  configs,
-  currentTime,
-  model,
-  reasoning,
-}: {
-  chatId: string;
-  message: UIMessage;
-  user: any;
-  configs: any;
-  currentTime: Date;
-  model: string;
-  reasoning?: boolean;
-}) {
-  const zhipuApiKey = configs.zhipu_api_key || process.env.ZHIPU_API_KEY;
-  if (!zhipuApiKey) {
-    throw new Error('zhipu_api_key is not set');
-  }
-
-  const zhipuBaseUrl = normalizeBaseUrl(
-    configs.zhipu_base_url ||
-      process.env.ZHIPU_BASE_URL ||
-      'https://open.bigmodel.cn/api/paas/v4',
-    '/v4'
-  );
-
-  const zhipu = createOpenAI({
-    apiKey: zhipuApiKey,
-    baseURL: zhipuBaseUrl ? zhipuBaseUrl : undefined,
-  });
-
-  const validatedMessages = await getValidatedMessages(chatId);
-
-  const modelMessages = await convertToModelMessages(validatedMessages);
-
-  const result = streamText({
-    model: zhipu.chat(model),
-    messages: modelMessages,
-  });
-
-  return result.toUIMessageStreamResponse({
-    sendSources: true,
-    sendReasoning: Boolean(reasoning),
-    originalMessages: validatedMessages,
-    generateMessageId: createIdGenerator({
-      size: 16,
-    }),
-    onFinish: async ({ messages }) => {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant') {
-        await saveAssistantMessage({
-          chatId,
-          userId: user?.id,
-          currentTime,
-          model,
-          provider: 'zhipu',
-          parts: lastMessage.parts,
-        });
-      }
-    },
+    baseUrlInput:
+      configs.anthropic_base_url || process.env.ANTHROPIC_BASE_URL,
+    provider: 'anthropic',
+    anthropicVersion,
   });
 }
 
