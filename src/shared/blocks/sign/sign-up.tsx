@@ -22,9 +22,9 @@ import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
 import {
-  ContinueAuthRedirect,
-  setContinueAuthIntent,
-} from './continue-auth-redirect';
+  ExtensionAuthRedirect,
+  setExtensionAuthIntent,
+} from './extension-auth-redirect';
 import { SocialProviders } from './social-providers';
 
 export function SignUp({
@@ -106,7 +106,7 @@ export function SignUp({
     }
 
     if (state && redirectUri) {
-      setContinueAuthIntent(state);
+      setExtensionAuthIntent(state);
     }
 
     await signUp.email(
@@ -194,7 +194,7 @@ export function SignUp({
 
   return (
     <Card className="mx-auto w-full md:max-w-md">
-      <ContinueAuthRedirect state={state} redirectUri={redirectUri} />
+      <ExtensionAuthRedirect state={state} redirectUri={redirectUri} />
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">
           <h1>
@@ -319,7 +319,7 @@ export function SignUp({
             setLoading={setLoading}
             onBeforeSignIn={() => {
               if (state && redirectUri) {
-                setContinueAuthIntent(state);
+                setExtensionAuthIntent(state);
               }
             }}
           />

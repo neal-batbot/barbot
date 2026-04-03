@@ -50,10 +50,11 @@ export async function GET() {
     sub: session.user.id,
     email: session.user.email,
     name: session.user.name ?? session.user.email,
+    image: session.user.image ?? null,
     iat: now,
-    exp: now + 5 * 60,
+    exp: now + 30 * 24 * 60 * 60, // 30 days
     iss: envConfigs.app_url,
-    aud: 'continue-vscode',
+    aud: 'vector-vscode',
   };
 
   const token = signJwt(payload, envConfigs.auth_secret);
@@ -64,6 +65,7 @@ export async function GET() {
       id: session.user.id,
       email: session.user.email ?? null,
       name: session.user.name ?? null,
+      image: session.user.image ?? null,
     },
   });
 }
