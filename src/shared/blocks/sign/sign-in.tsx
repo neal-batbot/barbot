@@ -20,10 +20,7 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
-import {
-  ExtensionAuthRedirect,
-  setExtensionAuthIntent,
-} from './extension-auth-redirect';
+import { ExtensionAuthRedirect } from './extension-auth-redirect';
 import { SocialProviders } from './social-providers';
 
 export function SignIn({
@@ -76,10 +73,6 @@ export function SignIn({
     if (!email || !password) {
       toast.error('email and password are required');
       return;
-    }
-
-    if (state && redirectUri) {
-      setExtensionAuthIntent(state);
     }
 
     await signIn.email(
@@ -184,11 +177,7 @@ export function SignIn({
             callbackUrl={callbackUrl || '/'}
             loading={loading}
             setLoading={setLoading}
-            onBeforeSignIn={() => {
-              if (state && redirectUri) {
-                setExtensionAuthIntent(state);
-              }
-            }}
+            onBeforeSignIn={() => {}}
           />
         </div>
       </CardContent>

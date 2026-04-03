@@ -17,50 +17,6 @@ type TokenResponse = {
 };
 
 const ALLOWED_REDIRECT_SCHEMES = ['vscode', 'vscode-insiders', 'vscode-oss'];
-const EXTENSION_AUTH_INTENT_PREFIX = 'extension:auth:intent:';
-
-function getIntentKey(state?: string) {
-  if (!state) {
-    return null;
-  }
-  return `${EXTENSION_AUTH_INTENT_PREFIX}${state}`;
-}
-
-export function setExtensionAuthIntent(state?: string) {
-  const key = getIntentKey(state);
-  if (!key) {
-    return;
-  }
-  try {
-    sessionStorage.setItem(key, '1');
-  } catch {
-    // ignore storage errors
-  }
-}
-
-function hasExtensionAuthIntent(state?: string) {
-  const key = getIntentKey(state);
-  if (!key) {
-    return false;
-  }
-  try {
-    return sessionStorage.getItem(key) === '1';
-  } catch {
-    return false;
-  }
-}
-
-function clearExtensionAuthIntent(state?: string) {
-  const key = getIntentKey(state);
-  if (!key) {
-    return;
-  }
-  try {
-    sessionStorage.removeItem(key);
-  } catch {
-    // ignore storage errors
-  }
-}
 
 function isAllowedRedirectUri(redirectUri: string) {
   try {
@@ -71,6 +27,18 @@ function isAllowedRedirectUri(redirectUri: string) {
   }
 }
 
+/**
+ * Automatically redirects to the VSCode extension with an auth token
+ * when the user has a valid session and the URL contains state + redirectUri.
+ *
+ * This handles two cases:
+ * 1. User just logged in -- session is now available after sign-in redirect
+ * 2. User was already logged in -- session exists on page load
+ *
+ * No sessionStorage "intent" flag is needed because this component only
+ * renders on sign-in/sign-up pages when state & redirectUri are explicitly
+ * provided (which only happens from the VSCode extension's auth request).
+ */
 export function ExtensionAuthRedirect({
   state,
   redirectUri,
@@ -90,10 +58,6 @@ export function ExtensionAuthRedirect({
       return;
     }
     if (isPending || !session?.user) {
-      return;
-    }
-    if (!hasExtensionAuthIntent(state)) {
-      console.log('[ExtensionAuthRedirect] No auth intent found for state:', state);
       return;
     }
     if (!isAllowedRedirectUri(redirectUri)) {
@@ -140,7 +104,6 @@ export function ExtensionAuthRedirect({
           redirectUrl.searchParams.set('userLabel', userLabel);
         }
 
-        clearExtensionAuthIntent(state);
         toast.success(
           `${t('extension_login_success')} ${t('extension_open_vscode')}`
         );
