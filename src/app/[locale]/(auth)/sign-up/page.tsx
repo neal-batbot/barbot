@@ -40,7 +40,7 @@ export default async function SignUpPage({
 
   const continueCallbackUrl =
     state && redirectUri
-      ? `/sign-up?state=${encodeURIComponent(
+      ? `/authorize-extension?state=${encodeURIComponent(
           state
         )}&redirectUri=${encodeURIComponent(redirectUri)}`
       : undefined;

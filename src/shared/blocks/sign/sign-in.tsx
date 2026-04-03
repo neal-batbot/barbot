@@ -20,7 +20,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
-import { ExtensionAuthRedirect } from './extension-auth-redirect';
 import { SocialProviders } from './social-providers';
 
 export function SignIn({
@@ -99,7 +98,6 @@ export function SignIn({
 
   return (
     <Card className="mx-auto w-full md:max-w-md">
-      <ExtensionAuthRedirect state={state} redirectUri={redirectUri} />
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">
           <h1>{t('sign_in_title')}</h1>

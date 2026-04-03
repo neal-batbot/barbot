@@ -40,7 +40,7 @@ export default async function SignInPage({
 
   const continueCallbackUrl =
     state && redirectUri
-      ? `/sign-in?state=${encodeURIComponent(
+      ? `/authorize-extension?state=${encodeURIComponent(
           state
         )}&redirectUri=${encodeURIComponent(redirectUri)}`
       : undefined;

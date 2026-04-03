@@ -21,7 +21,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
-import { ExtensionAuthRedirect } from './extension-auth-redirect';
 import { SocialProviders } from './social-providers';
 
 export function SignUp({
@@ -187,7 +186,6 @@ export function SignUp({
 
   return (
     <Card className="mx-auto w-full md:max-w-md">
-      <ExtensionAuthRedirect state={state} redirectUri={redirectUri} />
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">
           <h1>
