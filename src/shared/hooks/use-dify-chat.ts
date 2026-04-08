@@ -150,7 +150,7 @@ export function useDifyChat({
   });
   const [toolEvents, setToolEvents] = useState<ToolEvent[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
-  
+
   // 用于批量更新的缓冲区
   const contentBufferRef = useRef<string>('');
   const rafIdRef = useRef<number | null>(null);
@@ -160,6 +160,78 @@ export function useDifyChat({
   const ttsAudioRef = useRef<string>('');
   const difyMessageIdRef = useRef<string>('');
   const ignoreNextDeltaRef = useRef<boolean>(false);
+
+  // <think> 标签流式解析状态
+  const isThinkingRef = useRef<boolean>(false);
+  const thinkingChunkRef = useRef<string>('');   // 当前正在流式接收的思考内容
+  const partialTagRef = useRef<string>('');       // 跨 chunk 的不完整标签缓冲
+  const thinkingEventsRef = useRef<ToolEvent[]>([]); // 已完成的思考片段
+
+  // 流式解析 <think>...</think> 标签，分离思考内容和正式回答
+  const processAnswerChunk = useCallback((chunk: string) => {
+    let remaining = partialTagRef.current + chunk;
+    partialTagRef.current = '';
+
+    while (remaining.length > 0) {
+      if (isThinkingRef.current) {
+        const closeIdx = remaining.indexOf('</think>');
+        if (closeIdx === -1) {
+          let partialLen = 0;
+          const closeTag = '</think>';
+          for (let i = closeTag.length - 1; i >= 1; i--) {
+            if (remaining.endsWith(closeTag.slice(0, i))) { partialLen = i; break; }
+          }
+          if (partialLen > 0) {
+            thinkingChunkRef.current += remaining.slice(0, remaining.length - partialLen);
+            partialTagRef.current = remaining.slice(remaining.length - partialLen);
+          } else {
+            thinkingChunkRef.current += remaining;
+          }
+          const liveThought = thinkingChunkRef.current.trim();
+          if (liveThought) {
+            const events = thinkingEventsRef.current;
+            const updated: ToolEvent[] = events.length > 0 && events[events.length - 1].id === 'live-thought'
+              ? [...events.slice(0, -1), { ...events[events.length - 1], thought: liveThought }]
+              : [...events, { id: 'live-thought', thought: liveThought, createdAt: new Date() }];
+            thinkingEventsRef.current = updated;
+            setToolEvents([...updated]);
+          }
+          remaining = '';
+        } else {
+          thinkingChunkRef.current += remaining.slice(0, closeIdx);
+          const thought = thinkingChunkRef.current.trim();
+          if (thought) {
+            const completedEvent: ToolEvent = { id: `think-${Date.now()}`, thought, createdAt: new Date() };
+            thinkingEventsRef.current = [...thinkingEventsRef.current.filter(e => e.id !== 'live-thought'), completedEvent];
+            setToolEvents([...thinkingEventsRef.current]);
+          }
+          thinkingChunkRef.current = '';
+          isThinkingRef.current = false;
+          remaining = remaining.slice(closeIdx + 8);
+        }
+      } else {
+        const openIdx = remaining.indexOf('<think>');
+        if (openIdx === -1) {
+          let partialLen = 0;
+          const openTag = '<think>';
+          for (let i = openTag.length - 1; i >= 1; i--) {
+            if (remaining.endsWith(openTag.slice(0, i))) { partialLen = i; break; }
+          }
+          if (partialLen > 0) {
+            contentBufferRef.current += remaining.slice(0, remaining.length - partialLen);
+            partialTagRef.current = remaining.slice(remaining.length - partialLen);
+          } else {
+            contentBufferRef.current += remaining;
+          }
+          remaining = '';
+        } else {
+          contentBufferRef.current += remaining.slice(0, openIdx);
+          isThinkingRef.current = true;
+          remaining = remaining.slice(openIdx + 7);
+        }
+      }
+    }
+  }, []);
 
   const stop = useCallback(() => {
     if (abortControllerRef.current) {
@@ -239,6 +311,11 @@ export function useDifyChat({
       filesRef.current = [];
       ttsAudioRef.current = '';
       difyMessageIdRef.current = '';
+      // Reset think tag parsing state
+      isThinkingRef.current = false;
+      thinkingChunkRef.current = '';
+      partialTagRef.current = '';
+      thinkingEventsRef.current = [];
       const assistantId = `assistant-${Date.now()}`;
       assistantIdRef.current = assistantId;
 
@@ -453,10 +530,11 @@ export function useDifyChat({
                 const delta = data.choices[0].delta;
                 if (typeof delta.content === 'string') {
                   if (ignoreNextDeltaRef.current) {
-                    contentBufferRef.current = delta.content;
+                    contentBufferRef.current = '';
                     ignoreNextDeltaRef.current = false;
+                    processAnswerChunk(delta.content);
                   } else {
-                    contentBufferRef.current += delta.content;
+                    processAnswerChunk(delta.content);
                   }
                   scheduleUpdate();
                 }
@@ -535,7 +613,7 @@ export function useDifyChat({
               // Handle message events - 使用批量更新
               if (data.event === 'message' || data.event === 'agent_message') {
                 if (data.answer) {
-                  contentBufferRef.current += data.answer;
+                  processAnswerChunk(data.answer);
                   scheduleUpdate();
                 }
               }

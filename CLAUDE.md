@@ -1,7 +1,9 @@
-# AGENTS.md
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 > Entry point for AI agents. This file is a MAP — ~100 lines. All detail is in `docs/`.
-> Last updated: 2026-03-28
+> Last updated: 2026-04-02
 
 ## Project Identity
 
@@ -22,8 +24,10 @@
 # Development
 pnpm dev              # Start dev server (Turbopack)
 pnpm build            # Production build
+pnpm build:fast       # Build with extra heap (use when OOM)
 pnpm lint             # ESLint
 pnpm format           # Prettier
+pnpm format:check     # Check formatting without writing
 
 # Database
 pnpm db:generate      # Generate migration from schema changes
@@ -40,6 +44,13 @@ pnpm docs:gen-schema  # Regenerate docs/generated/db-schema.md
 pnpm auth:generate    # Regenerate auth tables after config changes
 pnpm rbac:init        # Initialize RBAC roles
 pnpm rbac:assign      # Assign role to user
+
+# Cloudflare Workers deployment
+pnpm cf:preview       # Local preview build
+pnpm cf:deploy        # Deploy to Cloudflare Workers
+
+# Testing
+npx tsx tests/platform-api.test.ts   # Run v1 API integration tests
 ```
 
 ---
@@ -47,6 +58,8 @@ pnpm rbac:assign      # Assign role to user
 ## Architecture
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full directory map, data flow diagram, and deployment targets.
+
+**Critical**: App configuration (Dify API keys, bot configs, feature flags) is loaded from the `config` database table via `src/config/app.config.ts` — **not** from env vars. Env vars are fallbacks only. When debugging missing config, check the DB table first.
 
 ---
 
