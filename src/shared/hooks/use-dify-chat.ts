@@ -57,6 +57,36 @@ export interface ToolEvent {
   createdAt?: Date;
 }
 
+function sanitizeAssistantContent(raw: string): string {
+  if (!raw) return raw;
+
+  const text = raw.trim();
+  const internalMarkers = [
+    '提取Part Number',
+    '确定意图',
+    '工具选择',
+    'Out of Scope & Security Guardrails',
+    '根据我的指导原则',
+  ];
+
+  const hasInternalTemplate = internalMarkers.some((marker) =>
+    text.includes(marker)
+  );
+  if (!hasInternalTemplate) return raw;
+
+  const startCandidates = ['你好！', '您好！', '我是IC助手', '我可以帮你'];
+  let startIndex = -1;
+  for (const candidate of startCandidates) {
+    const idx = text.indexOf(candidate);
+    if (idx !== -1 && (startIndex === -1 || idx < startIndex)) {
+      startIndex = idx;
+    }
+  }
+
+  if (startIndex === -1) return raw;
+  return text.slice(startIndex).trim();
+}
+
 function extractFileUrlsFromToolResponse(text: string): MessageFile[] {
   if (!text) return [];
   const urls = new Set<string>();
@@ -258,7 +288,7 @@ export function useDifyChat({
         // NOTE: 不再对 content 做 URL 重写，保持原始绝对 URL。
         // 相对代理 URL 会被 Streamdown 的 rehype-harden 插件阻止。
         // 图片 URL 的代理由 Response 组件的 urlTransform 在渲染阶段处理。
-        const normalizedContent = content;
+        const normalizedContent = sanitizeAssistantContent(content);
         if (lastMessage?.id === assistantId) {
           return [
             ...prev.slice(0, -1),
@@ -334,14 +364,18 @@ export function useDifyChat({
 
       try {
         // 2. Call API
+        const requestPayload: Record<string, unknown> = {
+          chatId,
+          query: text,
+        };
+        if (options?.rating) {
+          requestPayload.rating = options.rating;
+        }
+
         const response = await fetch('/api/dify/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chatId,
-            query: text,
-            rating: options?.rating || 'Catalog工业',
-          }),
+          body: JSON.stringify(requestPayload),
           signal: abortControllerRef.current.signal,
         });
 
@@ -669,7 +703,7 @@ export function useDifyChat({
 
               if (data.event === 'message_replace') {
                 if (typeof data.answer === 'string') {
-                  contentBufferRef.current = data.answer;
+                  contentBufferRef.current = sanitizeAssistantContent(data.answer);
                   ignoreNextDeltaRef.current = true;
                   scheduleUpdate();
                 }
@@ -807,4 +841,3 @@ export function useDifyChat({
     toolEvents,
   };
 }
-

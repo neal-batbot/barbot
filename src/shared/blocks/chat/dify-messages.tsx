@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, memo, useState, useMemo } from 'react';
-import { BrainIcon, CheckCircle2Icon, ChevronDownIcon, CircleDotIcon, CopyIcon, ExternalLinkIcon, Loader2Icon, PaperclipIcon, ThumbsDownIcon, ThumbsUpIcon, XCircleIcon } from 'lucide-react';
+import { useRef, memo, useState, useMemo } from 'react';
+import { CheckCircle2Icon, CircleDotIcon, CopyIcon, ExternalLinkIcon, Loader2Icon, PaperclipIcon, ThumbsDownIcon, ThumbsUpIcon, XCircleIcon } from 'lucide-react';
 
 import { Action, Actions } from '@/shared/components/ai-elements/actions';
 import {
@@ -16,7 +16,7 @@ import {
 } from '@/shared/components/ai-elements/message';
 import { Response } from '@/shared/components/ai-elements/response';
 import { cn } from '@/shared/lib/utils';
-import { UseDifyChatReturn, WorkflowNode, ToolEvent } from '@/shared/hooks/use-dify-chat';
+import { UseDifyChatReturn, WorkflowNode } from '@/shared/hooks/use-dify-chat';
 
 // ---------------------------------------------------------------------------
 // Utilities for file URL handling
@@ -182,111 +182,6 @@ const WorkflowProgress = memo(function WorkflowProgress({
   );
 });
 
-const ToolProgress = memo(function ToolProgress({
-  toolEvents,
-}: {
-  toolEvents: ToolEvent[];
-}) {
-  if (toolEvents.length === 0) return null;
-
-  return (
-    <div className="bg-muted/50 mb-3 rounded-lg border p-3 text-xs text-muted-foreground">
-      <div className="mb-2 font-medium text-foreground">工具调用过程</div>
-      <div className="space-y-2">
-        {toolEvents.map((event) => (
-          <div key={event.id} className="rounded-md border bg-background/50 p-2">
-            {event.label && <div>阶段: {event.label}</div>}
-            {event.status && <div>状态: {event.status}</div>}
-            {event.tool && <div>工具: {event.tool}</div>}
-            {event.thought && <div>思考: {event.thought}</div>}
-            {event.error && (
-              <div>错误: {typeof event.error === 'string' ? event.error : JSON.stringify(event.error)}</div>
-            )}
-            {event.tool_input && (
-              <div>输入: {typeof event.tool_input === 'string' ? event.tool_input : JSON.stringify(event.tool_input)}</div>
-            )}
-            {event.observation && (
-              <div>输出: {typeof event.observation === 'string' ? event.observation : JSON.stringify(event.observation)}</div>
-            )}
-            {event.data && (
-              <div>详情: {typeof event.data === 'string' ? event.data : JSON.stringify(event.data)}</div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
-
-// 思考过程组件 - 流式时展开，完成后自动收起
-const ThinkingSection = memo(function ThinkingSection({
-  toolEvents,
-  isLoading,
-}: {
-  toolEvents: ToolEvent[];
-  isLoading: boolean;
-}) {
-  const thoughtEvents = toolEvents.filter((e) => e.thought);
-  if (thoughtEvents.length === 0) return null;
-
-  const first = thoughtEvents[0]?.createdAt;
-  const last = thoughtEvents[thoughtEvents.length - 1]?.createdAt;
-  const duration =
-    first && last
-      ? ((last.getTime() - first.getTime()) / 1000).toFixed(1)
-      : null;
-
-  const [open, setOpen] = useState(true);
-
-  useEffect(() => {
-    if (!isLoading) {
-      const timer = setTimeout(() => setOpen(false), 800);
-      return () => clearTimeout(timer);
-    } else {
-      setOpen(true);
-    }
-  }, [isLoading]);
-
-  return (
-    <div className="mb-3 rounded-lg border bg-muted/30 text-sm overflow-hidden">
-      <button
-        className="flex w-full items-center gap-2 px-3 py-2 text-left text-muted-foreground hover:text-foreground transition-colors"
-        onClick={() => setOpen((o) => !o)}
-      >
-        {isLoading ? (
-          <Loader2Icon className="size-3.5 animate-spin text-primary shrink-0" />
-        ) : (
-          <BrainIcon className="size-3.5 shrink-0" />
-        )}
-        <span className="text-xs">
-          {isLoading
-            ? '思考中...'
-            : `已深度思考${duration ? ` (${duration}s)` : ''}`}
-        </span>
-        <ChevronDownIcon
-          className={cn(
-            'ml-auto size-3.5 shrink-0 transition-transform duration-200',
-            open && 'rotate-180',
-          )}
-        />
-      </button>
-      {open && (
-        <div className="border-t px-3 py-2 space-y-2 max-h-60 overflow-y-auto">
-          {thoughtEvents.map((e) => (
-            <div key={e.id} className="text-xs text-muted-foreground leading-relaxed">
-              {e.tool && (
-                <span className="font-medium text-foreground mr-1.5">[{e.tool}]</span>
-              )}
-              {e.thought}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-});
-
-
 const MessageItem = memo(function MessageItem({
   message,
   isLastAssistant,
@@ -434,7 +329,7 @@ export function DifyMessages({
 }: {
   difyChat: UseDifyChatReturn;
 }) {
-  const { messages, isLoading, workflowStatus, toolEvents, sendFeedback } = difyChat;
+  const { messages, isLoading, workflowStatus, sendFeedback } = difyChat;
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -446,10 +341,6 @@ export function DifyMessages({
 
           return (
             <div key={message.id}>
-              {/* 思考过程显示在 assistant 回复之前 */}
-              {isLastAssistant && toolEvents.some((e) => e.thought) && (
-                <ThinkingSection toolEvents={toolEvents} isLoading={isLoading} />
-              )}
               <MessageItem
                 message={message}
                 isLastAssistant={isLastAssistant}
@@ -459,11 +350,6 @@ export function DifyMessages({
             </div>
           );
         })}
-
-        {/* 等待 assistant 消息出现前，先显示思考过程 */}
-        {isLoading && messages[messages.length - 1]?.role === 'user' && toolEvents.some((e) => e.thought) && (
-          <ThinkingSection toolEvents={toolEvents} isLoading={isLoading} />
-        )}
 
         {/* 工作流进度 */}
         {isLoading && (
@@ -475,7 +361,7 @@ export function DifyMessages({
         )}
 
         {/* 只在没有消息输出时显示加载器 */}
-        {isLoading && messages[messages.length - 1]?.role === 'user' && !workflowStatus.nodes.length && !toolEvents.some((e) => e.thought) && (
+        {isLoading && messages[messages.length - 1]?.role === 'user' && !workflowStatus.nodes.length && (
           <Loader />
         )}
         
@@ -485,4 +371,3 @@ export function DifyMessages({
     </Conversation>
   );
 }
-
