@@ -20,10 +20,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
-import {
-  ContinueAuthRedirect,
-  setContinueAuthIntent,
-} from './continue-auth-redirect';
 import { SocialProviders } from './social-providers';
 
 export function SignIn({
@@ -78,10 +74,6 @@ export function SignIn({
       return;
     }
 
-    if (state && redirectUri) {
-      setContinueAuthIntent(state);
-    }
-
     await signIn.email(
       {
         email,
@@ -106,7 +98,6 @@ export function SignIn({
 
   return (
     <Card className="mx-auto w-full md:max-w-md">
-      <ContinueAuthRedirect state={state} redirectUri={redirectUri} />
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">
           <h1>{t('sign_in_title')}</h1>
@@ -184,11 +175,7 @@ export function SignIn({
             callbackUrl={callbackUrl || '/'}
             loading={loading}
             setLoading={setLoading}
-            onBeforeSignIn={() => {
-              if (state && redirectUri) {
-                setContinueAuthIntent(state);
-              }
-            }}
+            onBeforeSignIn={() => {}}
           />
         </div>
       </CardContent>

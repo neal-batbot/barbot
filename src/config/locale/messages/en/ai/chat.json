@@ -2,7 +2,7 @@
   "sidebar": {
     "header": {
       "brand": {
-        "title": "Vector ChatBot",
+      "title": "Vector ChatBot",
         "logo": {
           "src": "/logo.png",
           "alt": "Vector ChatBot"
@@ -51,7 +51,14 @@
     },
     "footer": {
       "nav": {
-        "items": []
+        "items": [
+          {
+            "title": "Email",
+            "url": "mailto:support@your-domain.com",
+            "icon": "Mail",
+            "target": "_blank"
+          }
+        ]
       },
       "show_theme": true,
       "show_locale": false

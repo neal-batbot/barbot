@@ -51,6 +51,9 @@ export function Header({ header }: { header: HeaderType }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  /** Settings console: hide marketing nav + logo + user menu; keep theme / locale. */
+  const hideLandingChrome = pathname?.startsWith('/settings');
+
   useEffect(() => {
     // Listen to scroll event to enable header styles on scroll
     const handleScroll = () => {
@@ -260,33 +263,46 @@ export function Header({ header }: { header: HeaderType }) {
           )}
         >
           <div className="container">
-            <div className="relative flex flex-wrap items-center justify-between lg:py-5">
-              <div className="flex justify-between gap-8 max-lg:h-14 max-lg:w-full max-lg:border-b">
-                {/* Brand Logo */}
-                {header.brand && <BrandLogo brand={header.brand} />}
+            <div
+              className={cn(
+                'relative flex flex-wrap items-center justify-between lg:py-5',
+                hideLandingChrome && 'justify-end'
+              )}
+            >
+              {!hideLandingChrome && (
+                <div className="flex justify-between gap-8 max-lg:h-14 max-lg:w-full max-lg:border-b">
+                  {/* Brand Logo */}
+                  {header.brand && <BrandLogo brand={header.brand} />}
 
-                {/* Desktop Navigation Menu */}
-                {isLarge && <NavMenu />}
-                {/* Hamburger menu button for mobile navigation */}
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label={
-                    isMobileMenuOpen == true ? 'Close Menu' : 'Open Menu'
-                  }
-                  className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden"
-                >
-                  <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
-                  <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
-                </button>
-              </div>
+                  {/* Desktop Navigation Menu */}
+                  {isLarge && <NavMenu />}
+                  {/* Hamburger menu button for mobile navigation */}
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    aria-label={
+                      isMobileMenuOpen == true ? 'Close Menu' : 'Open Menu'
+                    }
+                    className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden"
+                  >
+                    <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
+                    <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
+                  </button>
+                </div>
+              )}
 
               {/* Show mobile menu if needed */}
-              {!isLarge && isMobileMenuOpen && (
+              {!hideLandingChrome && !isLarge && isMobileMenuOpen && (
                 <MobileMenu closeMenu={() => setIsMobileMenuOpen(false)} />
               )}
 
               {/* Header right section: theme toggler, locale selector, sign, buttons */}
-              <div className="mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 in-data-[state=active]:flex max-lg:in-data-[state=active]:mt-6 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
+              <div
+                className={cn(
+                  'mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 in-data-[state=active]:flex max-lg:in-data-[state=active]:mt-6 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent',
+                  hideLandingChrome &&
+                    'max-lg:flex max-lg:mb-0 max-lg:mt-0 max-lg:justify-end'
+                )}
+              >
                 <div className="flex w-full flex-row items-center gap-4 sm:flex-row sm:gap-6 sm:space-y-0 md:w-fit">
                   {header.buttons &&
                     header.buttons.map((button, idx) => (
@@ -315,7 +331,7 @@ export function Header({ header }: { header: HeaderType }) {
                   {header.show_theme ? <ThemeToggler /> : null}
                   {header.show_locale ? <LocaleSelector /> : null}
                   <div className="flex-1 md:hidden"></div>
-                  {header.show_sign ? (
+                  {header.show_sign && !hideLandingChrome ? (
                     <SignUser userNav={header.user_nav} />
                   ) : null}
                 </div>

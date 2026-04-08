@@ -21,10 +21,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
-import {
-  ContinueAuthRedirect,
-  setContinueAuthIntent,
-} from './continue-auth-redirect';
 import { SocialProviders } from './social-providers';
 
 export function SignUp({
@@ -103,10 +99,6 @@ export function SignUp({
     if (!email || !password || !name) {
       toast.error('email, password and name are required');
       return;
-    }
-
-    if (state && redirectUri) {
-      setContinueAuthIntent(state);
     }
 
     await signUp.email(
@@ -194,7 +186,6 @@ export function SignUp({
 
   return (
     <Card className="mx-auto w-full md:max-w-md">
-      <ContinueAuthRedirect state={state} redirectUri={redirectUri} />
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">
           <h1>
@@ -317,11 +308,7 @@ export function SignUp({
             callbackUrl={callbackUrl || '/'}
             loading={loading}
             setLoading={setLoading}
-            onBeforeSignIn={() => {
-              if (state && redirectUri) {
-                setContinueAuthIntent(state);
-              }
-            }}
+            onBeforeSignIn={() => {}}
           />
         </div>
       </CardContent>

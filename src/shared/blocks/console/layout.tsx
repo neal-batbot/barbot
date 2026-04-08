@@ -58,8 +58,8 @@ export function ConsoleLayout({
 
   return (
     <div className={`bg-background min-h-screen ${className}`}>
-      {/* Top Navigation */}
-      {topNav && (
+      {/* Top Navigation (hidden when only one tab — e.g. settings without activity link) */}
+      {topNav && topNav.items.length > 1 && (
         <div className="border-border border-b">
           <div className="container">
             <nav className="scrollbar-hide flex items-center gap-4 overflow-x-auto py-0 text-sm">

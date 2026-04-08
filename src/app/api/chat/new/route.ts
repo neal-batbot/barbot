@@ -1,5 +1,6 @@
 import { generateId } from 'ai';
 
+import { inferChatProvider } from '@/config/chat-providers';
 import { respData, respErr } from '@/shared/lib/resp';
 import { ChatStatus, createChat, NewChat } from '@/shared/models/chat';
 import { getUserInfo } from '@/shared/models/user';
@@ -26,10 +27,9 @@ export async function POST(req: Request) {
 
     // todo: check user credits
 
-    // Determine provider from request body or model
     let provider =
       body.provider ||
-      (body.model.startsWith('dify/') ? 'dify' : 'openrouter');
+      (body.model?.startsWith('dify/') ? 'dify' : inferChatProvider(body.model));
     let title = message.text.substring(0, 100);
 
     console.log('[DEBUG POST /api/chat/new] Initial title:', title);
