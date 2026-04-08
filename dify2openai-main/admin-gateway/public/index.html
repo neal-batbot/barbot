@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API Key 管理</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        margin: 24px;
+        color: #1f2937;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      h2 {
+        font-size: 16px;
+        margin-top: 24px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+      }
+      th, td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+        font-size: 13px;
+      }
+      input, select {
+        padding: 6px 8px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+      button {
+        padding: 6px 10px;
+        border: none;
+        background: #2563eb;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .danger {
+        background: #dc2626;
+      }
+      .muted {
+        color: #6b7280;
+      }
+      pre {
+        background: #111827;
+        color: #e5e7eb;
+        padding: 10px;
+        border-radius: 6px;
+        overflow: auto;
+        font-size: 12px;
+      }
+      .status {
+        font-size: 12px;
+        margin-left: 8px;
+      }
+      .status.ok { color: #16a34a; }
+      .status.err { color: #dc2626; }
+    </style>
+  </head>
+  <body>
+    <h1>API Key 管理</h1>
+
+    <div class="row">
+      <input id="keyName" placeholder="名称" />
+      <input id="keyOwner" placeholder="所属人" />
+      <button id="createKey">创建 Key</button>
+      <span id="keyStatus" class="status"></span>
+    </div>
+
+    <table id="keysTable">
+      <thead>
+        <tr>
+          <th>名称</th>
+          <th>API Key</th>
+          <th>所属人</th>
+          <th>状态</th>
+          <th>创建时间</th>
+          <th>最后使用</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>Dify Key 映射</h2>
+    <div class="row">
+      <select id="mappingKey"></select>
+      <input id="difyBaseUrl" placeholder="Dify Base URL" />
+      <input id="difyApiKey" placeholder="Dify API Key" />
+      <input id="modelName" placeholder="模型名" />
+      <select id="appType">
+        <option value="chatbot">chatbot</option>
+        <option value="agent">agent</option>
+      </select>
+      <button id="createMapping">添加映射</button>
+      <span id="mappingStatus" class="status"></span>
+    </div>
+
+    <table id="mappingsTable">
+      <thead>
+        <tr>
+          <th>Key 名称</th>
+          <th>模型名</th>
+          <th>Dify Base URL</th>
+          <th>Dify API Key</th>
+          <th>类型</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>OpenAI API Base</h2>
+    <pre id="apiBase"></pre>
+
+    <h2>curl 示例</h2>
+    <pre id="curlExample"></pre>
+
+    <h2>Adapter config.json（可同步）</h2>
+    <pre id="adapterConfig"></pre>
+
+    <script>
+      const keyStatus = document.getElementById('keyStatus');
+      const mappingStatus = document.getElementById('mappingStatus');
+      const keysTable = document.getElementById('keysTable').querySelector('tbody');
+      const mappingsTable = document.getElementById('mappingsTable').querySelector('tbody');
+      const mappingKey = document.getElementById('mappingKey');
+      const apiBase = document.getElementById('apiBase');
+      const curlExample = document.getElementById('curlExample');
+      const adapterConfig = document.getElementById('adapterConfig');
+
+      const setStatus = (el, text, ok) => {
+        el.textContent = text || '';
+        el.className = ok ? 'status ok' : 'status err';
+      };
+
+      const loadKeys = async () => {
+        const res = await fetch('/api/keys');
+        const data = await res.json();
+        keysTable.innerHTML = '';
+        mappingKey.innerHTML = '';
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.name}</td>
+            <td><code>${row.api_key}</code></td>
+            <td>${row.owner || ''}</td>
+            <td>${row.status}</td>
+            <td>${row.created_at}</td>
+            <td>${row.last_used_at || ''}</td>
+            <td><button class="danger" data-id="${row.id}">删除</button></td>
+          `;
+          keysTable.appendChild(tr);
+
+          const opt = document.createElement('option');
+          opt.value = row.id;
+          opt.textContent = `${row.name} (${row.api_key.slice(0, 6)}...)`;
+          mappingKey.appendChild(opt);
+        });
+      };
+
+      const loadMappings = async () => {
+        const res = await fetch('/api/mappings');
+        const data = await res.json();
+        mappingsTable.innerHTML = '';
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.key_name}</td>
+            <td>${row.model_name}</td>
+            <td>${row.dify_base_url}</td>
+            <td><code>${row.dify_api_key}</code></td>
+            <td>${row.app_type}</td>
+            <td><button class="danger" data-id="${row.id}">删除</button></td>
+          `;
+          mappingsTable.appendChild(tr);
+        });
+      };
+
+      const loadOutputs = async () => {
+        apiBase.textContent = `${location.origin}/v1`;
+        const res = await fetch('/api/adapter-config');
+        const config = await res.json();
+        adapterConfig.textContent = JSON.stringify(config, null, 2);
+
+        const modelNames = Object.keys(config.model_mappings || {});
+        const modelName = modelNames[0] || '';
+        const keyRes = await fetch('/api/keys');
+        const keys = await keyRes.json();
+        const apiKey = keys[0]?.api_key || 'sk-...';
+        curlExample.textContent =
+`curl -X POST ${location.origin}/v1/chat/completions \\
+  -H "Authorization: Bearer ${apiKey}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"${modelName}","messages":[{"role":"user","content":"你好"}],"stream":false}'`;
+      };
+
+      document.getElementById('createKey').onclick = async () => {
+        const name = document.getElementById('keyName').value.trim();
+        const owner = document.getElementById('keyOwner').value.trim();
+        if (!name) return setStatus(keyStatus, '请输入名称', false);
+        const res = await fetch('/api/keys', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, owner }),
+        });
+        const data = await res.json();
+        if (!res.ok) return setStatus(keyStatus, data.error || '创建失败', false);
+        setStatus(keyStatus, '创建成功', true);
+        await loadKeys();
+        await loadOutputs();
+      };
+
+      keysTable.addEventListener('click', async (e) => {
+        const id = e.target.getAttribute('data-id');
+        if (!id) return;
+        await fetch(`/api/keys/${id}`, { method: 'DELETE' });
+        await loadKeys();
+        await loadMappings();
+        await loadOutputs();
+      });
+
+      document.getElementById('createMapping').onclick = async () => {
+        const payload = {
+          api_key_id: Number(mappingKey.value),
+          dify_base_url: document.getElementById('difyBaseUrl').value.trim(),
+          dify_api_key: document.getElementById('difyApiKey').value.trim(),
+          model_name: document.getElementById('modelName').value.trim(),
+          app_type: document.getElementById('appType').value,
+        };
+        if (!payload.api_key_id || !payload.dify_base_url || !payload.dify_api_key || !payload.model_name) {
+          return setStatus(mappingStatus, '缺少必填字段', false);
+        }
+        const res = await fetch('/api/mappings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) return setStatus(mappingStatus, data.error || '创建失败', false);
+        setStatus(mappingStatus, '映射已创建', true);
+        await loadMappings();
+        await loadOutputs();
+      };
+
+      mappingsTable.addEventListener('click', async (e) => {
+        const id = e.target.getAttribute('data-id');
+        if (!id) return;
+        await fetch(`/api/mappings/${id}`, { method: 'DELETE' });
+        await loadMappings();
+        await loadOutputs();
+      });
+
+      (async () => {
+        await loadKeys();
+        await loadMappings();
+        await loadOutputs();
+      })();
+    </script>
+  </body>
+</html>
+

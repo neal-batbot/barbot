@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dify OpenAI Adapter 管理</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        margin: 24px;
+        color: #1f2937;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 360px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.45;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      input, select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        box-sizing: border-box;
+        margin: 6px 0 12px;
+        font-size: 14px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #374151;
+      }
+      h2 {
+        margin-top: 24px;
+        font-size: 16px;
+      }
+      pre {
+        background: #111827;
+        color: #e5e7eb;
+        padding: 12px;
+        border-radius: 8px;
+        overflow: auto;
+      }
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      button {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+      .status {
+        font-size: 13px;
+      }
+      .status.ok {
+        color: #16a34a;
+      }
+      .status.err {
+        color: #dc2626;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Dify → OpenAI 配置生成</h1>
+    <div class="form">
+      <label> Dify Base URL</label>
+      <input id="difyBaseUrl" placeholder="http://your-dify-server" />
+      <label> Dify API Key</label>
+      <input id="difyApiKey" placeholder="app-..." />
+      <label> 模型名（OpenAI 兼容）</label>
+      <input id="modelName" placeholder="mcu-dify" />
+      <label> 应用类型</label>
+      <select id="appType">
+        <option value="chatbot">chatbot</option>
+        <option value="agent">agent</option>
+      </select>
+      <label> 端口</label>
+      <input id="port" placeholder="3100" />
+      <label> Host</label>
+      <input id="host" placeholder="0.0.0.0" />
+      <label> 默认模型</label>
+      <input id="defaultModel" placeholder="mcu-dify" />
+    </div>
+
+    <div class="actions">
+      <button id="generateBtn">生成配置</button>
+      <button id="saveBtn" disabled>保存配置</button>
+      <span id="status" class="status"></span>
+    </div>
+
+    <h2>生成的 config.json</h2>
+    <textarea id="configText" spellcheck="false"></textarea>
+
+    <h2>OpenAI API Base</h2>
+    <pre id="apiBase"></pre>
+
+    <h2>模型映射</h2>
+    <pre id="modelList"></pre>
+
+    <h2>curl 示例</h2>
+    <pre id="curlBlocking"></pre>
+    <pre id="curlStreaming"></pre>
+
+    <script src="/admin.js"></script>
+  </body>
+</html>
+
