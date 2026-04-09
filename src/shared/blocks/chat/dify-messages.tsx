@@ -14,6 +14,11 @@ import {
   Message,
   MessageContent,
 } from '@/shared/components/ai-elements/message';
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from '@/shared/components/ai-elements/reasoning';
 import { Response } from '@/shared/components/ai-elements/response';
 import { cn } from '@/shared/lib/utils';
 import { UseDifyChatReturn, WorkflowNode } from '@/shared/hooks/use-dify-chat';
@@ -329,8 +334,14 @@ export function DifyMessages({
 }: {
   difyChat: UseDifyChatReturn;
 }) {
-  const { messages, isLoading, workflowStatus, sendFeedback } = difyChat;
+  const { messages, isLoading, workflowStatus, sendFeedback, toolEvents } = difyChat;
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
+
+  const thinkingText = toolEvents
+    .filter((e) => e.thought)
+    .map((e) => e.thought)
+    .join('\n\n');
+  const isThinkingStreaming = isLoading && toolEvents.some((e) => e.id === 'live-thought');
 
   return (
     <Conversation className="h-full">
@@ -341,6 +352,12 @@ export function DifyMessages({
 
           return (
             <div key={message.id}>
+              {isLastAssistant && thinkingText && (
+                <Reasoning className="w-full" isStreaming={isThinkingStreaming}>
+                  <ReasoningTrigger />
+                  <ReasoningContent>{thinkingText}</ReasoningContent>
+                </Reasoning>
+              )}
               <MessageItem
                 message={message}
                 isLastAssistant={isLastAssistant}
