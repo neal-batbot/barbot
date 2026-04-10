@@ -57,6 +57,49 @@ export interface ToolEvent {
   createdAt?: Date;
 }
 
+interface ChatApiErrorPayload {
+  code?: string;
+  message?: string;
+  upgrade_url?: string;
+}
+
+async function parseChatApiError(response: Response): Promise<Error> {
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    try {
+      const payload = (await response.json()) as ChatApiErrorPayload;
+
+      if (payload.code === 'QUOTA_EXCEEDED') {
+        return new Error(
+          `本月 token 配额已用尽，请升级套餐或等待下个计费周期重置。${
+            payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''
+          }`
+        );
+      }
+
+      if (payload.code === 'SUBSCRIPTION_REQUIRED') {
+        return new Error(
+          `当前模型需要付费订阅。${payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''}`
+        );
+      }
+
+      if (payload.code === 'MODEL_NOT_ALLOWED') {
+        return new Error(payload.message || '当前套餐不允许使用这个模型。');
+      }
+
+      if (payload.message) {
+        return new Error(payload.message);
+      }
+    } catch {
+      // Fall back to plain text parsing below.
+    }
+  }
+
+  const errorText = await response.text();
+  return new Error(errorText || `HTTP ${response.status}`);
+}
+
 function extractFileUrlsFromToolResponse(text: string): MessageFile[] {
   if (!text) return [];
   const urls = new Set<string>();
@@ -346,8 +389,7 @@ export function useDifyChat({
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || `HTTP ${response.status}`);
+          throw await parseChatApiError(response);
         }
 
         const reader = response.body?.getReader();

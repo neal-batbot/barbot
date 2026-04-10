@@ -1,5 +1,6 @@
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getBillingUsageForPeriod } from '@/shared/models/billing-event';
+import { getRemainingCredits } from '@/shared/models/credit';
 
 export type PlanName = 'free' | 'pro' | 'team';
 
@@ -16,6 +17,7 @@ export interface EntitlementResult {
   quotaTokens: number;
   usedTokens: number;
   remainingTokens: number;
+  remainingCredits: number;
   overageTokens: number;
   overageEnabled: boolean;
   unitPricePer1k: number;
@@ -115,11 +117,14 @@ export async function resolveEntitlement(userId: string): Promise<EntitlementRes
   const rule = PLAN_RULES[plan];
   const period = getCurrentPeriod(subscription);
 
-  const usage = await getBillingUsageForPeriod({
-    userId,
-    startDate: period.start,
-    endDate: period.end,
-  });
+  const [usage, remainingCredits] = await Promise.all([
+    getBillingUsageForPeriod({
+      userId,
+      startDate: period.start,
+      endDate: period.end,
+    }),
+    getRemainingCredits(userId),
+  ]);
 
   const usedTokens = usage.billableTokens;
   const remainingTokens = Math.max(rule.quotaTokens - usedTokens, 0);
@@ -131,6 +136,7 @@ export async function resolveEntitlement(userId: string): Promise<EntitlementRes
     quotaTokens: rule.quotaTokens,
     usedTokens,
     remainingTokens,
+    remainingCredits,
     overageTokens,
     overageEnabled: rule.overageEnabled,
     unitPricePer1k: rule.unitPricePer1k,
@@ -170,7 +176,13 @@ export async function checkChatAccess({
     };
   }
 
-  if (entitlement.remainingTokens <= 0 && !entitlement.overageEnabled) {
+  // Allow requests when users still have positive credit balance,
+  // even if monthly token quota is exhausted.
+  if (
+    entitlement.remainingTokens <= 0 &&
+    !entitlement.overageEnabled &&
+    entitlement.remainingCredits <= 0
+  ) {
     return {
       allowed: false,
       code: 'QUOTA_EXCEEDED',

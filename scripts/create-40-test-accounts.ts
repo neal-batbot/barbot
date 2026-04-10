@@ -4,7 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { closeDb, db } from '@/core/db';
-import { account, credit, user } from '@/config/db/schema';
+import { account, credit, subscription, user } from '@/config/db/schema';
 import { getSnowId, getUuid } from '@/shared/lib/hash';
 import {
   CreditStatus,
@@ -17,6 +17,14 @@ const EMAIL_PREFIX = 'testuser';
 const DOMAIN = 'example.com';
 const PASSWORD = 'Test@123456';
 const CREDIT_AMOUNT = 999;
+const TEST_PLAN_NAME = 'Pro Plan';
+
+function buildPeriod() {
+  const now = new Date();
+  const periodEnd = new Date(now);
+  periodEnd.setMonth(periodEnd.getMonth() + 1);
+  return { now, periodEnd };
+}
 
 async function upsertCredentialAccount(userId: string, password: string) {
   const passwordHash = await hashPassword(password);
@@ -66,6 +74,55 @@ async function grantCredits(userId: string, email: string, amount: number) {
   });
 }
 
+async function ensureTestSubscription(userId: string, email: string) {
+  const [existingSubscription] = await db()
+    .select()
+    .from(subscription)
+    .where(eq(subscription.userId, userId))
+    .orderBy(subscription.createdAt);
+
+  const { now, periodEnd } = buildPeriod();
+
+  if (!existingSubscription) {
+    await db().insert(subscription).values({
+      id: getUuid(),
+      subscriptionNo: getSnowId(),
+      userId,
+      userEmail: email,
+      status: 'active',
+      paymentProvider: 'internal-test',
+      subscriptionId: `test-sub-${userId}`,
+      subscriptionResult: 'generated-by-create-40-test-accounts',
+      planName: TEST_PLAN_NAME,
+      productName: 'IC-AI Test Plan',
+      amount: 0,
+      currency: 'usd',
+      interval: 'month',
+      intervalCount: 1,
+      currentPeriodStart: now,
+      currentPeriodEnd: periodEnd,
+      creditsAmount: CREDIT_AMOUNT,
+      creditsValidDays: 30,
+    });
+    return;
+  }
+
+  await db()
+    .update(subscription)
+    .set({
+      userEmail: email,
+      status: 'active',
+      planName: TEST_PLAN_NAME,
+      productName: existingSubscription.productName || 'IC-AI Test Plan',
+      interval: existingSubscription.interval || 'month',
+      intervalCount: existingSubscription.intervalCount || 1,
+      currentPeriodStart: now,
+      currentPeriodEnd: periodEnd,
+      updatedAt: now,
+    })
+    .where(eq(subscription.id, existingSubscription.id));
+}
+
 async function main() {
   const lines: string[] = [
     'email,password,credits',
@@ -89,6 +146,7 @@ async function main() {
     }
 
     await upsertCredentialAccount(userId, PASSWORD);
+    await ensureTestSubscription(userId, email);
     await grantCredits(userId, email, CREDIT_AMOUNT);
 
     lines.push(`${email},${PASSWORD},${CREDIT_AMOUNT.toFixed(2)}`);
