@@ -63,40 +63,80 @@ interface ChatApiErrorPayload {
   upgrade_url?: string;
 }
 
+function toReadableChatApiError(payload: ChatApiErrorPayload): Error | null {
+  if (payload.code === 'QUOTA_EXCEEDED') {
+    return new Error(
+      `本月 token 配额已用尽，请升级套餐或等待下个计费周期重置。${
+        payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''
+      }`
+    );
+  }
+
+  if (payload.code === 'SUBSCRIPTION_REQUIRED') {
+    return new Error(
+      `当前模型需要付费订阅。${payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''}`
+    );
+  }
+
+  if (payload.code === 'MODEL_NOT_ALLOWED') {
+    return new Error(payload.message || '当前套餐不允许使用这个模型。');
+  }
+
+  if (payload.message) {
+    return new Error(payload.message);
+  }
+
+  return null;
+}
+
+function tryParseChatApiErrorPayload(raw: string): ChatApiErrorPayload | null {
+  if (!raw) return null;
+
+  const normalized = raw
+    .replace(/^Dify API error:\s*/i, '')
+    .replace(/^Error:\s*/i, '')
+    .trim();
+
+  const candidates = [normalized];
+  const jsonLike = normalized.match(/\{[\s\S]*\}/);
+  if (jsonLike?.[0] && jsonLike[0] !== normalized) {
+    candidates.push(jsonLike[0]);
+  }
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate) as ChatApiErrorPayload;
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    } catch {
+      // Ignore parse errors and continue trying other candidates.
+    }
+  }
+
+  return null;
+}
+
 async function parseChatApiError(response: Response): Promise<Error> {
   const contentType = response.headers.get('content-type') || '';
 
   if (contentType.includes('application/json')) {
     try {
       const payload = (await response.json()) as ChatApiErrorPayload;
-
-      if (payload.code === 'QUOTA_EXCEEDED') {
-        return new Error(
-          `本月 token 配额已用尽，请升级套餐或等待下个计费周期重置。${
-            payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''
-          }`
-        );
-      }
-
-      if (payload.code === 'SUBSCRIPTION_REQUIRED') {
-        return new Error(
-          `当前模型需要付费订阅。${payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''}`
-        );
-      }
-
-      if (payload.code === 'MODEL_NOT_ALLOWED') {
-        return new Error(payload.message || '当前套餐不允许使用这个模型。');
-      }
-
-      if (payload.message) {
-        return new Error(payload.message);
-      }
+      const readable = toReadableChatApiError(payload);
+      if (readable) return readable;
     } catch {
       // Fall back to plain text parsing below.
     }
   }
 
   const errorText = await response.text();
+  const parsedPayload = tryParseChatApiErrorPayload(errorText);
+  if (parsedPayload) {
+    const readable = toReadableChatApiError(parsedPayload);
+    if (readable) return readable;
+  }
+
   return new Error(errorText || `HTTP ${response.status}`);
 }
 
