@@ -1,4 +1,5 @@
 import {
+  AlipayProvider,
   CreemProvider,
   PaymentManager,
   PayPalProvider,
@@ -93,6 +94,24 @@ export function getPaymentServiceWithConfigs(configs: Configs) {
             : 'sandbox',
       }),
       defaultProvider === 'paypal'
+    );
+  }
+
+  // add alipay provider
+  if (configs.alipay_enabled === 'true') {
+    paymentManager.addProvider(
+      new AlipayProvider({
+        appId: configs.alipay_app_id,
+        privateKey: configs.alipay_private_key,
+        alipayPublicKey: configs.alipay_public_key,
+        gateway:
+          configs.alipay_environment === 'sandbox'
+            ? 'https://openapi-sandbox.dl.alipay.com/gateway.do'
+            : 'https://openapi.alipay.com/gateway.do',
+        notifyUrl: configs.alipay_notify_url,
+        returnUrl: configs.alipay_return_url,
+      }),
+      defaultProvider === 'alipay'
     );
   }
 

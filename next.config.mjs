@@ -21,6 +21,7 @@ const nextConfig = {
   output: process.env.VERCEL ? undefined : 'standalone',
   reactStrictMode: false,
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  transpilePackages: [],
   images: {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -50,11 +51,7 @@ const nextConfig = {
   },
   turbopack: {
     root: projectRoot,
-    resolveAlias: {
-      // fs: {
-      //   browser: './empty.ts', // We recommend to fix code imports before using this method
-      // },
-    },
+    resolveAlias: {},
   },
   experimental: {
     turbopackFileSystemCacheForDev: true,

@@ -1,13 +1,13 @@
 {
   "metadata": {
     "title": "Pricing",
-    "description": "Start with a plan"
+    "description": "Choose a plan and get started"
   },
   "pricing": {
     "id": "pricing",
-    "sr_only_title": "IC Smart Assistant Pricing",
-    "title": "Pricing",
-    "description": "Empowering hardware engineers to quickly access chip datasheets and improve component selection efficiency.",
+    "sr_only_title": "BatBot Pricing",
+    "title": "Simple, Transparent Pricing",
+    "description": "Token usage bundled with every plan. No per-API surprises. Start with the electronics vertical or bring your own industry data.",
     "groups": [
       {
         "name": "monthly",
@@ -17,7 +17,7 @@
       {
         "name": "yearly",
         "title": "Annually",
-        "label": "Save 30%"
+        "label": "Save 17%"
       },
       {
         "name": "enterprise",
@@ -26,184 +26,180 @@
     ],
     "items": [
       {
-        "title": "Basic",
-        "description": "For engineers who occasionally query chip datasheets.",
+        "title": "Starter",
+        "description": "For engineers who need fast answers to technical questions.",
         "features_title": "Includes",
         "features": [
-          "100 AI queries per month",
-          "Coverage of TI 2W+ chip datasheets",
-          "Datasheet parameter lookup",
-          "Component selection & alternatives",
-          "Chinese & English support",
-          "Chat history saved"
+          "200 AI queries per month",
+          "Standard models (Kimi, GLM)",
+          "AI Chatbot access",
+          "Doc site search & browse",
+          "Chat history saved",
+          "Email support"
         ],
         "interval": "month",
-        "amount": 990,
+        "amount": 590,
         "currency": "USD",
-        "price": "$9.9",
-        "original_price": "$19",
+        "price": "$5.9",
+        "original_price": "$9",
         "currencies": [
           {
             "currency": "CNY",
-            "amount": 1900,
-            "price": "¥19",
-            "original_price": "¥39",
-            "payment_providers": ["stripe"]
+            "amount": 3990,
+            "price": "¥39.9",
+            "original_price": "¥59",
+            "payment_providers": ["stripe", "alipay"]
           }
         ],
         "unit": "/ month",
         "is_featured": false,
-        "tip": "Less than $0.35/day, say goodbye to manual datasheet lookup!",
+        "tip": "Less than ¥1.5/day — instant answers while you work.",
         "button": {
           "title": "Get Started",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "basic-monthly",
-        "product_name": "IC Smart Assistant Basic (Monthly)",
-        "credits": 100,
+        "product_id": "starter-monthly",
+        "product_name": "BatBot Starter (Monthly)",
+        "credits": 200,
         "valid_days": 30,
         "group": "monthly"
       },
       {
         "title": "Pro",
-        "description": "For engineers with high-frequency usage and deep R&D needs.",
+        "description": "For engineers who need advanced models and coding assistance.",
         "label": "Popular",
-        "features_title": "Everything in Basic, plus",
+        "features_title": "Everything in Starter, plus",
         "features": [
-          "500 AI queries per month",
-          "More comprehensive chip datasheet coverage",
-          "Electrical characteristics & timing analysis",
-          "Application circuit design reference",
-          "Pin-to-Pin compatible alternatives",
+          "1,000 AI queries per month",
+          "Advanced models (Claude, GPT-4o)",
+          "AI Coding Agent",
+          "Deep doc site search with traceability",
           "Priority response speed",
-          "Exclusive engineer community"
+          "Priority support"
         ],
         "interval": "month",
-        "amount": 4900,
+        "amount": 1390,
         "currency": "USD",
-        "price": "$49",
-        "original_price": "$79",
+        "price": "$13.9",
+        "original_price": "$19",
         "currencies": [
           {
             "currency": "CNY",
             "amount": 9900,
             "price": "¥99",
-            "original_price": "¥159",
+            "original_price": "¥139",
             "payment_providers": ["stripe"]
           }
         ],
         "unit": "/ month",
         "is_featured": true,
-        "tip": "Essential for deep R&D, save time on documentation!",
+        "tip": "Advanced models + coding agent — your bench-side AI engineer.",
         "button": {
           "title": "Get Started",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "pro-monthly",
-        "product_name": "IC Smart Assistant Pro (Monthly)",
-        "credits": 500,
+        "product_name": "BatBot Pro (Monthly)",
+        "credits": 1000,
         "valid_days": 30,
         "group": "monthly"
       },
       {
-        "title": "Basic",
-        "description": "For engineers who occasionally query chip datasheets.",
+        "title": "Starter",
+        "description": "For engineers who need fast answers to technical questions.",
         "features_title": "Includes",
         "features": [
-          "1500 AI queries per year",
-          "Coverage of TI 2W+ chip datasheets",
-          "Datasheet parameter lookup",
-          "Component selection & alternatives",
-          "Chinese & English support",
-          "Chat history saved"
+          "2,400 AI queries per year",
+          "Standard models (Kimi, GLM)",
+          "AI Chatbot access",
+          "Doc site search & browse",
+          "Chat history saved",
+          "Email support"
         ],
         "interval": "year",
-        "amount": 7900,
+        "amount": 5900,
         "currency": "USD",
-        "price": "$79",
-        "original_price": "$118",
+        "price": "$59",
+        "original_price": "$70",
         "currencies": [
           {
             "currency": "CNY",
-            "amount": 15800,
-            "price": "¥158",
-            "original_price": "¥228",
+            "amount": 39900,
+            "price": "¥399",
+            "original_price": "¥478",
             "payment_providers": ["stripe"]
           }
         ],
         "unit": "/ year",
         "is_featured": false,
-        "tip": "Save 30% annually, ~$6.5/month!",
+        "tip": "Save 17% — about ¥33/month.",
         "button": {
           "title": "Get Started",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
-        "product_id": "basic-yearly",
-        "product_name": "IC Smart Assistant Basic (Annually)",
-        "credits": 1500,
+        "product_id": "starter-yearly",
+        "product_name": "BatBot Starter (Annually)",
+        "credits": 2400,
         "valid_days": 365,
         "group": "yearly",
-        "plan_name": "Basic"
+        "plan_name": "Starter"
       },
       {
         "title": "Pro",
-        "description": "For engineers with high-frequency usage and deep R&D needs.",
+        "description": "For engineers who need advanced models and coding assistance.",
         "label": "Best Value",
-        "features_title": "Everything in Basic, plus",
+        "features_title": "Everything in Starter, plus",
         "features": [
-          "8000 AI queries per year",
-          "More comprehensive chip datasheet coverage",
-          "Electrical characteristics & timing analysis",
-          "Application circuit design reference",
-          "Pin-to-Pin compatible alternatives",
+          "12,000 AI queries per year",
+          "Advanced models (Claude, GPT-4o)",
+          "AI Coding Agent",
+          "Deep doc site search with traceability",
           "Priority response speed",
-          "Exclusive engineer community"
+          "Priority support"
         ],
         "interval": "year",
-        "amount": 39900,
+        "amount": 13900,
         "currency": "USD",
-        "price": "$399",
-        "original_price": "$588",
+        "price": "$139",
+        "original_price": "$166",
         "currencies": [
           {
             "currency": "CNY",
-            "amount": 79800,
-            "price": "¥798",
+            "amount": 99900,
+            "price": "¥999",
             "original_price": "¥1188",
             "payment_providers": ["stripe"]
           }
         ],
         "unit": "/ year",
         "is_featured": true,
-        "tip": "Save 33% annually, ~$33/month, best for R&D teams!",
+        "tip": "Save 17% — about ¥83/month.",
         "button": {
           "title": "Get Started",
           "url": "/#pricing",
           "icon": "RiFlashlightFill"
         },
         "product_id": "pro-yearly",
-        "product_name": "IC Smart Assistant Pro (Annually)",
-        "credits": 8000,
+        "product_name": "BatBot Pro (Annually)",
+        "credits": 12000,
         "valid_days": 365,
         "group": "yearly",
         "plan_name": "Pro"
       },
       {
-        "title": "Enterprise",
-        "description": "Custom chip selection assistant for your enterprise.",
-        "features_title": "Enterprise Benefits",
+        "title": "Team",
+        "description": "For hardware and procurement teams who need shared access and custom bots.",
+        "features_title": "Everything in Pro, plus",
         "features": [
-          "Unlimited AI queries",
-          "Import your own chip library/BOM",
-          "Private deployment support",
-          "ERP/PLM system integration",
-          "Multi-user team collaboration",
-          "Custom datasheet crawling & updates",
-          "Dedicated technical support & training",
-          "API integration"
+          "3,000–10,000 AI queries per month",
+          "Up to 10 team members",
+          "Custom bot access",
+          "Usage analytics dashboard",
+          "Dedicated account support",
+          "Flexible billing cycle"
         ],
         "interval": "one-time",
         "amount": 0,
@@ -214,21 +210,63 @@
           {
             "currency": "CNY",
             "amount": 0,
-            "price": "Contact Us",
+            "price": "联系我们",
             "original_price": "",
             "payment_providers": []
           }
         ],
         "unit": "",
         "is_featured": false,
-        "tip": "Tailor-made for enterprises, double your R&D team's efficiency!",
+        "tip": "Shared queries, shared knowledge — upgrade your whole team.",
+        "button": {
+          "title": "Contact Us",
+          "url": "mailto:neal.liu@chatbarbot.com",
+          "icon": "RiCustomerService2Fill"
+        },
+        "product_id": "team",
+        "product_name": "BatBot Team",
+        "credits": 0,
+        "valid_days": 0,
+        "group": "enterprise"
+      },
+      {
+        "title": "Enterprise",
+        "description": "Deploy BatBot's full platform with your own industry data.",
+        "features_title": "Enterprise Benefits",
+        "features": [
+          "Unlimited AI queries",
+          "Custom vertical deployment",
+          "Private virtual file system",
+          "Custom data ingestion pipeline",
+          "Dedicated enterprise bot",
+          "Private / on-premise deployment option",
+          "API integration",
+          "Dedicated technical support & onboarding"
+        ],
+        "interval": "one-time",
+        "amount": 0,
+        "currency": "USD",
+        "price": "Custom",
+        "original_price": "",
+        "currencies": [
+          {
+            "currency": "CNY",
+            "amount": 0,
+            "price": "定制报价",
+            "original_price": "",
+            "payment_providers": []
+          }
+        ],
+        "unit": "",
+        "is_featured": false,
+        "tip": "Your data, your vertical, your expert AI — deployed in days.",
         "button": {
           "title": "Book a Demo",
-          "url": "/#pricing",
+          "url": "mailto:neal.liu@chatbarbot.com",
           "icon": "RiCustomerService2Fill"
         },
         "product_id": "enterprise",
-        "product_name": "IC Smart Assistant Enterprise",
+        "product_name": "BatBot Enterprise",
         "credits": 0,
         "valid_days": 0,
         "group": "enterprise"
