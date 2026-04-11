@@ -87,6 +87,15 @@ export function ChatLibrary({}) {
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>{t('title')}</SidebarGroupLabel>
       <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild>
+            <Link href="/workspace">
+              <IconFolder className="text-sidebar-foreground/70" />
+              <span>Workspace</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+
         {chats.length > 0 &&
           chats.slice(0, limit).map((chat) => (
             <SidebarMenuItem key={chat.id}>

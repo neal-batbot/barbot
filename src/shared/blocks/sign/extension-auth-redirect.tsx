@@ -74,7 +74,7 @@ export function ExtensionAuthRedirect({
         console.log('[ExtensionAuthRedirect] RedirectUri:', redirectUri);
         console.log('[ExtensionAuthRedirect] Session user:', session?.user?.id);
 
-        const resp = await fetch('/api/extension/token', {
+        const resp = await fetch('/api/extension/token?aud=vector-vscode', {
           method: 'GET',
           credentials: 'include',
           cache: 'no-store',

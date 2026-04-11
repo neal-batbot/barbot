@@ -1,47 +1,14 @@
-import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { envConfigs } from '@/config';
 import { getRemainingCredits } from '@/shared/models/credit';
+import {
+  isAllowedBridgeAudience,
+  verifyBridgeJwt,
+} from '@/shared/lib/auth-bridge';
 import { findUserById } from '@/shared/models/user';
 
 export const runtime = 'nodejs';
-
-function base64UrlDecode(input: string) {
-  let base64 = input.replace(/-/g, '+').replace(/_/g, '/');
-  while (base64.length % 4) {
-    base64 += '=';
-  }
-  return Buffer.from(base64, 'base64');
-}
-
-function verifyJwt(
-  token: string,
-  secret: string
-): Record<string, unknown> | null {
-  const parts = token.split('.');
-  if (parts.length !== 3) {
-    return null;
-  }
-
-  const [encodedHeader, encodedPayload, encodedSignature] = parts;
-  const data = `${encodedHeader}.${encodedPayload}`;
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(data)
-    .digest();
-
-  const actualSignature = base64UrlDecode(encodedSignature);
-  if (!crypto.timingSafeEqual(expectedSignature, actualSignature)) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(base64UrlDecode(encodedPayload).toString('utf-8'));
-  } catch {
-    return null;
-  }
-}
 
 export async function GET(req: NextRequest) {
   if (!envConfigs.auth_secret) {
@@ -57,13 +24,14 @@ export async function GET(req: NextRequest) {
   }
 
   const token = authHeader.slice(7);
-  const payload = verifyJwt(token, envConfigs.auth_secret);
+  const payload = verifyBridgeJwt(token, envConfigs.auth_secret);
 
   if (!payload) {
     return NextResponse.json({ error: 'invalid_token' }, { status: 401 });
   }
 
-  if (payload.aud !== 'vector-vscode') {
+  const aud = typeof payload.aud === 'string' ? payload.aud : null;
+  if (!isAllowedBridgeAudience(aud)) {
     return NextResponse.json({ error: 'invalid_audience' }, { status: 401 });
   }
 

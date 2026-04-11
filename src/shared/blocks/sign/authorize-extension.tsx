@@ -79,7 +79,7 @@ export function AuthorizeExtension({
 
     setAuthorizing(true);
     try {
-      const resp = await fetch('/api/extension/token', {
+      const resp = await fetch('/api/extension/token?aud=vector-vscode', {
         method: 'GET',
         credentials: 'include',
         cache: 'no-store',
