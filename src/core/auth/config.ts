@@ -8,7 +8,12 @@ import { VerificationCode } from '@/shared/blocks/email/verification-code';
 import { getUuid } from '@/shared/lib/hash';
 import { getEmailService } from '@/shared/services/email';
 
-const DEFAULT_DEV_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const DEFAULT_DEV_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+];
 
 function buildTrustedOrigins() {
   const originSet = new Set<string>();

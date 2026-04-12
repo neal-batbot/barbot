@@ -37,6 +37,13 @@
               "icon": "RiBookOpenLine"
             },
             {
+              "title": "Pi Web-UI",
+              "description": "完整原生工作区（接入会员体系）",
+              "url": "http://localhost:5173",
+              "icon": "RiRobot2Line",
+              "target": "_blank"
+            },
+            {
               "title": "AI 编码 Agent",
               "description": "固件与嵌入式代码生成",
               "url": "/#features",

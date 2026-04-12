@@ -37,6 +37,13 @@
               "icon": "RiBookOpenLine"
             },
             {
+              "title": "Pi Web-UI",
+              "description": "Full native workspace with membership auth",
+              "url": "http://localhost:5173",
+              "icon": "RiRobot2Line",
+              "target": "_blank"
+            },
+            {
               "title": "AI Coding Agent",
               "description": "Firmware & embedded code generation",
               "url": "/#features",

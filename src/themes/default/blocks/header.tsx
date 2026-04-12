@@ -132,6 +132,7 @@ export function Header({ header }: { header: HeaderType }) {
                         <ListItem
                           key={index}
                           href={subItem.url || ''}
+                          target={subItem.target || '_self'}
                           title={subItem.title || ''}
                           description={subItem.description || ''}
                         >
@@ -181,6 +182,7 @@ export function Header({ header }: { header: HeaderType }) {
                           <li key={iidx}>
                             <Link
                               href={subItem.url || ''}
+                              target={subItem.target || '_self'}
                               onClick={closeMenu}
                               className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2"
                             >
@@ -225,13 +227,18 @@ export function Header({ header }: { header: HeaderType }) {
     ...props
   }: React.ComponentPropsWithoutRef<'li'> & {
     href: string;
+    target?: string;
     title: string;
     description?: string;
   }) {
     return (
       <li {...props}>
         <NavigationMenuLink asChild>
-          <Link href={href} className="grid grid-cols-[auto_1fr] gap-3.5">
+          <Link
+            href={href}
+            target={target || '_self'}
+            className="grid grid-cols-[auto_1fr] gap-3.5"
+          >
             <div className="bg-background ring-foreground/10 relative flex size-9 items-center justify-center rounded border border-transparent shadow shadow-sm ring-1">
               {children}
             </div>
