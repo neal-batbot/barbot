@@ -7,6 +7,11 @@ import { toast } from 'sonner';
 
 import { useSession } from '@/core/auth/client';
 import { useRouter } from '@/core/i18n/navigation';
+import { isAllowedBridgeAudience, VSCODE_AUDIENCE } from '@/shared/lib/auth-bridge';
+import {
+  resolveProductFromAudience,
+  type PlatformAudience,
+} from '@/shared/lib/platform-config';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -20,6 +25,8 @@ import {
 
 type TokenResponse = {
   token: string;
+  audience?: string;
+  error?: string;
   user?: {
     id: string;
     email?: string | null;
@@ -30,10 +37,31 @@ type TokenResponse = {
 
 const ALLOWED_REDIRECT_SCHEMES = ['vscode', 'vscode-insiders', 'vscode-oss'];
 
-function isAllowedRedirectUri(redirectUri: string) {
+function isAllowedRedirectUri(redirectUri: string, audience: string) {
   try {
     const parsed = new URL(redirectUri);
-    return ALLOWED_REDIRECT_SCHEMES.includes(parsed.protocol.replace(':', ''));
+    const protocol = parsed.protocol.replace(':', '');
+    if (ALLOWED_REDIRECT_SCHEMES.includes(protocol)) {
+      return true;
+    }
+
+    const product = resolveProductFromAudience(audience as PlatformAudience);
+    if (!product) {
+      return false;
+    }
+
+    if (
+      (protocol === 'https' || protocol === 'http') &&
+      ['fumadocs', 'supabase-ssh'].includes(product)
+    ) {
+      return (
+        protocol === 'https' ||
+        parsed.hostname === 'localhost' ||
+        parsed.hostname === '127.0.0.1'
+      );
+    }
+
+    return false;
   } catch {
     return false;
   }
@@ -42,20 +70,25 @@ function isAllowedRedirectUri(redirectUri: string) {
 export function AuthorizeExtension({
   state,
   redirectUri,
+  audience,
 }: {
   state?: string;
   redirectUri?: string;
+  audience?: string;
 }) {
   const { data: session, isPending } = useSession();
   const t = useTranslations('common.sign');
   const router = useRouter();
   const [authorizing, setAuthorizing] = useState(false);
   const redirectedRef = useRef(false);
+  const resolvedAudience = isAllowedBridgeAudience(audience)
+    ? audience
+    : VSCODE_AUDIENCE;
 
   useEffect(() => {
     if (redirectedRef.current || isPending) return;
 
-    if (!state || !redirectUri) {
+    if (!state || !redirectUri || !isAllowedBridgeAudience(resolvedAudience)) {
       router.replace('/');
       return;
     }
@@ -63,30 +96,38 @@ export function AuthorizeExtension({
     if (!session?.user) {
       redirectedRef.current = true;
       const signInUrl = `/sign-in?callbackUrl=${encodeURIComponent(
-        `/authorize-extension?state=${encodeURIComponent(state)}&redirectUri=${encodeURIComponent(redirectUri)}`
+        `/authorize-extension?state=${encodeURIComponent(state)}&redirectUri=${encodeURIComponent(redirectUri)}&audience=${encodeURIComponent(resolvedAudience)}`
       )}`;
       router.replace(signInUrl);
     }
-  }, [isPending, session?.user, state, redirectUri, router]);
+  }, [isPending, redirectUri, resolvedAudience, router, session?.user, state]);
 
   const handleAuthorize = async () => {
     if (!state || !redirectUri) return;
 
-    if (!isAllowedRedirectUri(redirectUri)) {
+    if (!isAllowedRedirectUri(redirectUri, resolvedAudience)) {
       toast.error(t('authorize_invalid_redirect'));
       return;
     }
 
     setAuthorizing(true);
     try {
-      const resp = await fetch('/api/extension/token?aud=vector-vscode', {
-        method: 'GET',
-        credentials: 'include',
-        cache: 'no-store',
-      });
+      const resp = await fetch(
+        `/api/extension/token?aud=${encodeURIComponent(resolvedAudience)}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        }
+      );
 
       if (!resp.ok) {
-        toast.error(t('authorize_token_failed'));
+        const payload = (await resp.json().catch(() => null)) as
+          | { error?: string; message?: string }
+          | null;
+        const errorDetail =
+          payload?.error || payload?.message || `http_${resp.status}`;
+        toast.error(`${t('authorize_token_failed')} (${errorDetail})`);
         return;
       }
 
@@ -98,6 +139,7 @@ export function AuthorizeExtension({
 
       const redirectUrl = new URL(redirectUri);
       redirectUrl.searchParams.set('token', data.token);
+      redirectUrl.searchParams.set('audience', data.audience || resolvedAudience);
       redirectUrl.searchParams.set('state', state);
       if (data.user?.id) {
         redirectUrl.searchParams.set('userId', data.user.id);
@@ -136,7 +178,7 @@ export function AuthorizeExtension({
   const handleSwitchAccount = () => {
     if (!state || !redirectUri) return;
     const signInUrl = `/sign-in?callbackUrl=${encodeURIComponent(
-      `/authorize-extension?state=${encodeURIComponent(state)}&redirectUri=${encodeURIComponent(redirectUri)}`
+      `/authorize-extension?state=${encodeURIComponent(state)}&redirectUri=${encodeURIComponent(redirectUri)}&audience=${encodeURIComponent(resolvedAudience)}`
     )}`;
     router.push(signInUrl);
   };

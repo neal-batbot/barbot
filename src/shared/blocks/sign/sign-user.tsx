@@ -45,6 +45,9 @@ export function SignUser({
     setMounted(true);
   }, []);
 
+  const userName = (user?.name || '').trim();
+  const userInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
+
   return (
     <>
       {isCheckSign || !mounted ? (
@@ -59,8 +62,8 @@ export function SignUser({
               className="relative h-10 w-10 rounded-full p-0"
             >
               <Avatar>
-                <AvatarImage src={user.image || ''} alt={user.name || ''} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={user.image || ''} alt={userName} />
+                <AvatarFallback>{userInitial}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -73,7 +76,7 @@ export function SignUser({
                     href="/settings/profile"
                   >
                     <User />
-                    {user.name}
+                    {userName || 'User'}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

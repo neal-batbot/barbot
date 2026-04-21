@@ -29,9 +29,16 @@ export default async function AuthorizeExtensionPage({
   searchParams: Promise<{
     state?: string;
     redirectUri?: string;
+    audience?: string;
   }>;
 }) {
-  const { state, redirectUri } = await searchParams;
+  const { state, redirectUri, audience } = await searchParams;
 
-  return <AuthorizeExtension state={state} redirectUri={redirectUri} />;
+  return (
+    <AuthorizeExtension
+      state={state}
+      redirectUri={redirectUri}
+      audience={audience}
+    />
+  );
 }
