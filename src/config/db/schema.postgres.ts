@@ -767,3 +767,51 @@ export const providerConfig = pgTable(
     index('idx_provider_config_plan_product').on(table.planName, table.productCode),
   ]
 );
+
+// ─── Enterprise Tables ────────────────────────────────────────────────────────
+
+export const enterpriseAccount = pgTable(
+  'enterprise_account',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    slug: text('slug').notNull().unique(),
+    name: text('name').notNull(),
+    logoUrl: text('logo_url'),
+    botIds: text('bot_ids').notNull().default('[]'), // JSON string[]
+    quotaTokens: integer('quota_tokens').notNull().default(1_000_000),
+    status: text('status').notNull().default('active'), // active | suspended
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('idx_enterprise_account_slug').on(table.slug),
+    index('idx_enterprise_account_status').on(table.status),
+  ]
+);
+
+export const enterpriseMember = pgTable(
+  'enterprise_member',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    enterpriseId: text('enterprise_id')
+      .notNull()
+      .references(() => enterpriseAccount.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().default('member'), // admin | member
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_enterprise_member_enterprise').on(table.enterpriseId),
+    index('idx_enterprise_member_user').on(table.userId),
+    uniqueIndex('idx_enterprise_member_unique').on(table.enterpriseId, table.userId),
+  ]
+);

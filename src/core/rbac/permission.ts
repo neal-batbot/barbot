@@ -63,6 +63,10 @@ export const PERMISSIONS = {
 
   // Chat
   CHAT_MODEL_USE: 'chat.model.use',
+  CHAT_MODEL_PAID: 'chat.model.paid',   // Can use paid models (claude, openai)
+  CHAT_BOT_ACCESS: 'chat.bot.access',   // Can access all custom bots (wildcard)
+  // Individual bot access: 'chat.bot.' + botId (e.g. 'chat.bot.ti-chatbot')
+  CHAT_BOT_PREFIX: 'chat.bot.',
 } as const;
 
 /**
