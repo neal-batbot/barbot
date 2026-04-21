@@ -19,34 +19,30 @@
           "url": "/#introduce",
           "children": [
             {
-              "title": "Agent Platform",
-              "description": "The composable agentic core",
-              "url": "/#introduce",
-              "icon": "RiRobot2Line"
-            },
-            {
-              "title": "Virtual File System",
-              "description": "Proprietary knowledge engine",
-              "url": "/#features",
-              "icon": "RiDatabase2Line"
-            },
-            {
-              "title": "Doc Site",
-              "description": "Knowledge hub for engineers",
-              "url": "/docs",
-              "icon": "RiBookOpenLine"
-            },
-            {
-              "title": "Pi Web-UI",
-              "description": "Full native workspace with membership auth",
+              "title": "Pi Mono Agent",
+              "description": "Multi-model agent workspace with unified auth",
               "url": "http://localhost:5173",
               "icon": "RiRobot2Line",
               "target": "_blank"
             },
             {
-              "title": "AI Coding Agent",
-              "description": "Firmware & embedded code generation",
-              "url": "/#features",
+              "title": "Supabase SSH",
+              "description": "Web + SSH access via short-lived credentials",
+              "url": "http://localhost:3001",
+              "icon": "TerminalSquare",
+              "target": "_blank"
+            },
+            {
+              "title": "Fumadocs",
+              "description": "Docs site and API capability portal",
+              "url": "http://localhost:3002",
+              "icon": "BookOpenText",
+              "target": "_blank"
+            },
+            {
+              "title": "Coding Agent",
+              "description": "Code assistant entry under platform entitlement",
+              "url": "/chat",
               "icon": "RiCodeFill"
             }
           ]
@@ -151,13 +147,13 @@
     "avatars_tip": "Trusted by hardware and procurement engineers",
     "show_award": false,
     "image": {
-      "src": "https://picsum.photos/1200/800?random=1",
+      "src": "/imgs/features/landing-page.png",
       "alt": "BatBot platform dashboard",
       "width": 1200,
       "height": 800
     },
     "image_invert": {
-      "src": "https://picsum.photos/1200/800?random=2",
+      "src": "/imgs/features/landing-page.png",
       "alt": "BatBot platform dashboard dark",
       "width": 1200,
       "height": 800
@@ -173,35 +169,35 @@
       {
         "title": "Virtual File System",
         "image": {
-          "src": "https://picsum.photos/200?random=10",
+          "src": "/imgs/avatars/1.png",
           "alt": "Virtual File System"
         }
       },
       {
         "title": "Doc Site",
         "image": {
-          "src": "https://picsum.photos/200?random=11",
+          "src": "/imgs/avatars/1.png",
           "alt": "Doc Site"
         }
       },
       {
         "title": "Agent Layer",
         "image": {
-          "src": "https://picsum.photos/200?random=12",
+          "src": "/imgs/avatars/1.png",
           "alt": "Agent Layer"
         }
       },
       {
         "title": "Electronics Vertical",
         "image": {
-          "src": "https://picsum.photos/200?random=13",
+          "src": "/imgs/avatars/1.png",
           "alt": "Electronics Vertical"
         }
       },
       {
         "title": "More Verticals Coming",
         "image": {
-          "src": "https://picsum.photos/200?random=14",
+          "src": "/imgs/avatars/1.png",
           "alt": "More Verticals Coming"
         }
       }
@@ -214,7 +210,7 @@
     "label": "Platform",
     "description": "BatBot maintains a composable agentic architecture. Plug in your industry's knowledge — technical docs, standards, internal data — and the platform becomes that industry's AI expert. The same system powers every vertical.",
     "image": {
-      "src": "https://picsum.photos/1200/800?random=20",
+      "src": "/imgs/features/landing-page.png",
       "alt": "BatBot platform overview"
     },
     "items": [
@@ -223,7 +219,7 @@
         "description": "Not just storage. A structured, AI-optimized knowledge engine built ground-up for agentic retrieval. Versioned, traceable, instantly queryable.",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "https://picsum.photos/800/600?random=21",
+          "src": "/imgs/features/1.png",
           "alt": "Virtual File System"
         }
       },
@@ -232,7 +228,7 @@
         "description": "The same knowledge your agent uses, surfaced for humans too. Browse, search by parameter, trace references. Engineers open it every day.",
         "icon": "RiBookOpenLine",
         "image": {
-          "src": "https://picsum.photos/800/600?random=22",
+          "src": "/imgs/features/1.png",
           "alt": "Engineer Doc Site"
         }
       },
@@ -241,7 +237,7 @@
         "description": "Agents that reason over your VFS to answer questions, generate code, recommend parts, and execute multi-step tasks. Token usage bundled per plan.",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "https://picsum.photos/800/600?random=23",
+          "src": "/imgs/features/1.png",
           "alt": "Agent Layer"
         }
       },
@@ -250,7 +246,7 @@
         "description": "Swap the dataset, enter a new industry. No retraining. No rebuilding. The platform adapts.",
         "icon": "RiRefreshLine",
         "image": {
-          "src": "https://picsum.photos/800/600?random=24",
+          "src": "/imgs/features/1.png",
           "alt": "Multi-vertical"
         }
       }
@@ -269,7 +265,7 @@
         "description": "The agent architecture, VFS, and doc site are already built. You bring the data; BatBot becomes the expert.",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "https://picsum.photos/800/600?random=30",
+          "src": "/imgs/features/1.png",
           "alt": "Domain expertise"
         }
       },
@@ -278,7 +274,7 @@
         "description": "Engineers use the doc site daily. The agent uses the same knowledge base. No drift, no duplication, one source of truth.",
         "icon": "RiShareLine",
         "image": {
-          "src": "https://picsum.photos/800/600?random=31",
+          "src": "/imgs/features/1.png",
           "alt": "Shared knowledge"
         }
       },
@@ -287,7 +283,7 @@
         "description": "Token usage is included with your plan. No separate API costs, no usage shock. One subscription, full capability.",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "https://picsum.photos/800/600?random=32",
+          "src": "/imgs/features/1.png",
           "alt": "Bundled pricing"
         }
       }
@@ -299,7 +295,7 @@
     "title": "Deploy Your Domain Expert AI",
     "description": "From data to deployed agent in days:",
     "image": {
-      "src": "https://picsum.photos/800/600?random=40",
+      "src": "/imgs/features/1.png",
       "alt": "Deploy BatBot"
     },
     "image_position": "left",
@@ -309,7 +305,7 @@
         "title": "Load Your Industry Data",
         "description": "Import docs, specs, standards, and internal knowledge into BatBot's virtual file system.",
         "image": {
-          "src": "https://picsum.photos/800/600?random=41",
+          "src": "/imgs/features/1.png",
           "alt": "Load data"
         }
       },
@@ -317,7 +313,7 @@
         "title": "Auto-Structure & Index",
         "description": "The doc site indexes and surfaces content for engineers. The VFS makes it agent-queryable with full traceability.",
         "image": {
-          "src": "https://picsum.photos/800/600?random=42",
+          "src": "/imgs/features/1.png",
           "alt": "Auto-structure"
         }
       },
@@ -325,7 +321,7 @@
         "title": "Configure Your Agent",
         "description": "Set the agent's domain scope, personas, and task capabilities. Choose from chatbot, coding agent, or custom workflows.",
         "image": {
-          "src": "https://picsum.photos/800/600?random=43",
+          "src": "/imgs/features/1.png",
           "alt": "Configure agent"
         }
       },
@@ -333,7 +329,7 @@
         "title": "Deploy & Iterate",
         "description": "Go live on your platform. Monitor usage, refine responses, expand to new data sources or verticals.",
         "image": {
-          "src": "https://picsum.photos/800/600?random=44",
+          "src": "/imgs/features/1.png",
           "alt": "Deploy and iterate"
         }
       }
@@ -407,7 +403,7 @@
         "role": "Consumer Electronics",
         "quote": "It feels like having a senior FAE on call. I get the datasheet answer while I'm still at my bench.",
         "image": {
-          "src": "https://picsum.photos/200?random=50",
+          "src": "/imgs/avatars/1.png",
           "alt": "testimonial 1"
         }
       },
@@ -416,7 +412,7 @@
         "role": "Electronics OEM",
         "quote": "Component selection used to take hours of datasheet hunting. BatBot cuts that to minutes.",
         "image": {
-          "src": "https://picsum.photos/200?random=51",
+          "src": "/imgs/avatars/1.png",
           "alt": "testimonial 2"
         }
       },
@@ -425,7 +421,7 @@
         "role": "IoT Startup",
         "quote": "The coding agent understands register maps and SDK quirks. It's not just autocomplete — it actually knows the hardware.",
         "image": {
-          "src": "https://picsum.photos/200?random=52",
+          "src": "/imgs/avatars/1.png",
           "alt": "testimonial 3"
         }
       }

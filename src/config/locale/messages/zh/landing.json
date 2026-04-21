@@ -19,34 +19,30 @@
           "url": "/#introduce",
           "children": [
             {
-              "title": "Agent 平台",
-              "description": "可组合的 Agentic 核心",
-              "url": "/#introduce",
-              "icon": "RiRobot2Line"
-            },
-            {
-              "title": "虚拟文件系统",
-              "description": "自研知识引擎",
-              "url": "/#features",
-              "icon": "RiDatabase2Line"
-            },
-            {
-              "title": "文档站",
-              "description": "面向工程师的知识中心",
-              "url": "/docs",
-              "icon": "RiBookOpenLine"
-            },
-            {
-              "title": "Pi Web-UI",
-              "description": "完整原生工作区（接入会员体系）",
+              "title": "Pi Mono Agent",
+              "description": "多模型 Agent 工作台（已接入统一登录）",
               "url": "http://localhost:5173",
               "icon": "RiRobot2Line",
               "target": "_blank"
             },
             {
-              "title": "AI 编码 Agent",
-              "description": "固件与嵌入式代码生成",
-              "url": "/#features",
+              "title": "Supabase SSH",
+              "description": "Web + SSH 临时凭证接入",
+              "url": "http://localhost:3001",
+              "icon": "TerminalSquare",
+              "target": "_blank"
+            },
+            {
+              "title": "Fumadocs",
+              "description": "文档站与 API 能力入口",
+              "url": "http://localhost:3002",
+              "icon": "BookOpenText",
+              "target": "_blank"
+            },
+            {
+              "title": "Coding Agent",
+              "description": "统一鉴权下的代码助手入口",
+              "url": "/chat",
               "icon": "RiCodeFill"
             }
           ]
@@ -151,13 +147,13 @@
     "avatars_tip": "受硬件工程师与采购团队信赖",
     "show_award": false,
     "image": {
-      "src": "https://picsum.photos/1200/800?random=1",
+      "src": "/imgs/features/landing-page.png",
       "alt": "BatBot 平台界面",
       "width": 1200,
       "height": 800
     },
     "image_invert": {
-      "src": "https://picsum.photos/1200/800?random=2",
+      "src": "/imgs/features/landing-page.png",
       "alt": "BatBot 平台界面深色",
       "width": 1200,
       "height": 800
@@ -173,35 +169,35 @@
       {
         "title": "虚拟文件系统",
         "image": {
-          "src": "https://picsum.photos/200?random=10",
+          "src": "/imgs/avatars/1.png",
           "alt": "虚拟文件系统"
         }
       },
       {
         "title": "文档站",
         "image": {
-          "src": "https://picsum.photos/200?random=11",
+          "src": "/imgs/avatars/1.png",
           "alt": "文档站"
         }
       },
       {
         "title": "Agent 推理层",
         "image": {
-          "src": "https://picsum.photos/200?random=12",
+          "src": "/imgs/avatars/1.png",
           "alt": "Agent 推理层"
         }
       },
       {
         "title": "电子行业版",
         "image": {
-          "src": "https://picsum.photos/200?random=13",
+          "src": "/imgs/avatars/1.png",
           "alt": "电子行业版"
         }
       },
       {
         "title": "更多行业即将上线",
         "image": {
-          "src": "https://picsum.photos/200?random=14",
+          "src": "/imgs/avatars/1.png",
           "alt": "更多行业即将上线"
         }
       }
@@ -214,7 +210,7 @@
     "label": "平台简介",
     "description": "BatBot 维护一套可组合的 Agentic 架构。接入你的行业知识——技术文档、标准规范、企业私有数据——平台即成为该行业的 AI 专家。同一套系统驱动每个垂直行业。",
     "image": {
-      "src": "https://picsum.photos/1200/800?random=20",
+      "src": "/imgs/features/landing-page.png",
       "alt": "BatBot 平台概览"
     },
     "items": [
@@ -223,7 +219,7 @@
         "description": "不只是存储。从底层为 Agentic 检索设计的结构化知识引擎，版本可控、来源可溯、实时可查。",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "https://picsum.photos/800/600?random=21",
+          "src": "/imgs/features/1.png",
           "alt": "虚拟文件系统"
         }
       },
@@ -232,7 +228,7 @@
         "description": "Agent 查的，工程师也能直接看到。支持浏览、参数搜索、引用溯源，工程师每天真实使用。",
         "icon": "RiBookOpenLine",
         "image": {
-          "src": "https://picsum.photos/800/600?random=22",
+          "src": "/imgs/features/1.png",
           "alt": "工程师文档站"
         }
       },
@@ -241,7 +237,7 @@
         "description": "基于虚拟文件系统进行推理，支持问答、代码生成、选型推荐、多步骤任务执行。Token 用量随套餐打包。",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "https://picsum.photos/800/600?random=23",
+          "src": "/imgs/features/1.png",
           "alt": "Agent 推理层"
         }
       },
@@ -250,7 +246,7 @@
         "description": "替换数据集即进入新行业。无需重新训练，无需重复开发，平台自动适配。",
         "icon": "RiRefreshLine",
         "image": {
-          "src": "https://picsum.photos/800/600?random=24",
+          "src": "/imgs/features/1.png",
           "alt": "多行业覆盖"
         }
       }
@@ -269,7 +265,7 @@
         "description": "Agent 架构、虚拟文件系统、文档站已就绪。你提供数据，BatBot 成为专家。",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "https://picsum.photos/800/600?random=30",
+          "src": "/imgs/features/1.png",
           "alt": "行业专业能力"
         }
       },
@@ -278,7 +274,7 @@
         "description": "工程师每天使用文档站，Agent 使用同一知识库。无漂移、无重复，单一事实来源。",
         "icon": "RiShareLine",
         "image": {
-          "src": "https://picsum.photos/800/600?random=31",
+          "src": "/imgs/features/1.png",
           "alt": "共享知识库"
         }
       },
@@ -287,7 +283,7 @@
         "description": "Token 用量随套餐包含，无独立 API 费用，无用量冲击。一个订阅，全能力开放。",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "https://picsum.photos/800/600?random=32",
+          "src": "/imgs/features/1.png",
           "alt": "打包计费"
         }
       }
@@ -299,7 +295,7 @@
     "title": "部署你的行业专家 AI",
     "description": "从数据到 Agent 上线，数天完成：",
     "image": {
-      "src": "https://picsum.photos/800/600?random=40",
+      "src": "/imgs/features/1.png",
       "alt": "部署 BatBot"
     },
     "image_position": "left",
@@ -309,7 +305,7 @@
         "title": "导入行业数据",
         "description": "将文档、规格书、标准、内部知识库载入 BatBot 虚拟文件系统。",
         "image": {
-          "src": "https://picsum.photos/800/600?random=41",
+          "src": "/imgs/features/1.png",
           "alt": "导入数据"
         }
       },
@@ -317,7 +313,7 @@
         "title": "自动结构化与索引",
         "description": "文档站自动为工程师呈现内容；虚拟文件系统让 Agent 可全链路追溯地检索。",
         "image": {
-          "src": "https://picsum.photos/800/600?random=42",
+          "src": "/imgs/features/1.png",
           "alt": "自动结构化"
         }
       },
@@ -325,7 +321,7 @@
         "title": "配置你的 Agent",
         "description": "设定 Agent 的领域范围、角色定位与任务能力，可选聊天机器人、编码 Agent 或自定义工作流。",
         "image": {
-          "src": "https://picsum.photos/800/600?random=43",
+          "src": "/imgs/features/1.png",
           "alt": "配置 Agent"
         }
       },
@@ -333,7 +329,7 @@
         "title": "上线与迭代",
         "description": "在你的平台发布，监控使用情况，持续优化回答，扩展至更多数据源或新行业。",
         "image": {
-          "src": "https://picsum.photos/800/600?random=44",
+          "src": "/imgs/features/1.png",
           "alt": "上线迭代"
         }
       }
@@ -407,7 +403,7 @@
         "role": "消费电子",
         "quote": "就像随时有资深 FAE 待命。我在工作台上就能拿到 Datasheet 的答案。",
         "image": {
-          "src": "https://picsum.photos/200?random=50",
+          "src": "/imgs/avatars/1.png",
           "alt": "testimonial 1"
         }
       },
@@ -416,7 +412,7 @@
         "role": "电子 OEM",
         "quote": "选型以前要花几小时翻数据手册，BatBot 把这压缩到了几分钟。",
         "image": {
-          "src": "https://picsum.photos/200?random=51",
+          "src": "/imgs/avatars/1.png",
           "alt": "testimonial 2"
         }
       },
@@ -425,7 +421,7 @@
         "role": "IoT 创业公司",
         "quote": "编码 Agent 真的懂寄存器和 SDK，不是简单的自动补全，它理解硬件。",
         "image": {
-          "src": "https://picsum.photos/200?random=52",
+          "src": "/imgs/avatars/1.png",
           "alt": "testimonial 3"
         }
       }

@@ -1,0 +1,36 @@
+---
+title: 平台文档
+description: 统一身份、套餐权限与产品入口说明。
+---
+
+# 平台文档
+
+这是一期平台接入的统一文档入口。
+
+## 已接入产品
+
+- `pi-mono`：Agent 交互与能力入口
+- `supabase-ssh`：Web 入口与 SSH 临时凭证链路
+- `fumadocs`：文档站与付费内容 gating
+
+## 统一控制面
+
+`barbot` 作为唯一控制面，负责：
+
+- 会话身份识别
+- 按 audience 签发 bridge token
+- 按 product 查询 entitlement
+
+## 权限数据模型
+
+所有产品统一读取以下字段：
+
+- `product`
+- `plan`
+- `features`
+- `quota`
+- `expiresAt`
+
+## 下一步
+
+可通过顶部导航 `平台` 菜单进入每个产品入口。
