@@ -19,6 +19,9 @@
   ],
   "scripts": {
     "dev": "NODE_OPTIONS='--no-warnings' next dev --turbopack",
+    "dev:native-ui": "pnpm --dir ../../pi-mono/packages/web-ui/example dev",
+    "dev:native-ui:server": "pnpm --dir ../../pi-mono/packages/web-ui/example dev:server",
+    "dev:native-ui:full": "pnpm --dir ../../pi-mono/packages/web-ui/example dev:full",
     "build": "next build",
     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start",
@@ -42,6 +45,9 @@
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts"
   },
   "dependencies": {
+    "@mariozechner/pi-agent-core": "file:../../pi-mono/packages/agent",
+    "@mariozechner/pi-ai": "file:../../pi-mono/packages/ai",
+    "@mariozechner/pi-web-ui": "file:../../pi-mono/packages/web-ui",
     "@ai-sdk/anthropic": "^3.0.42",
     "@ai-sdk/openai": "^3.0.27",
     "@ai-sdk/react": "^3.0.84",

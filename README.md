@@ -1,4 +1,4 @@
-# IC-AI-Intelligent-Customer-Support
+# barbot
 
 面向企业场景的智能客户支持系统：前端为 **Next.js** 全栈应用，对话能力主要对接 **Dify**（流式 SSE、工作流、多应用/Bot），并支持通过 **Vercel AI SDK** 接入其他模型提供商。内置用户认证、积分/支付等能力，可按业务裁剪。
 
@@ -90,8 +90,8 @@ flowchart LR
 ### 1. 克隆与安装
 
 ```bash
-git clone https://github.com/crazyboyonline/IC-AI-Intelligent-Customer-Support.git
-cd IC-AI-Intelligent-Customer-Support
+git clone https://github.com/crazyboyonline/barbot.git
+cd barbot
 pnpm install
 ```
 
@@ -125,11 +125,43 @@ pnpm dev
 
 默认开发地址：<http://localhost:3000>（以终端输出为准）。
 
+### 6. 原生 Pi Web-UI（独立窗口）
+
+`Workspace` 入口默认会新标签打开原生 `pi-web-ui`，地址默认为 `http://localhost:5173`。
+
+先在本项目启动主站：
+
+```bash
+pnpm dev
+```
+
+再启动原生 `pi-web-ui`（在本项目目录直接执行）：
+
+```bash
+pnpm dev:native-ui:full
+```
+
+如果希望分别启动前端/服务端：
+
+```bash
+pnpm dev:native-ui
+pnpm dev:native-ui:server
+```
+
+可通过环境变量覆盖原生入口地址：
+
+```bash
+NEXT_PUBLIC_PI_WEB_UI_URL=http://localhost:5173
+```
+
 ### 常用命令速查
 
 | 命令 | 说明 |
 |------|------|
 | `pnpm dev` | 开发（Turbopack） |
+| `pnpm dev:native-ui` | 启动原生 Pi Web-UI 前端（Vite，默认 5173） |
+| `pnpm dev:native-ui:server` | 启动原生 Pi Web-UI 服务端（默认 8787） |
+| `pnpm dev:native-ui:full` | 同时启动原生 Pi Web-UI 前后端 |
 | `pnpm build` | 生产构建 |
 | `pnpm build:fast` | 提高 Node 内存上限的构建 |
 | `pnpm start` | 生产启动 |
@@ -305,5 +337,5 @@ MIT License
 
 ## 仓库与贡献
 
-- 仓库：<https://github.com/crazyboyonline/IC-AI-Intelligent-Customer-Support>  
+- 仓库：<https://github.com/crazyboyonline/barbot>  
 - 欢迎提交 Issue 与 Pull Request；重大变更建议先开 Issue 说明动机与方案。

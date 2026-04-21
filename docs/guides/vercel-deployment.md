@@ -50,7 +50,7 @@ DIFY_API_URL=http://156.224.28.114
 
 ### 步骤 2：选择项目
 
-点击您的项目 `IC-AI-Intelligent-Customer-Support`
+点击您的项目 `barbot`
 
 ### 步骤 3：添加环境变量
 
