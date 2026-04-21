@@ -63,3 +63,7 @@ src/config/db/migrations
 .source
 
 .chats
+# Playwright generated artifacts
+playwright-report/
+test-results/
+playwright-results.json
