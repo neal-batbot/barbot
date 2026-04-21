@@ -99,27 +99,29 @@ export function ChatGenerator() {
   }, []);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <header className="bg-background sticky top-0 z-10 flex w-full items-center gap-2 px-4 py-3">
+    <div className="flex min-h-screen flex-col overflow-hidden">
+      <header className="sticky top-0 z-10 flex w-full items-center gap-2 border-b border-border/85 bg-background px-4 py-3">
         <SidebarTrigger className="size-7" />
         <div className="flex-1"></div>
         <LocaleSelector />
       </header>
-      <div className="mx-auto -mt-16 flex h-screen w-full flex-1 flex-col items-center justify-center px-4 pb-6 md:max-w-2xl">
-        <h2 className="mb-4 text-center text-3xl font-bold">{t('title')}</h2>
-        <ChatInput
-          error={error}
-          handleSubmit={handleSubmit}
-          onInputChange={() => {
-            if (status === 'error') {
-              setStatus(undefined);
-            }
-            if (error) {
-              setError(null);
-            }
-          }}
-          status={status}
-        />
+      <div className="mx-auto flex w-full flex-1 flex-col items-center justify-center px-4 py-8 md:max-w-3xl">
+        <div className="w-full border border-border/85 bg-card px-5 py-6">
+          <h2 className="mb-4 text-center text-3xl font-bold">{t('title')}</h2>
+          <ChatInput
+            error={error}
+            handleSubmit={handleSubmit}
+            onInputChange={() => {
+              if (status === 'error') {
+                setStatus(undefined);
+              }
+              if (error) {
+                setError(null);
+              }
+            }}
+            status={status}
+          />
+        </div>
       </div>
     </div>
   );

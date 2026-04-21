@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { UIMessage, UseChatHelpers } from '@ai-sdk/react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 import { AnimatedChatInput } from '../../../../components/ui/animated-ai-input';
 import {
@@ -52,12 +53,30 @@ export function ChatInput({
   const [reasoning, setReasoning] = useState(false);
   const [rating, setRating] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+  const [userPlan, setUserPlan] = useState<{ plan: string; allowedModels: string[] }>({
+    plan: 'free',
+    allowedModels: ['kimi-*', 'glm-*'],
+  });
 
   const formatDifyLabel = useCallback((title: string) => {
     const trimmed = title.replace(/^Vector\s*/i, '').trim();
     return `Vector-${trimmed || 'Assistant'}`;
   }, []);
-  
+
+  // Fetch user plan for model access control
+  useEffect(() => {
+    fetch('/api/chat/plan')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === 0 && data.data) {
+          setUserPlan(data.data);
+        }
+      })
+      .catch(() => {
+        // keep default free plan on error
+      });
+  }, []);
+
   // Fetch Dify bots from API
   useEffect(() => {
     setMounted(true);
@@ -126,20 +145,53 @@ export function ChatInput({
   const selectedModel = models.find((m) => m.name === model);
   const isDifyModel = mounted && selectedModel?.provider === 'dify';
 
-  const uiModels = useMemo<ModelOption[]>(
-    () =>
-      models.map((m) => ({
+  const uiModels = useMemo<ModelOption[]>(() => {
+    const isModelAccessible = (modelName: string): boolean => {
+      if (userPlan.plan === 'team') return true;
+      return userPlan.allowedModels.some((rule) => {
+        if (rule === '*') return true;
+        if (rule.endsWith('*')) return modelName.startsWith(rule.slice(0, -1));
+        return modelName === rule;
+      });
+    };
+
+    const difyModelItems: ModelOption[] = difyBots.map((bot) => {
+      const botModel = models.find((m) => m.name === `dify/${bot.id}`);
+      return {
+        id: `dify/${bot.id}`,
+        name: formatDifyLabel(bot.title),
+        description: bot.ratings?.length ? 'Supports rating selection' : 'Standard chat',
+        badge: (botModel as ExtendedChatModel)?.trialOnly ? 'Trial' : 'Custom',
+        group: 'Assistants',
+      };
+    });
+
+    const freeModelItems: ModelOption[] = staticModels
+      .filter((m) => m.tier === 'free')
+      .map((m) => ({
         id: m.name,
-        name: m.provider === 'dify' ? formatDifyLabel(m.title) : m.title,
-        description:
-          m.provider === 'dify'
-            ? m.ratings?.length
-              ? 'Supports rating selection'
-              : 'Standard chat'
-            : `${m.provider} model`,
-      })),
-    [models, formatDifyLabel]
-  );
+        name: m.title,
+        description: `${m.provider} model`,
+        group: 'Basic Models',
+      }));
+
+    const proModelItems: ModelOption[] = staticModels
+      .filter((m) => m.tier === 'pro')
+      .map((m) => {
+        const accessible = isModelAccessible(m.name);
+        return {
+          id: m.name,
+          name: m.title,
+          description: `${m.provider} model`,
+          badge: 'Pro',
+          group: 'Advanced Models',
+          locked: !accessible,
+          lockedReason: !accessible ? 'Upgrade to Pro to unlock' : undefined,
+        };
+      });
+
+    return [...difyModelItems, ...freeModelItems, ...proModelItems];
+  }, [models, difyBots, staticModels, userPlan, formatDifyLabel]);
 
   const handleModelChange = useCallback(
     (value: string) => {
@@ -166,6 +218,15 @@ export function ChatInput({
       isThinkingEnabled: boolean;
     }) => {
       if ((!data.message.trim() && data.files.length === 0) || status === 'submitted') return;
+
+      // Check if selected model is locked
+      const currentUiModel = uiModels.find((m) => m.id === model);
+      if (currentUiModel?.locked) {
+        toast.error(currentUiModel.lockedReason || 'Upgrade your plan to use this model.', {
+          action: { label: 'Upgrade', onClick: () => window.location.href = '/pricing' },
+        });
+        return;
+      }
 
       try {
         const provider = selectedModel?.provider || 'openrouter';
@@ -207,7 +268,7 @@ export function ChatInput({
         console.error('Error submitting message:', err);
       }
     },
-    [handleSubmit, status, selectedModel, model, webSearch, reasoning, rating]
+    [handleSubmit, status, selectedModel, model, webSearch, reasoning, rating, uiModels]
   );
 
   return (

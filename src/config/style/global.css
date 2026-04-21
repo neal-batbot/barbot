@@ -14,6 +14,241 @@
   }
 }
 
+.terminal-skin {
+  @apply bg-background text-foreground font-mono;
+  background-color: #0a0a0a;
+  background-image: none;
+}
+
+.terminal-skin * {
+  font-family: var(--font-mono);
+}
+
+.terminal-skin main {
+  max-width: 56rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.terminal-skin section {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+.terminal-skin h1,
+.terminal-skin h2,
+.terminal-skin h3 {
+  color: color-mix(in oklab, var(--foreground) 92%, transparent);
+  letter-spacing: 0;
+}
+
+.terminal-skin .text-6xl,
+.terminal-skin .text-5xl,
+.terminal-skin .text-4xl {
+  font-size: clamp(1.75rem, 4.2vw, 2.5rem) !important;
+  line-height: 1.15 !important;
+}
+
+.terminal-skin .text-3xl {
+  font-size: clamp(1.35rem, 3vw, 1.9rem) !important;
+}
+
+.terminal-skin .text-lg {
+  font-size: 0.96rem !important;
+}
+
+.terminal-skin p {
+  color: color-mix(in oklab, var(--muted-foreground) 86%, transparent);
+}
+
+.terminal-skin a {
+  color: color-mix(in oklab, var(--foreground) 78%, transparent);
+  text-decoration-color: color-mix(in oklab, var(--border) 92%, transparent);
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+.terminal-skin a:hover {
+  color: var(--primary);
+  text-decoration-color: var(--primary);
+}
+
+.terminal-skin hr,
+.terminal-skin [role='separator'] {
+  border-color: color-mix(in oklab, var(--border) 88%, transparent);
+}
+
+.terminal-skin [data-slot='button'] {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 1px);
+  background: color-mix(in oklab, var(--background) 96%, black);
+  color: var(--foreground);
+  box-shadow: none;
+  font-family: var(--font-mono);
+}
+
+.terminal-skin [data-slot='button']:hover {
+  border-color: color-mix(in oklab, var(--primary) 75%, var(--border));
+  color: color-mix(in oklab, var(--primary) 80%, white);
+  background: color-mix(in oklab, var(--background) 93%, black);
+}
+
+.terminal-skin .bg-primary,
+.terminal-skin .from-primary,
+.terminal-skin .to-primary {
+  background: #101010 !important;
+  color: #3ecf8e !important;
+  border-color: color-mix(in oklab, var(--primary) 72%, var(--border)) !important;
+}
+
+.terminal-skin .bg-secondary,
+.terminal-skin .bg-muted {
+  background: #111 !important;
+}
+
+.terminal-skin .rounded-full,
+.terminal-skin .rounded-2xl,
+.terminal-skin .rounded-xl {
+  border-radius: 0.45rem !important;
+}
+
+.terminal-skin .border,
+.terminal-skin .border-x,
+.terminal-skin .border-y,
+.terminal-skin .border-t,
+.terminal-skin .border-b,
+.terminal-skin .border-l,
+.terminal-skin .border-r {
+  border-color: color-mix(in oklab, var(--border) 92%, transparent) !important;
+}
+
+.terminal-skin [data-slot='input'],
+.terminal-skin textarea {
+  border-color: color-mix(in oklab, var(--border) 90%, transparent);
+  border-radius: calc(var(--radius) - 1px);
+  background: color-mix(in oklab, var(--background) 95%, black);
+  box-shadow: none;
+  font-family: var(--font-mono);
+}
+
+.terminal-skin [data-slot='input']:focus-visible,
+.terminal-skin textarea:focus-visible {
+  border-color: color-mix(in oklab, var(--primary) 80%, var(--border));
+}
+
+.terminal-skin [data-slot='card'] {
+  border-color: color-mix(in oklab, var(--border) 88%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--background) 96%, black);
+  box-shadow: none;
+}
+
+.terminal-skin [data-slot='badge'] {
+  border-color: color-mix(in oklab, var(--border) 90%, transparent);
+  border-radius: calc(var(--radius) - 1px);
+  background: color-mix(in oklab, var(--background) 95%, black);
+  color: var(--muted-foreground);
+}
+
+.terminal-skin [data-slot='table'] {
+  font-family: var(--font-mono);
+}
+
+.terminal-skin [data-slot='table-header'] [data-slot='table-row'] {
+  border-color: color-mix(in oklab, var(--border) 90%, transparent);
+}
+
+.terminal-skin [data-slot='table-row'] {
+  border-color: color-mix(in oklab, var(--border) 88%, transparent);
+}
+
+.terminal-skin [data-slot='table-row']:hover {
+  background: color-mix(in oklab, var(--background) 72%, black);
+}
+
+.terminal-skin [data-slot='sidebar-inner'] {
+  border-color: color-mix(in oklab, var(--sidebar-border) 90%, transparent);
+  background: color-mix(in oklab, var(--sidebar) 92%, black);
+  box-shadow: none;
+}
+
+.terminal-skin [data-slot='sidebar-inset'] {
+  background: transparent;
+}
+
+.terminal-skin [data-slot='sidebar-trigger'] {
+  border-color: color-mix(in oklab, var(--border) 90%, transparent);
+}
+
+.terminal-skin .terminal-shell {
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.terminal-skin .terminal-divider {
+  width: 100%;
+  border-top: 1px solid color-mix(in oklab, var(--border) 90%, transparent);
+}
+
+.terminal-skin .terminal-command {
+  width: 100%;
+  border: 1px solid color-mix(in oklab, var(--border) 92%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--background) 92%, black);
+  color: color-mix(in oklab, var(--foreground) 86%, transparent);
+  padding: 0.82rem 0.95rem;
+  text-align: left;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.terminal-skin .terminal-command:hover {
+  border-color: color-mix(in oklab, var(--primary) 70%, var(--border));
+  color: color-mix(in oklab, var(--foreground) 94%, transparent);
+}
+
+.terminal-skin .terminal-command .command-prefix {
+  color: color-mix(in oklab, var(--primary) 80%, white);
+}
+
+.terminal-skin .terminal-command .command-copy {
+  float: right;
+  color: color-mix(in oklab, var(--muted-foreground) 82%, transparent);
+  font-size: 0.78rem;
+}
+
+.terminal-skin .terminal-panel {
+  width: 100%;
+  border: 1px dashed color-mix(in oklab, var(--primary) 66%, var(--border));
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--background) 95%, black);
+  padding: 1.35rem 1.1rem;
+}
+
+.terminal-skin .terminal-status {
+  color: color-mix(in oklab, var(--muted-foreground) 88%, transparent);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.terminal-skin .container {
+  max-width: 64rem;
+}
+
+.terminal-skin section {
+  border-color: color-mix(in oklab, var(--border) 90%, transparent);
+}
+
+.terminal-skin img {
+  filter: grayscale(0.18) brightness(0.78) contrast(0.92);
+}
+
+.terminal-skin .prose,
+.terminal-skin .docs {
+  color: color-mix(in oklab, var(--foreground) 86%, transparent);
+}
+
 .container {
   @apply mx-auto max-w-7xl px-4 md:px-8;
 }

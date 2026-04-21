@@ -5,6 +5,7 @@ import {
   Check,
   ChevronDown,
   FileText,
+  Lock,
   Loader2,
   Plus,
   X,
@@ -13,6 +14,7 @@ import {
 /* --- ICONS --- */
 export const Icons = {
   Plus,
+  Lock,
   Thinking: (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       width="20"
@@ -65,6 +67,9 @@ export interface ModelOption {
   name: string;
   description: string;
   badge?: string;
+  locked?: boolean;         // true if the user cannot select this model
+  lockedReason?: string;   // tooltip shown on hover when locked
+  group?: string;          // group label shown as a section header in the dropdown
 }
 
 interface ClaudeChatInputProps {
@@ -194,6 +199,18 @@ const ModelSelector: React.FC<{
     return null;
   }
 
+  // Build grouped model list
+  const groupedModels: Array<{ groupLabel: string | null; items: ModelOption[] }> = [];
+  let currentGroup: { groupLabel: string | null; items: ModelOption[] } | null = null;
+  for (const model of models) {
+    const groupLabel = model.group ?? null;
+    if (!currentGroup || currentGroup.groupLabel !== groupLabel) {
+      currentGroup = { groupLabel, items: [] };
+      groupedModels.push(currentGroup);
+    }
+    currentGroup.items.push(model);
+  }
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -206,6 +223,9 @@ const ModelSelector: React.FC<{
         type="button"
       >
         <span className="whitespace-nowrap">{currentModel.name}</span>
+        {currentModel.locked && (
+          <Icons.Lock className="h-3 w-3 opacity-60" />
+        )}
         <span className="flex h-5 w-5 items-center justify-center opacity-75">
           <Icons.SelectArrow
             className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -214,36 +234,56 @@ const ModelSelector: React.FC<{
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full right-0 z-50 mb-2 w-[260px] overflow-hidden rounded-2xl border border-border bg-background p-1.5 shadow-xl">
-          {models.map((model) => (
-            <button
-              key={model.id}
-              onClick={() => {
-                onSelect(model.id);
-                setIsOpen(false);
-              }}
-              className="group flex w-full items-start justify-between rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-muted"
-              type="button"
-            >
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-semibold text-foreground">
-                    {model.name}
-                  </span>
-                  {model.badge && (
-                    <span className="rounded-full border border-border px-1.5 py-[1px] text-[10px] font-medium text-muted-foreground">
-                      {model.badge}
-                    </span>
-                  )}
+        <div className="absolute bottom-full right-0 z-50 mb-2 w-[280px] overflow-hidden rounded-2xl border border-border bg-background p-1.5 shadow-xl">
+          {groupedModels.map((group, gi) => (
+            <div key={gi}>
+              {group.groupLabel && (
+                <div className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {group.groupLabel}
                 </div>
-                <span className="text-[11px] text-muted-foreground">
-                  {model.description}
-                </span>
-              </div>
-              {selectedModel === model.id && (
-                <Icons.Check className="mt-1 h-4 w-4 text-primary" />
               )}
-            </button>
+              {group.items.map((model) => (
+                <button
+                  key={model.id}
+                  onClick={() => {
+                    if (model.locked) return;
+                    onSelect(model.id);
+                    setIsOpen(false);
+                  }}
+                  title={model.locked ? model.lockedReason : undefined}
+                  className={`group flex w-full items-start justify-between rounded-xl px-3 py-2.5 text-left transition-colors ${
+                    model.locked
+                      ? 'cursor-not-allowed opacity-50'
+                      : 'hover:bg-muted'
+                  }`}
+                  type="button"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2">
+                      {model.locked && (
+                        <Icons.Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
+                      )}
+                      <span className="text-[13px] font-semibold text-foreground">
+                        {model.name}
+                      </span>
+                      {model.badge && (
+                        <span className="rounded-full border border-border px-1.5 py-[1px] text-[10px] font-medium text-muted-foreground">
+                          {model.badge}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">
+                      {model.locked && model.lockedReason
+                        ? model.lockedReason
+                        : model.description}
+                    </span>
+                  </div>
+                  {!model.locked && selectedModel === model.id && (
+                    <Icons.Check className="mt-1 h-4 w-4 text-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
           ))}
         </div>
       )}

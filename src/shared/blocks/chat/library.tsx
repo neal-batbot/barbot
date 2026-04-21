@@ -34,6 +34,9 @@ import { useAppContext } from '@/shared/contexts/app';
 import { useChatContext } from '@/shared/contexts/chat';
 
 export function ChatLibrary({}) {
+  const nativePiWebUiUrl =
+    process.env.NEXT_PUBLIC_PI_WEB_UI_URL || 'http://localhost:5173';
+
   const { isMobile } = useSidebar();
 
   const t = useTranslations('ai.chat.library');
@@ -89,10 +92,14 @@ export function ChatLibrary({}) {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton asChild>
-            <Link href="/workspace">
+            <a
+              href={nativePiWebUiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <IconFolder className="text-sidebar-foreground/70" />
-              <span>Workspace</span>
-            </Link>
+              <span>Open Native Pi Web-UI</span>
+            </a>
           </SidebarMenuButton>
         </SidebarMenuItem>
 

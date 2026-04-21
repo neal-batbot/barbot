@@ -1,5 +1,4 @@
 import '@/config/style/global.css';
-import '@mariozechner/pi-web-ui/dist/app.css';
 
 import { DM_Sans, Geist_Mono, Lora } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
@@ -146,7 +145,7 @@ export default async function RootLayout({
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden">
         <NextTopLoader
-          color="#6466F1"
+          color="#3ecf8e"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}

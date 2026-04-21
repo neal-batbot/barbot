@@ -16,9 +16,9 @@ export default async function LandingLayout({
   footer: FooterType;
 }) {
   return (
-    <div className="h-screen w-screen">
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-3 sm:px-5">
       <Header header={header} />
-      {children}
+      <main className="flex-1 border-y border-border/85 py-6">{children}</main>
       <Footer footer={footer} />
     </div>
   );
