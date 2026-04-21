@@ -1,35 +1,37 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Agent } from '@mariozechner/pi-agent-core';
-import {
-  AppStorage,
-  ChatPanel,
-  CustomProvidersStore,
-  IndexedDBStorageBackend,
-  ProviderKeysStore,
-  SessionsStore,
-  SettingsStore,
-  setAppStorage,
-} from '@mariozechner/pi-web-ui';
 
 import { SignModal } from '@/shared/blocks/sign/sign-modal';
 import { Button } from '@/shared/components/ui/button';
 import { useAppContext } from '@/shared/contexts/app';
 import { BarbotPiSession } from '@/shared/pi-web-ui/barbot-pi-session';
 
-function initPiWebUiStorage() {
-  const settings = new SettingsStore();
-  const providerKeys = new ProviderKeysStore();
-  const sessions = new SessionsStore();
-  const customProviders = new CustomProvidersStore();
+type PiChatPanelElement = HTMLElement & {
+  setAgent: (
+    agent: Agent,
+    options: {
+      onApiKeyRequired: () => Promise<boolean>;
+      toolsFactory: () => unknown[];
+    }
+  ) => Promise<void>;
+};
 
-  const backend = new IndexedDBStorageBackend({
+type PiWebUiModule = typeof import('@mariozechner/pi-web-ui');
+
+function initPiWebUiStorage(piWebUi: PiWebUiModule) {
+  const settings = new piWebUi.SettingsStore();
+  const providerKeys = new piWebUi.ProviderKeysStore();
+  const sessions = new piWebUi.SessionsStore();
+  const customProviders = new piWebUi.CustomProvidersStore();
+
+  const backend = new piWebUi.IndexedDBStorageBackend({
     dbName: 'barbot-pi-web-ui',
     version: 1,
     stores: [
       settings.getConfig(),
-      SessionsStore.getMetadataConfig(),
+      piWebUi.SessionsStore.getMetadataConfig(),
       providerKeys.getConfig(),
       customProviders.getConfig(),
       sessions.getConfig(),
@@ -41,16 +43,23 @@ function initPiWebUiStorage() {
   customProviders.setBackend(backend);
   sessions.setBackend(backend);
 
-  setAppStorage(
-    new AppStorage(settings, providerKeys, sessions, customProviders, backend)
+  piWebUi.setAppStorage(
+    new piWebUi.AppStorage(
+      settings,
+      providerKeys,
+      sessions,
+      customProviders,
+      backend
+    )
   );
 }
 
 export function PiWorkspaceShell() {
   const mountRef = useRef<HTMLDivElement | null>(null);
-  const panelRef = useRef<ChatPanel | null>(null);
+  const panelRef = useRef<PiChatPanelElement | null>(null);
   const sessionRef = useRef<BarbotPiSession | null>(null);
   const initedRef = useRef(false);
+  const [piReady, setPiReady] = useState(false);
 
   const { user, isCheckSign, setIsShowSignModal } = useAppContext();
 
@@ -58,41 +67,66 @@ export function PiWorkspaceShell() {
     if (initedRef.current) {
       return;
     }
-    initPiWebUiStorage();
-    initedRef.current = true;
+    let cancelled = false;
+
+    (async () => {
+      const piWebUi = await import('@mariozechner/pi-web-ui');
+      if (cancelled) {
+        return;
+      }
+      initPiWebUiStorage(piWebUi);
+      initedRef.current = true;
+      setPiReady(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
     const mountNode = mountRef.current;
-    if (!mountNode || !user) {
+    if (!mountNode || !user || !piReady) {
       return;
     }
     if (panelRef.current) {
       return;
     }
 
-    const session = new BarbotPiSession();
-    sessionRef.current = session;
+    let disposed = false;
+    let panel: PiChatPanelElement | null = null;
+    let session: BarbotPiSession | null = null;
 
-    const panel = document.createElement('pi-chat-panel') as ChatPanel;
-    panel.style.height = '100%';
-    panel.style.width = '100%';
-    mountNode.appendChild(panel);
-    panelRef.current = panel;
+    void (async () => {
+      await import('@mariozechner/pi-web-ui');
+      if (disposed || !mountRef.current) {
+        return;
+      }
 
-    void panel.setAgent(session as unknown as Agent, {
-      onApiKeyRequired: async () => true,
-      toolsFactory: () => [],
-    });
+      session = new BarbotPiSession();
+      sessionRef.current = session;
+
+      panel = document.createElement('pi-chat-panel') as PiChatPanelElement;
+      panel.style.height = '100%';
+      panel.style.width = '100%';
+      mountRef.current.appendChild(panel);
+      panelRef.current = panel;
+
+      await panel.setAgent(session as unknown as Agent, {
+        onApiKeyRequired: async () => true,
+        toolsFactory: () => [],
+      });
+    })();
 
     return () => {
+      disposed = true;
       sessionRef.current = null;
       panelRef.current = null;
-      if (mountNode.contains(panel)) {
+      if (panel && mountNode.contains(panel)) {
         mountNode.removeChild(panel);
       }
     };
-  }, [user]);
+  }, [user, piReady]);
 
   if (isCheckSign) {
     return (

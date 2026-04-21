@@ -66,26 +66,29 @@ export function inferChatProvider(model: string): string {
 
 /** 替换原「通用套餐」模型：仅保留 Claude / Kimi / GLM（智谱 Coding） */
 export const STATIC_CHAT_MODELS: ChatModel[] = [
-  { title: 'Claude Sonnet 4.6', name: 'claude-sonnet-4-6', provider: 'claude-proxy' },
+  { title: 'Claude Sonnet 4.6', name: 'claude-sonnet-4-6', provider: 'claude-proxy', tier: 'pro' },
   {
     title: 'Claude Sonnet 4.5',
     name: 'claude-sonnet-4-5',
     provider: 'claude-proxy',
+    tier: 'pro',
   },
   {
     title: 'Claude Sonnet 4.5 (20250929)',
     name: 'claude-sonnet-4-5-20250929',
     provider: 'claude-proxy',
+    tier: 'pro',
   },
-  { title: 'Claude Haiku 4.5', name: 'claude-haiku-4-5', provider: 'claude-proxy' },
+  { title: 'Claude Haiku 4.5', name: 'claude-haiku-4-5', provider: 'claude-proxy', tier: 'pro' },
   {
     title: 'Claude Haiku 4.5 (20251001)',
     name: 'claude-haiku-4-5-20251001',
     provider: 'claude-proxy',
+    tier: 'pro',
   },
-  { title: 'Claude Opus 4.5', name: 'claude-opus-4-5', provider: 'claude-proxy' },
-  { title: 'Kimi K2.5 (Coding)', name: 'kimi-k2.5', provider: 'kimi' },
-  { title: 'GLM-4.6', name: 'glm-4.6', provider: 'zhipu' },
-  { title: 'GLM-4.5 Air', name: 'glm-4.5-air', provider: 'zhipu' },
-  { title: 'GLM-4 Flash', name: 'glm-4-flash', provider: 'zhipu' },
+  { title: 'Claude Opus 4.5', name: 'claude-opus-4-5', provider: 'claude-proxy', tier: 'pro' },
+  { title: 'Kimi K2.5 (Coding)', name: 'kimi-k2.5', provider: 'kimi', tier: 'free' },
+  { title: 'GLM-4.6', name: 'glm-4.6', provider: 'zhipu', tier: 'free' },
+  { title: 'GLM-4.5 Air', name: 'glm-4.5-air', provider: 'zhipu', tier: 'free' },
+  { title: 'GLM-4 Flash', name: 'glm-4-flash', provider: 'zhipu', tier: 'free' },
 ];

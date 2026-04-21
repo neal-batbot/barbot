@@ -15,13 +15,22 @@ const withNextIntl = createNextIntlPlugin({
 });
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const piAiEntry = path.resolve(projectRoot, 'node_modules/@mariozechner/pi-ai/dist/index.js');
+const piAgentCoreEntry = path.resolve(
+  projectRoot,
+  'node_modules/@mariozechner/pi-agent-core/dist/index.js',
+);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: process.env.VERCEL ? undefined : 'standalone',
   reactStrictMode: false,
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-  transpilePackages: [],
+  transpilePackages: [
+    '@mariozechner/pi-web-ui',
+    '@mariozechner/pi-agent-core',
+    '@mariozechner/pi-ai',
+  ],
   images: {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -51,9 +60,21 @@ const nextConfig = {
   },
   turbopack: {
     root: projectRoot,
-    resolveAlias: {},
+    resolveAlias: {
+      '@mariozechner/pi-ai': piAiEntry,
+      '@mariozechner/pi-agent-core': piAgentCoreEntry,
+    },
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@mariozechner/pi-ai': piAiEntry,
+      '@mariozechner/pi-agent-core': piAgentCoreEntry,
+    };
+    return config;
   },
   experimental: {
+    externalDir: true,
     turbopackFileSystemCacheForDev: true,
     // Disable mdxRs for Vercel deployment compatibility with fumadocs-mdx
     ...(process.env.VERCEL ? {} : { mdxRs: true }),

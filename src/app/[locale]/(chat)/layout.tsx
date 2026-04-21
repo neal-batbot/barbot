@@ -18,10 +18,12 @@ export default function ChatLayout({ children }: { children: ReactNode }) {
 
   return (
     <ChatContextProvider>
-      <DashboardLayout sidebar={sidebar}>
-        <LocaleDetector />
-        {children}
-      </DashboardLayout>
+      <div className="terminal-skin min-h-screen">
+        <DashboardLayout sidebar={sidebar}>
+          <LocaleDetector />
+          {children}
+        </DashboardLayout>
+      </div>
     </ChatContextProvider>
   );
 }

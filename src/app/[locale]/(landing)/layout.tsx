@@ -24,9 +24,11 @@ export default async function LandingLayout({
   const footer: FooterType = t.raw('footer');
 
   return (
-    <Layout header={header} footer={footer}>
-      <LocaleDetector />
-      {children}
-    </Layout>
+    <div className="terminal-skin min-h-screen">
+      <Layout header={header} footer={footer}>
+        <LocaleDetector />
+        {children}
+      </Layout>
+    </div>
   );
 }

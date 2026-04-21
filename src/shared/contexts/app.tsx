@@ -12,6 +12,10 @@ import {
 import { getAuthClient, useSession } from '@/core/auth/client';
 import { useRouter } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
+import {
+  isIgnorableClientErrorMessage,
+  reportClientError,
+} from '@/shared/lib/client-error';
 import { User } from '@/shared/models/user';
 
 export interface ContextValue {
@@ -62,7 +66,16 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
       setConfigs(data);
     } catch (e) {
-      console.log('fetch configs failed:', e);
+      const error = e instanceof Error ? e : new Error(String(e));
+      console.error('fetch configs failed:', error);
+      void reportClientError({
+        source: 'app-context.fetchConfigs',
+        message: error.message,
+        stack: error.stack,
+        route: window.location.pathname,
+        href: window.location.href,
+        userAgent: window.navigator.userAgent,
+      });
     }
   };
 
@@ -85,7 +98,16 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
       setUser({ ...user, credits: data });
     } catch (e) {
-      console.log('fetch user credits failed:', e);
+      const error = e instanceof Error ? e : new Error(String(e));
+      console.error('fetch user credits failed:', error);
+      void reportClientError({
+        source: 'app-context.fetchUserCredits',
+        message: error.message,
+        stack: error.stack,
+        route: window.location.pathname,
+        href: window.location.href,
+        userAgent: window.navigator.userAgent,
+      });
     }
   };
 
@@ -104,7 +126,16 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
       setUser(data);
     } catch (e) {
-      console.log('fetch user info failed:', e);
+      const error = e instanceof Error ? e : new Error(String(e));
+      console.error('fetch user info failed:', error);
+      void reportClientError({
+        source: 'app-context.fetchUserInfo',
+        message: error.message,
+        stack: error.stack,
+        route: window.location.pathname,
+        href: window.location.href,
+        userAgent: window.navigator.userAgent,
+      });
     }
   };
 
@@ -170,6 +201,59 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       // fetchUserCredits();
     }
   }, [user]);
+
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      const message =
+        typeof event.message === 'string' && event.message.length > 0
+          ? event.message
+          : 'Unknown window error';
+      if (isIgnorableClientErrorMessage(message)) {
+        return;
+      }
+      void reportClientError({
+        source: 'window.onerror',
+        message,
+        stack:
+          event.error instanceof Error
+            ? event.error.stack
+            : event.filename
+              ? `${event.filename}:${event.lineno}:${event.colno}`
+              : undefined,
+        route: window.location.pathname,
+        href: window.location.href,
+        userAgent: window.navigator.userAgent,
+      });
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      const error =
+        reason instanceof Error ? reason : new Error(String(reason));
+      if (isIgnorableClientErrorMessage(error.message)) {
+        return;
+      }
+      void reportClientError({
+        source: 'window.unhandledrejection',
+        message: error.message,
+        stack: error.stack,
+        route: window.location.pathname,
+        href: window.location.href,
+        userAgent: window.navigator.userAgent,
+      });
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener(
+        'unhandledrejection',
+        handleUnhandledRejection
+      );
+    };
+  }, []);
 
   useEffect(() => {
     setIsCheckSign(isPending);
