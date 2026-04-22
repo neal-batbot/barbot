@@ -224,6 +224,7 @@ export function Header({ header }: { header: HeaderType }) {
     description,
     children,
     href,
+    target,
     ...props
   }: React.ComponentPropsWithoutRef<'li'> & {
     href: string;
