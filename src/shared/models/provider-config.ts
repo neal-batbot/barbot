@@ -22,3 +22,22 @@ export async function getProviderConfig(planName: string, productCode: string) {
 
   return config ?? null;
 }
+
+export async function getProviderConfigs(planName: string, productCode: string) {
+  return db()
+    .select({
+      channelId: providerConfig.id,
+      providerName: providerConfig.providerName,
+      baseUrl: providerConfig.baseUrl,
+      apiKey: providerConfig.apiKey,
+      modelName: providerConfig.modelName,
+    })
+    .from(providerConfig)
+    .where(
+      and(
+        eq(providerConfig.planName, planName),
+        eq(providerConfig.productCode, productCode),
+        eq(providerConfig.isActive, true)
+      )
+    );
+}

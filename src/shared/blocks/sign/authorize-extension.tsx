@@ -81,8 +81,8 @@ export function AuthorizeExtension({
   const router = useRouter();
   const [authorizing, setAuthorizing] = useState(false);
   const redirectedRef = useRef(false);
-  const resolvedAudience = isAllowedBridgeAudience(audience)
-    ? audience
+  const resolvedAudience: string = isAllowedBridgeAudience(audience)
+    ? audience!
     : VSCODE_AUDIENCE;
 
   useEffect(() => {

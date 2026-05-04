@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import { findApikeyByKey } from '@/shared/models/apikey';
 import { findPlanEntitlement, parseFeatures } from '@/shared/models/plan-entitlement';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { countActiveDevices, upsertDevice } from '@/shared/models/device';
 import { respData } from '@/shared/lib/resp';
+import { resolvePlatformAuth, unauthorizedResponse } from '@/shared/lib/platform-auth';
 
 const DEFAULT_DEVICE_LIMIT = 3;
 
@@ -16,16 +16,8 @@ const registerSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return Response.json({ code: -1, message: 'unauthorized' }, { status: 401 });
-    }
-
-    const apiKeyValue = authHeader.slice(7);
-    const apikeyRecord = await findApikeyByKey(apiKeyValue);
-    if (!apikeyRecord) {
-      return Response.json({ code: -1, message: 'unauthorized' }, { status: 401 });
-    }
+    const identity = await resolvePlatformAuth(req);
+    if (!identity) return unauthorizedResponse();
 
     const body = await req.json();
     const parsed = registerSchema.safeParse(body);
@@ -37,7 +29,7 @@ export async function POST(req: Request) {
     }
 
     const { device_id, platform, product_code } = parsed.data;
-    const userId = apikeyRecord.userId;
+    const userId = identity.userId;
 
     // Check existing device (re-activation is always allowed)
     const subscription = await getCurrentSubscription(userId);

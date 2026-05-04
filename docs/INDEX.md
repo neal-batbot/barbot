@@ -9,7 +9,7 @@
 |---------|-------------|-------|
 | [design-docs/](design-docs/INDEX.md) | Architectural decisions with validation status | 4 docs |
 | [exec-plans/](exec-plans/INDEX.md) | Execution plans (active/completed) + tech debt | 1 active |
-| [guides/](guides/INDEX.md) | How-to guides (setup, features, debugging) | 6 guides |
+| [guides/](guides/INDEX.md) | How-to guides (setup, features, debugging) | 7 guides |
 | [references/](references/INDEX.md) | External API docs snapshots (.llms.txt) | 4 references |
 | [generated/](generated/INDEX.md) | Auto-generated docs (db schema) | 1 file |
 | [lessons-learned/](lessons-learned/INDEX.md) | Documented mistakes and their fixes | 5 lessons |

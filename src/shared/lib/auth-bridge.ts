@@ -17,7 +17,7 @@ export {
   VSCODE_AUDIENCE,
 };
 
-const ALLOWED_AUDIENCES = new Set(ALLOWED_BRIDGE_AUDIENCES);
+const ALLOWED_AUDIENCES = new Set<string>(ALLOWED_BRIDGE_AUDIENCES);
 
 function base64UrlEncode(input: Buffer | string) {
   const buffer = Buffer.isBuffer(input) ? input : Buffer.from(input);

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { findApikeyByKey } from '@/shared/models/apikey';
 import { createUsageLogs, NewUsageLog } from '@/shared/models/usage-log';
 import {
   BillingEventSource,
@@ -9,6 +8,11 @@ import {
 } from '@/shared/models/billing-event';
 import { respData, respErr } from '@/shared/lib/resp';
 import { getBillingPeriodLabel } from '@/shared/services/entitlement';
+import { resolvePlatformAuth } from '@/shared/lib/platform-auth';
+import {
+  calculateUsageCost,
+  withPricingMetadata,
+} from '@/shared/services/model-pricing';
 
 const recordSchema = z.object({
   product: z.string().min(1),
@@ -17,6 +21,9 @@ const recordSchema = z.object({
   type: z.string().min(1),
   tokens: z.number().int().nonnegative().optional(),
   cost: z.number().nonnegative().optional(),
+  input_tokens: z.number().int().nonnegative().optional(),
+  output_tokens: z.number().int().nonnegative().optional(),
+  cached_input_tokens: z.number().int().nonnegative().optional(),
   request_id: z.string().min(1).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
   timestamp: z.string().datetime().optional(),
@@ -28,16 +35,8 @@ const batchSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return respErr('unauthorized');
-    }
-
-    const apiKeyValue = authHeader.slice(7);
-    const apikeyRecord = await findApikeyByKey(apiKeyValue);
-    if (!apikeyRecord) {
-      return respErr('unauthorized');
-    }
+    const identity = await resolvePlatformAuth(req);
+    if (!identity) return respErr('unauthorized');
 
     const body = await req.json();
     const parsed = batchSchema.safeParse(body);
@@ -51,21 +50,29 @@ export async function POST(req: Request) {
     const now = new Date();
     const records: NewUsageLog[] = parsed.data.records.map((r, idx) => {
       const createdAt = r.timestamp ? new Date(r.timestamp) : now;
+      const usageCost = calculateUsageCost({
+        model: r.model,
+        tokens: r.tokens ?? 0,
+        inputTokens: r.input_tokens,
+        outputTokens: r.output_tokens,
+        cachedInputTokens: r.cached_input_tokens,
+      });
+      const metadata = JSON.stringify(withPricingMetadata(r.metadata, usageCost));
       return {
-        userId: apikeyRecord.userId,
+        userId: identity.userId,
         appId: 'api',
         product: r.product,
         model: r.model ?? null,
         provider: r.provider ?? null,
         type: r.type,
-        tokens: r.tokens ?? 0,
-        cost: r.cost !== undefined ? r.cost.toFixed(8) : '0',
+        tokens: usageCost.billableTokens,
+        cost: usageCost.amount,
         source: BillingEventSource.CLIENT,
         requestId:
           r.request_id ||
-          `${apikeyRecord.userId}:${r.type}:${createdAt.getTime()}:${idx}`,
+          `${identity.userId}:${r.type}:${createdAt.getTime()}:${idx}`,
         status: 'success',
-        metadata: r.metadata ? JSON.stringify(r.metadata) : null,
+        metadata,
         createdAt,
       };
     });
@@ -83,7 +90,10 @@ export async function POST(req: Request) {
           model: record.model ?? null,
           provider: record.provider ?? null,
           billableTokens: record.tokens ?? 0,
-          unitPrice: '0',
+          unitPrice:
+            record.tokens && record.cost
+              ? (Number(record.cost) / record.tokens).toFixed(12)
+              : '0',
           amount: record.cost || '0',
           period: getBillingPeriodLabel(record.createdAt || now),
           status: BillingEventStatus.BILLABLE,

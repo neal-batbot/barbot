@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
       source: 'react-error-boundary',
       message: error.message,
       stack: error.stack,
-      componentStack: errorInfo.componentStack,
+      componentStack: errorInfo.componentStack ?? undefined,
       route: typeof window !== 'undefined' ? window.location.pathname : '',
       href: typeof window !== 'undefined' ? window.location.href : '',
       userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',

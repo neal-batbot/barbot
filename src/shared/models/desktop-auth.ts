@@ -155,3 +155,7 @@ export async function validateDesktopToken(
 
   return session ?? null;
 }
+
+export async function revokeDesktopSessionByToken(token: string): Promise<void> {
+  await db().delete(desktopSession).where(eq(desktopSession.token, token));
+}
