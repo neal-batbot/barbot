@@ -27,8 +27,8 @@ export function SunsetHome({
     <div className="pb-10">
       {sections.hero ? <Hero section={sections.hero} /> : null}
 
-      <div className="mx-auto mt-10 grid w-full max-w-[1400px] grid-cols-1 gap-10 px-6 md:px-12">
-        <p className="text-2xl leading-tight font-light text-zinc-100 md:text-4xl">
+      <div className="mx-auto mt-10 grid w-full max-w-[1400px] grid-cols-1 gap-8 px-5 md:gap-10 md:px-12">
+        <p className="text-2xl leading-[1.2] font-light text-zinc-100 md:text-[3.15rem]">
           Fumadocs is a <span className="font-medium text-[#efe879]">React.js</span>{' '}
           documentation framework for{' '}
           <span className="font-medium text-[#efe879]">Developers</span>, beautifully
@@ -38,7 +38,7 @@ export function SunsetHome({
 
         <TryOutBlock />
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 md:gap-6 lg:grid-cols-2">
           <InfoCard
             title={introduce?.title || 'A framework people love.'}
             description={
@@ -117,9 +117,9 @@ function InfoCard({
   button?: { title?: string; url?: string; target?: string };
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-700/70 bg-zinc-900/70 p-6 text-zinc-100">
-      <h3 className="text-4xl font-medium tracking-tight">{title}</h3>
-      <p className="mt-4 text-zinc-300">{description}</p>
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/85 p-6 text-zinc-100 ring-1 ring-white/5">
+      <h3 className="text-2xl leading-tight font-semibold tracking-tight md:text-3xl">{title}</h3>
+      <p className="mt-4 text-sm leading-6 text-zinc-300 md:text-base">{description}</p>
       {button?.url ? (
         <Link
           href={button.url}
@@ -143,14 +143,14 @@ function ImageCard({
   image: string;
 }) {
   return (
-    <div className="relative min-h-[360px] overflow-hidden rounded-2xl border border-zinc-700/70 bg-zinc-900">
+    <div className="relative min-h-[320px] overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900">
       <Image src={image} alt={title} fill className="object-cover opacity-55" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
-      <div className="absolute right-0 bottom-0 left-0 z-10 p-6">
-        <h3 className="text-4xl leading-tight font-medium tracking-tight text-zinc-100">
+      <div className="absolute right-0 bottom-0 left-0 z-10 p-5 md:p-6">
+        <h3 className="text-2xl leading-tight font-semibold tracking-tight text-zinc-100 md:text-3xl">
           {title}
         </h3>
-        <p className="mt-3 text-zinc-300">{description}</p>
+        <p className="mt-3 text-sm leading-6 text-zinc-300 md:text-base">{description}</p>
       </div>
     </div>
   );

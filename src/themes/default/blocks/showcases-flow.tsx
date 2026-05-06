@@ -123,10 +123,10 @@ export function ShowcasesFlow({
                   key={group.name}
                   onClick={() => setSelectedGroup(group.name)}
                   className={cn(
-                    'relative rounded-lg px-3 py-1.5 text-sm font-medium transition-all',
+                    'relative rounded-full border px-4 py-2 text-sm font-medium transition-[background-color,color,border-color] duration-200',
                     isSelected
-                      ? ''
-                      : 'border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground border'
+                      ? 'border-[#f0e889]/80 bg-[#ece673] text-zinc-900'
+                      : 'border-zinc-700 bg-zinc-900/70 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800/80 hover:text-zinc-100'
                   )}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -139,18 +139,7 @@ export function ShowcasesFlow({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {isSelected ? (
-                    <>
-                      <span className="bg-primary absolute inset-0 rounded-lg p-[2px]">
-                        <span className="bg-background block h-full w-full rounded-[calc(0.5rem-2px)]" />
-                      </span>
-                      <span className="bg-primary relative z-10 bg-clip-text text-transparent">
-                        {group.title}
-                      </span>
-                    </>
-                  ) : (
-                    <span>{group.title}</span>
-                  )}
+                  <span>{group.title}</span>
                 </motion.button>
               );
             }
