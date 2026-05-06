@@ -105,7 +105,7 @@ export function Header({ header }: { header: HeaderType }) {
                     target={item.target || '_self'}
                     className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm ${
                       item.is_active || pathname.endsWith(item.url as string)
-                        ? 'bg-muted/40 text-muted-foreground'
+                        ? 'rounded-full border border-zinc-700 bg-zinc-900/90 text-zinc-100'
                         : ''
                     }`}
                   >
@@ -121,7 +121,7 @@ export function Header({ header }: { header: HeaderType }) {
                   {item.title}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-2xs origin-top p-0.5">
-                  <div className="border-foreground/5 bg-card ring-foreground/5 rounded-[calc(var(--radius)-2px)] border border-transparent p-2 shadow ring-1">
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-950/95 p-2 shadow-2xl shadow-black/40 ring-1 ring-white/5">
                     <ul className="mt-1 space-y-2">
                       {item.children?.map((subItem: NavItem, index: number) => (
                         <ListItem
@@ -298,11 +298,10 @@ export function Header({ header }: { header: HeaderType }) {
                         href={button.url || ''}
                         target={button.target || '_self'}
                         className={cn(
-                          'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-                          'h-7 px-3 ring-0',
+                          'inline-flex h-9 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-[background-color,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ece673]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-50',
                           button.variant === 'outline'
-                            ? 'bg-background border-primary ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200'
-                            : 'bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md ring-1 shadow-black/20 ring-(--ring-color) [--ring-color:color-mix(in_oklab,var(--color-foreground)15%,var(--color-primary))]'
+                            ? 'border-zinc-700 bg-zinc-900/80 text-zinc-100 hover:border-zinc-600 hover:bg-zinc-800/90'
+                            : 'border-[#f2eb94]/70 bg-[#ece673] text-[#0d0d0f] hover:border-[#fff4b0] hover:bg-[#f2eb94]'
                         )}
                       >
                         <span>{button.title}</span>

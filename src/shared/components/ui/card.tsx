@@ -13,7 +13,8 @@ const cardVariants = cva(
         // Cursor Flat Background Card: Canvas Parchment bg, 4px radius, no shadow
         flat: "bg-[var(--color-canvas-parchment)] rounded-[4px] shadow-none border-0 px-[7.5px]",
         // Default: standard card with border
-        default: "bg-card rounded-xl border shadow-sm",
+        default:
+          "rounded-2xl border border-zinc-800 bg-zinc-950/85 text-zinc-100 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.75)] ring-1 ring-white/5",
       },
       padding: {
         default: "py-6",
