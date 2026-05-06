@@ -5,33 +5,29 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/shared/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-[15px] font-semibold tracking-tight transition-[background-color,color,border-color,box-shadow,transform] duration-200 disabled:pointer-events-none disabled:opacity-50 active:translate-y-px [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#ece673]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
-        // Cursor Primary Filled Button: Inkwell bg, Canvas Parchment text, 4px radius
-        default: "bg-[var(--color-inkwell)] text-[var(--color-canvas-parchment)] hover:bg-[var(--color-deep-shadow)] rounded-[4px]",
+        default:
+          "border border-[#f2eb94]/70 bg-[#ece673] text-[#0d0d0f] shadow-[0_0_0_1px_rgba(255,255,255,0.12)_inset] hover:border-[#fff4b0] hover:bg-[#f2eb94]",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 rounded-[4px]",
-        // Cursor Outlined Accent Button: transparent bg, Onyx Outline border/text
+          "border border-destructive/60 bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/30 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border border-[var(--color-onyx-outline)] bg-transparent text-[var(--color-onyx-outline)] hover:bg-[var(--color-onyx-outline)]/10 rounded-[4px]",
+          "border border-zinc-700 bg-zinc-900/80 text-zinc-100 shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset] hover:border-zinc-600 hover:bg-zinc-800/90",
         secondary:
-          "bg-[var(--color-pebble-gray)] text-[var(--color-inkwell)] hover:bg-[var(--color-highlight-beige)] rounded-[4px]",
-        // Cursor Ghost Action Button: transparent bg, Inkwell text, minimal padding
+          "border border-zinc-700/80 bg-zinc-850 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800",
         ghost:
-          "bg-transparent text-[var(--color-inkwell)] hover:bg-[var(--color-pebble-gray)] rounded-[4px]",
-        link: "text-[var(--color-onyx-outline)] underline-offset-4 hover:underline",
+          "border border-transparent bg-transparent text-zinc-100 hover:bg-zinc-900/70",
+        link: "rounded-none border-0 p-0 text-zinc-300 underline-offset-4 hover:text-zinc-100 hover:underline active:translate-y-0",
       },
       size: {
-        // Cursor spec: 17.5px padding for filled/outlined buttons
-        default: "h-auto px-[17.5px] py-[17.5px] has-[>svg]:px-[14px]",
-        sm: "h-auto px-3 py-2 rounded-[4px] gap-1.5 has-[>svg]:px-2.5",
-        lg: "h-auto px-6 py-4 rounded-[4px] has-[>svg]:px-4",
-        // Cursor Ghost: 6px horizontal, 2px vertical
-        ghost: "px-[6px] py-[2px]",
-        icon: "size-9 p-0",
-        "icon-sm": "size-7 p-0",
+        default: "h-11 px-5 has-[>svg]:px-4",
+        sm: "h-9 gap-1.5 px-3.5 text-sm has-[>svg]:px-3",
+        lg: "h-14 px-8 text-lg has-[>svg]:px-6",
+        ghost: "h-8 px-2 text-sm",
+        icon: "size-10 p-0",
+        "icon-sm": "size-8 p-0",
       },
     },
     defaultVariants: {
