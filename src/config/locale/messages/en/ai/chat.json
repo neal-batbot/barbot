@@ -4,7 +4,7 @@
       "brand": {
       "title": "Vector ChatBot",
         "logo": {
-          "src": "/logo.png",
+          "src": "/logo/harvey-icon.svg",
           "alt": "Vector ChatBot"
         },
         "url": "/chat"

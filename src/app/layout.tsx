@@ -1,6 +1,6 @@
 import '@/config/style/global.css';
 
-import { DM_Sans, Geist_Mono, Lora } from 'next/font/google';
+import { DM_Sans, Geist_Mono, Lato, Lora } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -15,6 +15,14 @@ import { getCustomerService } from '@/shared/services/customer_service';
 const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+  preload: true,
+});
+
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-lato',
   display: 'swap',
   preload: true,
 });
@@ -102,11 +110,11 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${dmSans.variable} ${lora.variable} ${geistMono.variable}`}
+      className={`${dmSans.variable} ${lato.variable} ${lora.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/logo/harvey-icon-128.png" type="image/png" sizes="128x128" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         {/* inject locales */}

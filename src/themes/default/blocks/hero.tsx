@@ -1,14 +1,34 @@
+'use client';
+
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import {
+  type RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useTheme } from 'next-themes';
 
 import { Link } from '@/core/i18n/navigation';
-import { SmartIcon } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';
 import { Highlighter } from '@/shared/components/ui/highlighter';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
-import { SocialAvatars } from './social-avatars';
+const GrainGradient = dynamic(
+  () => import('@paper-design/shaders-react').then((mod) => mod.GrainGradient),
+  {
+    ssr: false,
+  }
+);
+
+const Dithering = dynamic(
+  () => import('@paper-design/shaders-react').then((mod) => mod.Dithering),
+  {
+    ssr: false,
+  }
+);
 
 export function Hero({
   section,
@@ -17,157 +37,179 @@ export function Hero({
   section: Section;
   className?: string;
 }) {
+  const { resolvedTheme } = useTheme();
+  const previewRef = useRef<HTMLImageElement | null>(null);
+  const previewVisible = useIsVisible(previewRef);
+  const [showShaders, setShowShaders] = useState(false);
+  const [previewReady, setPreviewReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowShaders(true);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const highlightText = section.highlight_text ?? '';
   let texts = null;
   if (highlightText) {
     texts = section.title?.split(highlightText, 2);
   }
 
+  const previewImage = section.preview_image || section.image;
+  const previewAlt =
+    previewImage?.alt ||
+    section.image?.alt ||
+    section.image_invert?.alt ||
+    'hero-preview';
+
   return (
     <section
       id={section.id}
       className={cn(
-        `pt-24 pb-8 md:pt-36 md:pb-8`,
+        'relative overflow-hidden px-3 pt-20 pb-8 md:px-6 md:pt-24 md:pb-16',
         section.className,
         className
       )}
     >
-      {section.announcement && (
-        <Link
-          href={section.announcement.url || ''}
-          target={section.announcement.target || '_self'}
-          className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto mb-8 flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950"
-        >
-          <span className="text-foreground text-sm">
-            {section.announcement.title}
-          </span>
-          <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
+      <div className="relative mx-auto min-h-[720px] max-w-[1360px] overflow-hidden rounded-3xl border border-zinc-700/50 bg-black text-zinc-50">
+        <div className="absolute inset-0">
+          {showShaders && (
+            <GrainGradient
+              className="absolute inset-0 animate-in fade-in duration-700"
+              colors={
+                resolvedTheme === 'dark'
+                  ? ['#39BE1C', '#9c2f05', '#7A2A0000']
+                  : ['#fcfc51', '#ffa057', '#7A2A0020']
+              }
+              colorBack="#00000000"
+              softness={1}
+              intensity={0.9}
+              noise={0.5}
+              speed={previewVisible ? 1 : 0}
+              shape="corners"
+              minPixelRatio={1}
+              maxPixelCount={1920 * 1080}
+            />
+          )}
+          {showShaders && (
+            <Dithering
+              width={720}
+              height={720}
+              colorBack="#00000000"
+              colorFront={resolvedTheme === 'dark' ? '#DF3F00' : '#fa8023'}
+              shape="sphere"
+              type="4x4"
+              scale={0.5}
+              size={3}
+              speed={0}
+              frame={5000 * 120}
+              className="absolute animate-in fade-in duration-500 max-lg:bottom-[-50%] max-lg:left-[-200px] lg:top-[20%] lg:right-[14%]"
+              minPixelRatio={1}
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/45" />
+        </div>
 
-          <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
-            <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-              <span className="flex size-6">
-                <ArrowRight className="m-auto size-3" />
-              </span>
-              <span className="flex size-6">
-                <ArrowRight className="m-auto size-3" />
-              </span>
+        <div className="relative z-20 px-6 pt-14 pb-56 md:px-14 md:pt-18 md:pb-64 lg:px-16 lg:pt-22">
+          {section.announcement && (
+            <Link
+              href={section.announcement.url || ''}
+              target={section.announcement.target || '_self'}
+              className="inline-flex h-11 items-center rounded-full border border-yellow-200/40 bg-black/30 px-5 text-sm text-yellow-100 transition-colors hover:border-yellow-100/60 hover:bg-black/50"
+            >
+              {section.announcement.title}
+            </Link>
+          )}
+
+          <div className="mt-8 max-w-[680px]">
+            {texts && texts.length > 0 ? (
+              <h1 className="text-balance text-5xl leading-[1.05] font-semibold tracking-tight text-zinc-100 md:text-6xl">
+                {texts[0]}
+                <Highlighter action="underline" color="#EDE781">
+                  {highlightText}
+                </Highlighter>
+                {texts[1]}
+              </h1>
+            ) : (
+              <h1 className="text-balance text-5xl leading-[1.05] font-semibold tracking-tight text-zinc-100 md:text-6xl">
+                {section.title}
+              </h1>
+            )}
+
+            <p
+              className="mt-6 max-w-[620px] text-base leading-7 text-zinc-300 md:text-lg"
+              dangerouslySetInnerHTML={{ __html: section.description ?? '' }}
+            />
+          </div>
+
+          {section.buttons && (
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              {section.buttons.map((button, idx) => (
+                <Button
+                  asChild
+                  size="lg"
+                  variant="ghost"
+                  key={idx}
+                  className={cn(
+                    'h-14 rounded-full px-8 text-2xl font-semibold tracking-tight shadow-none transition-colors md:text-3xl',
+                    idx === 0
+                      ? 'bg-[#EDE781] text-zinc-900 hover:bg-[#f3ee9b]'
+                      : 'bg-zinc-800/80 text-zinc-100 hover:bg-zinc-700/90'
+                  )}
+                >
+                  <Link href={button.url ?? ''} target={button.target ?? '_self'}>
+                    <span>{button.title}</span>
+                  </Link>
+                </Button>
+              ))}
             </div>
-          </div>
-        </Link>
-      )}
+          )}
 
-      <div className="relative mx-auto max-w-full px-4 text-center md:max-w-5xl">
-        {texts && texts.length > 0 ? (
-          <h1 className="text-foreground text-4xl font-semibold text-balance sm:mt-12 sm:text-6xl">
-            {texts[0]}
-            <Highlighter action="underline" color="#FF9800">
-              {highlightText}
-            </Highlighter>
-            {texts[1]}
-          </h1>
-        ) : (
-          <h1 className="text-foreground text-4xl font-semibold text-balance sm:mt-12 sm:text-6xl">
-            {section.title}
-          </h1>
-        )}
+          {section.tip && (
+            <p
+              className="mt-6 text-sm text-zinc-300"
+              dangerouslySetInnerHTML={{ __html: section.tip ?? '' }}
+            />
+          )}
+        </div>
 
-        <p
-          className="text-muted-foreground mt-8 mb-8 text-lg text-balance"
-          dangerouslySetInnerHTML={{ __html: section.description ?? '' }}
-        />
-
-        {section.buttons && (
-          <div className="flex items-center justify-center gap-4">
-            {section.buttons.map((button, idx) => (
-              <Button
-                asChild
-                size={button.size || 'default'}
-                variant={button.variant || 'default'}
-                className="px-4 text-sm"
-                key={idx}
-              >
-                <Link href={button.url ?? ''} target={button.target ?? '_self'}>
-                  {button.icon && <SmartIcon name={button.icon as string} />}
-                  <span>{button.title}</span>
-                </Link>
-              </Button>
-            ))}
-          </div>
-        )}
-
-        {section.tip && (
-          <p
-            className="text-muted-foreground mt-6 block text-center text-sm"
-            dangerouslySetInnerHTML={{ __html: section.tip ?? '' }}
+        {previewImage?.src && (
+          <Image
+            ref={previewRef}
+            src={previewImage.src}
+            alt={previewAlt}
+            width={previewImage.width || 1400}
+            height={previewImage.height || 840}
+            className={cn(
+              'absolute right-[-14%] bottom-[-120px] z-30 w-[90%] max-w-[1060px] rounded-2xl border border-zinc-700/70 shadow-2xl md:right-[-8%] md:bottom-[-170px] lg:right-[-2%]',
+              previewReady ? 'animate-in fade-in slide-in-from-bottom-8 duration-700' : 'invisible'
+            )}
+            onLoad={() => setPreviewReady(true)}
+            priority
           />
-        )}
-
-        {section.show_avatars && (
-          <SocialAvatars tip={section.avatars_tip || ''} />
         )}
       </div>
-
-      {section.image && (
-        <div className="border-foreground/10 relative mt-8 border-y sm:mt-16">
-          <div className="relative z-10 mx-auto max-w-6xl border-x px-3">
-            <div className="border-x">
-              <div
-                aria-hidden
-                className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
-              />
-              {(section.image_invert?.src || section.image?.src) && (
-                <Image
-                  className="border-border/25 relative z-2 hidden w-full border dark:block"
-                  src={section.image_invert?.src || section.image?.src || ''}
-                  alt={section.image_invert?.alt || section.image?.alt || ''}
-                  width={
-                    section.image_invert?.width || section.image?.width || 1200
-                  }
-                  height={
-                    section.image_invert?.height || section.image?.height || 630
-                  }
-                  sizes="(max-width: 768px) 100vw, 1200px"
-                  loading="lazy"
-                  fetchPriority="high"
-                  quality={75}
-                />
-              )}
-              {(section.image?.src || section.image_invert?.src) && (
-                <Image
-                  className="border-border/25 relative z-2 block w-full border dark:hidden"
-                  src={section.image?.src || section.image_invert?.src || ''}
-                  alt={section.image?.alt || section.image_invert?.alt || ''}
-                  width={
-                    section.image?.width || section.image_invert?.width || 1200
-                  }
-                  height={
-                    section.image?.height || section.image_invert?.height || 630
-                  }
-                  sizes="(max-width: 768px) 100vw, 1200px"
-                  loading="lazy"
-                  fetchPriority="high"
-                  quality={75}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {section.background_image && (
-        <div className="absolute inset-0 -z-10 hidden h-full w-full overflow-hidden md:block">
-          <div className="from-background/80 via-background/80 to-background absolute inset-0 z-10 bg-gradient-to-b" />
-          <Image
-            src={section.background_image?.src || ''}
-            alt={section.background_image?.alt || ''}
-            className="object-cover opacity-60 blur-[0px]"
-            fill
-            loading="lazy"
-            sizes="(max-width: 768px) 0vw, 100vw"
-            quality={70}
-          />
-        </div>
-      )}
     </section>
   );
+}
+
+function useIsVisible(ref: RefObject<HTMLElement | null>): boolean {
+  const [isIntersecting, setIsIntersecting] = useState(true);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsIntersecting(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return isIntersecting;
 }

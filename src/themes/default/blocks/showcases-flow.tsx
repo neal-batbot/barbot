@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
 import { LazyImage } from '@/shared/blocks/common';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
@@ -96,7 +95,6 @@ export function ShowcasesFlow({
                 asChild
               >
                 <Link href={button.url || ''} target={button.target || '_self'}>
-                  {button.icon && <SmartIcon name={button.icon as string} />}
                   {button.title}
                 </Link>
               </Button>
@@ -207,11 +205,6 @@ export function ShowcasesFlow({
                         href={(item as any).button.url || ''}
                         target={(item as any).button.target || '_self'}
                       >
-                        {(item as any).button.icon && (
-                          <SmartIcon
-                            name={(item as any).button.icon as string}
-                          />
-                        )}
                         {(item as any).button.title}
                       </Link>
                     </Button>
@@ -319,16 +312,6 @@ export function ShowcasesFlow({
                                 .target || '_self'
                             }
                           >
-                            {(filteredItems[selectedIndex] as any).button
-                              .icon && (
-                              <SmartIcon
-                                name={
-                                  (filteredItems[selectedIndex] as any).button
-                                    .icon as string
-                                }
-                                className="text-white"
-                              />
-                            )}
                             {(filteredItems[selectedIndex] as any).button.title}
                           </Link>
                         </Button>

@@ -10,7 +10,40 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+    font-family: var(--font-lato), sans-serif;
+    letter-spacing: 0.06px;
+  }
+}
+
+@layer base {
+  body {
+    background: #050505;
+    color: #f4f4ee;
+  }
+}
+
+@layer components {
+  .container {
+    max-width: 1400px;
+  }
+
+  .sunset-shell {
+    background: radial-gradient(120% 80% at 75% -10%, rgb(241 96 25 / 0.24), transparent 48%),
+      radial-gradient(80% 70% at 10% 0%, rgb(197 188 84 / 0.16), transparent 45%),
+      #050505;
+    color: #f4f4ee;
+  }
+
+  [data-slot='card'],
+  .bg-card {
+    background: #111216;
+    border-color: rgb(63 63 70 / 0.7);
+    box-shadow: 0 24px 56px rgb(0 0 0 / 0.45);
+  }
+
+  [data-slot='button'] {
+    border-radius: 9999px;
   }
 }
 
@@ -350,5 +383,48 @@ pre {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-lato), sans-serif;
+    letter-spacing: 0.06px;
   }
+}
+
+/* Cursor Design System Typography Utilities */
+.text-cursor-caption {
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  letter-spacing: var(--tracking-caption);
+}
+
+.text-cursor-body-lg {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body-lg);
+  letter-spacing: var(--tracking-body-lg);
+}
+
+.text-cursor-heading-sm {
+  font-size: var(--text-heading-sm);
+  line-height: var(--leading-heading-sm);
+  letter-spacing: var(--tracking-heading-sm);
+  font-family: var(--font-cursorgothic);
+}
+
+.text-cursor-heading {
+  font-size: var(--text-heading);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+  font-family: var(--font-cursorgothic);
+}
+
+.text-cursor-heading-lg {
+  font-size: var(--text-heading-lg);
+  line-height: var(--leading-heading-lg);
+  letter-spacing: var(--tracking-heading-lg);
+  font-family: var(--font-cursorgothic);
+}
+
+.text-cursor-display {
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  font-family: var(--font-cursorgothic);
 }

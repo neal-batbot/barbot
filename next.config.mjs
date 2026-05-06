@@ -15,6 +15,7 @@ const withNextIntl = createNextIntlPlugin({
 });
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const workspaceRoot = path.resolve(projectRoot, '..', '..');
 const piAiEntry = path.resolve(projectRoot, 'node_modules/@mariozechner/pi-ai/dist/index.js');
 const piAgentCoreEntry = path.resolve(
   projectRoot,
@@ -59,7 +60,9 @@ const nextConfig = {
     ];
   },
   turbopack: {
-    root: projectRoot,
+    // pnpm hoists real package paths to the shared workspace node_modules.
+    // Turbopack must allow that root so it can resolve next/package.json correctly.
+    root: workspaceRoot,
     resolveAlias: {
       '@mariozechner/pi-ai': piAiEntry,
       '@mariozechner/pi-agent-core': piAgentCoreEntry,

@@ -3,7 +3,7 @@
     "brand": {
       "title": "Vector",
       "logo": {
-        "src": "/logo.png",
+        "src": "/logo/harvey-icon.svg",
         "alt": "Vector"
       },
       "url": "/admin"

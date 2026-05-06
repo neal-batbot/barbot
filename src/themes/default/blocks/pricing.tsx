@@ -5,7 +5,6 @@ import { Check, Lightbulb, Loader2, SendHorizonal, Zap } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-import { SmartIcon } from '@/shared/blocks/common';
 import { PaymentModal } from '@/shared/blocks/payment/payment-modal';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -483,12 +482,6 @@ export function Pricing({
                         </>
                       ) : (
                         <>
-                          {item.button?.icon && (
-                            <SmartIcon
-                              name={item.button?.icon as string}
-                              className="size-4"
-                            />
-                          )}
                           <span className="block">{item.button?.title}</span>
                         </>
                       )}

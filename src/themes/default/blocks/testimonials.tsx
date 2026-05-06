@@ -1,6 +1,5 @@
 'use client';
 
-import { LazyImage } from '@/shared/blocks/common';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { Section, SectionItem } from '@/shared/types/blocks/landing';
 
@@ -18,13 +17,6 @@ export function Testimonials({
           {item.quote || item.description}
         </p>
         <div className="flex items-center gap-3">
-          <div className="ring-foreground/10 aspect-square size-9 overflow-hidden rounded-lg border border-transparent shadow-md ring-1 shadow-black/15">
-            <LazyImage
-              src={item.image?.src || item.avatar?.src || ''}
-              alt={item.image?.alt || item.avatar?.alt || item.name || ''}
-              className="h-full w-full object-cover"
-            />
-          </div>
           <h3 className="sr-only">
             {item.name}, {item.role || item.title}
           </h3>
@@ -47,7 +39,7 @@ export function Testimonials({
       <div className="container">
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center text-balance">
-            <h2 className="text-foreground mb-4 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="text-cursor-heading text-foreground mb-4 font-semibold">
               {section.title}
             </h2>
             <p className="text-muted-foreground mb-6 md:mb-12 lg:mb-16">

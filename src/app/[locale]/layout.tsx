@@ -29,7 +29,9 @@ export default async function LocaleLayout({
     <NextIntlClientProvider>
       <ThemeProvider>
         <AppContextProvider>
-          <ErrorBoundary>{children}</ErrorBoundary>
+          <ErrorBoundary>
+            <div className="sunset-shell min-h-screen">{children}</div>
+          </ErrorBoundary>
           <Toaster position="top-center" richColors />
         </AppContextProvider>
       </ThemeProvider>

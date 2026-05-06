@@ -22,7 +22,7 @@ export default async function DashboardRootLayout({
       brand: {
         title: t('sidebar.title'),
         logo: {
-          src: '/logo.png',
+          src: '/logo/harvey-icon.svg',
           alt: t('sidebar.title'),
         },
         url: '/dashboard',

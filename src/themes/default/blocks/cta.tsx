@@ -1,7 +1,6 @@
 'use client';
 
 import { Link } from '@/core/i18n/navigation';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
@@ -17,24 +16,24 @@ export function CTA({
   return (
     <section
       id={section.id}
-      className={cn('py-16 md:py-24', section.className, className)}
+      className={cn('py-[var(--section-gap,43px)] md:py-[86px]', section.className, className)}
     >
       <div className="container">
         <div className="text-center">
           <ScrollAnimation>
-            <h2 className="text-4xl font-semibold text-balance lg:text-5xl">
+            <h2 className="text-cursor-heading-lg font-semibold text-balance">
               {section.title}
             </h2>
           </ScrollAnimation>
           <ScrollAnimation delay={0.15}>
             <p
-              className="mt-4"
+              className="mt-4 text-muted-foreground"
               dangerouslySetInnerHTML={{ __html: section.description ?? '' }}
             />
           </ScrollAnimation>
 
           <ScrollAnimation delay={0.3}>
-            <div className="mt-12 flex flex-wrap justify-center gap-4">
+            <div className="mt-12 flex flex-wrap justify-center gap-[var(--element-gap,8px)]">
               {section.buttons?.map((button, idx) => (
                 <Button
                   asChild
@@ -46,7 +45,6 @@ export function CTA({
                     href={button.url || ''}
                     target={button.target || '_self'}
                   >
-                    {button.icon && <SmartIcon name={button.icon as string} />}
                     <span>{button.title}</span>
                   </Link>
                 </Button>

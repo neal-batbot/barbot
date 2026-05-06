@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 import { Link } from '@/core/i18n/navigation';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
 import { cn } from '@/shared/lib/utils';
@@ -163,12 +162,6 @@ export function Showcases({
                               href={(item as any).button.url || ''}
                               target={(item as any).button.target || '_self'}
                             >
-                              {(item as any).button.icon && (
-                                <SmartIcon
-                                  name={(item as any).button.icon as string}
-                                  className="text-white"
-                                />
-                              )}
                               {(item as any).button.title}
                             </Link>
                           </Button>

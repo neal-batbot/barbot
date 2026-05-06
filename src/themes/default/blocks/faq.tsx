@@ -21,7 +21,7 @@ export function FAQ({
       <div className={`mx-auto max-w-full px-4 md:max-w-3xl md:px-8`}>
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center text-balance">
-            <h2 className="text-foreground mb-4 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="text-cursor-heading text-foreground mb-4 font-semibold">
               {section.title}
             </h2>
             <p className="text-muted-foreground mb-6 md:mb-12 lg:mb-16">

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
+import { LazyImage } from '@/shared/blocks/common';
 import { BorderBeam } from '@/shared/components/magicui/border-beam';
 import {
   Accordion,
@@ -66,12 +66,7 @@ export function FeaturesAccordion({
               {section.items?.map((item, idx) => (
                 <AccordionItem value={`item-${idx + 1}`} key={idx}>
                   <AccordionTrigger>
-                    <div className="flex items-center gap-2 text-base">
-                      {item.icon && (
-                        <SmartIcon name={item.icon as string} size={24} />
-                      )}
-                      {item.title}
-                    </div>
+                    <div className="flex items-center gap-2 text-base">{item.title}</div>
                   </AccordionTrigger>
                   <AccordionContent>{item.description}</AccordionContent>
                 </AccordionItem>

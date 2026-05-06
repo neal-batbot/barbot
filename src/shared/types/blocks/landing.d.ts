@@ -70,6 +70,7 @@ export interface Hero extends Section {
   avatars_tip?: string;
   show_award?: boolean;
   highlight_text?: string;
+  preview_image?: Image;
 }
 
 export interface Logos extends Section {}

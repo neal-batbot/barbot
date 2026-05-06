@@ -75,7 +75,7 @@ export const envConfigs = {
   app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Vector',
   theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
-  appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
+  appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'light',
   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',
   database_url: process.env.DATABASE_URL ?? '',
   database_provider: process.env.DATABASE_PROVIDER ?? 'postgresql',

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
+import { LazyImage } from '@/shared/blocks/common';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
@@ -73,10 +73,7 @@ export function FeaturesMedia({ section }: { section: Section }) {
             <div className="mt-8 flex flex-wrap gap-4">
               {section.items?.map((item) => (
                 <div key={item.title}>
-                  <h3 className="mb-2 flex items-center gap-2 text-sm">
-                    <SmartIcon name={item.icon as string} size={16} />
-                    {item.title}
-                  </h3>
+                  <h3 className="mb-2 text-sm">{item.title}</h3>
                   <p className="text-muted-foreground text-sm">
                     {item.description}
                   </p>

@@ -15,6 +15,7 @@ import {
   ShowcasesFlow,
   Stats,
   Subscribe,
+  SunsetHome,
   Testimonials,
 } from '@/themes/default/blocks';
 
@@ -27,6 +28,18 @@ export default async function DynamicPage({
   page: DynamicPageType;
   data?: Record<string, any>;
 }) {
+  const sections = page?.sections || {};
+  const isLandingHome =
+    !!sections.hero &&
+    !!sections.introduce &&
+    !!sections.benefits &&
+    !!sections.usage &&
+    !!sections.features;
+
+  if (isLandingHome) {
+    return <SunsetHome sections={sections} />;
+  }
+
   return (
     <>
       {page.title && !page.sections?.hero && (

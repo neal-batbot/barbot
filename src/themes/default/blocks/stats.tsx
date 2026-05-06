@@ -18,7 +18,7 @@ export function Stats({
       <div className={`container space-y-8 md:space-y-16`}>
         <ScrollAnimation>
           <div className="relative z-10 mx-auto max-w-xl space-y-6 text-center">
-            <h2 className="text-foreground mb-4 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="text-cursor-heading text-foreground mb-4 font-semibold">
               {section.title}
             </h2>
             <p className="text-muted-foreground mb-6 md:mb-12 lg:mb-16">

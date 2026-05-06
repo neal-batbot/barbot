@@ -4,10 +4,10 @@
     "brand": {
       "title": "BatBot",
       "logo": {
-        "src": "/logo.png",
-        "alt": "BatBot",
-        "width": 100,
-        "height": 100
+        "src": "/logo/harvey-icon.svg",
+        "alt": "Harvey",
+        "width": 32,
+        "height": 32
       },
       "url": "/"
     },
@@ -143,18 +143,24 @@
         "variant": "outline"
       }
     ],
-    "show_avatars": true,
+    "show_avatars": false,
     "avatars_tip": "Trusted by hardware and procurement engineers",
     "show_award": false,
     "image": {
-      "src": "/imgs/features/landing-page.png",
+      "src": "/imgs/fumadocs/hero-preview.jpeg",
       "alt": "BatBot platform dashboard",
       "width": 1200,
       "height": 800
     },
     "image_invert": {
-      "src": "/imgs/features/landing-page.png",
+      "src": "/imgs/fumadocs/hero-preview.jpeg",
       "alt": "BatBot platform dashboard dark",
+      "width": 1200,
+      "height": 800
+    },
+    "preview_image": {
+      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "alt": "BatBot hero preview",
       "width": 1200,
       "height": 800
     },
@@ -169,35 +175,35 @@
       {
         "title": "Virtual File System",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/nextjs.svg",
           "alt": "Virtual File System"
         }
       },
       {
         "title": "Doc Site",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/tailwindcss.svg",
           "alt": "Doc Site"
         }
       },
       {
         "title": "Agent Layer",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/react.svg",
           "alt": "Agent Layer"
         }
       },
       {
         "title": "Electronics Vertical",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/supabase.svg",
           "alt": "Electronics Vertical"
         }
       },
       {
         "title": "More Verticals Coming",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/vercel.svg",
           "alt": "More Verticals Coming"
         }
       }
@@ -210,7 +216,7 @@
     "label": "Platform",
     "description": "BatBot maintains a composable agentic architecture. Plug in your industry's knowledge — technical docs, standards, internal data — and the platform becomes that industry's AI expert. The same system powers every vertical.",
     "image": {
-      "src": "/imgs/features/landing-page.png",
+      "src": "/imgs/fumadocs/hero-preview.jpeg",
       "alt": "BatBot platform overview"
     },
     "items": [
@@ -219,7 +225,7 @@
         "description": "Not just storage. A structured, AI-optimized knowledge engine built ground-up for agentic retrieval. Versioned, traceable, instantly queryable.",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Virtual File System"
         }
       },
@@ -228,7 +234,7 @@
         "description": "The same knowledge your agent uses, surfaced for humans too. Browse, search by parameter, trace references. Engineers open it every day.",
         "icon": "RiBookOpenLine",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Engineer Doc Site"
         }
       },
@@ -237,7 +243,7 @@
         "description": "Agents that reason over your VFS to answer questions, generate code, recommend parts, and execute multi-step tasks. Token usage bundled per plan.",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Agent Layer"
         }
       },
@@ -246,7 +252,7 @@
         "description": "Swap the dataset, enter a new industry. No retraining. No rebuilding. The platform adapts.",
         "icon": "RiRefreshLine",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Multi-vertical"
         }
       }
@@ -265,7 +271,7 @@
         "description": "The agent architecture, VFS, and doc site are already built. You bring the data; BatBot becomes the expert.",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Domain expertise"
         }
       },
@@ -274,7 +280,7 @@
         "description": "Engineers use the doc site daily. The agent uses the same knowledge base. No drift, no duplication, one source of truth.",
         "icon": "RiShareLine",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Shared knowledge"
         }
       },
@@ -283,7 +289,7 @@
         "description": "Token usage is included with your plan. No separate API costs, no usage shock. One subscription, full capability.",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Bundled pricing"
         }
       }
@@ -295,7 +301,7 @@
     "title": "Deploy Your Domain Expert AI",
     "description": "From data to deployed agent in days:",
     "image": {
-      "src": "/imgs/features/1.png",
+      "src": "/imgs/fumadocs/main.png",
       "alt": "Deploy BatBot"
     },
     "image_position": "left",
@@ -305,7 +311,7 @@
         "title": "Load Your Industry Data",
         "description": "Import docs, specs, standards, and internal knowledge into BatBot's virtual file system.",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Load data"
         }
       },
@@ -313,7 +319,7 @@
         "title": "Auto-Structure & Index",
         "description": "The doc site indexes and surfaces content for engineers. The VFS makes it agent-queryable with full traceability.",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Auto-structure"
         }
       },
@@ -321,7 +327,7 @@
         "title": "Configure Your Agent",
         "description": "Set the agent's domain scope, personas, and task capabilities. Choose from chatbot, coding agent, or custom workflows.",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Configure agent"
         }
       },
@@ -329,7 +335,7 @@
         "title": "Deploy & Iterate",
         "description": "Go live on your platform. Monitor usage, refine responses, expand to new data sources or verticals.",
         "image": {
-          "src": "/imgs/features/1.png",
+          "src": "/imgs/fumadocs/main.png",
           "alt": "Deploy and iterate"
         }
       }
@@ -403,7 +409,7 @@
         "role": "Consumer Electronics",
         "quote": "It feels like having a senior FAE on call. I get the datasheet answer while I'm still at my bench.",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/react.svg",
           "alt": "testimonial 1"
         }
       },
@@ -412,7 +418,7 @@
         "role": "Electronics OEM",
         "quote": "Component selection used to take hours of datasheet hunting. BatBot cuts that to minutes.",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/supabase.svg",
           "alt": "testimonial 2"
         }
       },
@@ -421,7 +427,7 @@
         "role": "IoT Startup",
         "quote": "The coding agent understands register maps and SDK quirks. It's not just autocomplete — it actually knows the hardware.",
         "image": {
-          "src": "/imgs/avatars/1.png",
+          "src": "/imgs/logos/vercel.svg",
           "alt": "testimonial 3"
         }
       }
@@ -501,10 +507,10 @@
       "title": "BatBot",
       "description": "BatBot is an agentic AI platform for industry-specific expert assistants — powered by a proprietary virtual file system, engineer-facing doc site, and composable agent layer.",
       "logo": {
-        "src": "/logo.png",
-        "alt": "BatBot",
-        "width": 1024,
-        "height": 1024
+        "src": "/logo/harvey-icon.svg",
+        "alt": "Harvey",
+        "width": 32,
+        "height": 32
       },
       "url": "/"
     },

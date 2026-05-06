@@ -11,7 +11,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
       title: (
         <>
           <Image
-            src="/logo.png"
+            src="/logo/harvey-icon.svg"
             alt={envConfigs.app_name}
             width={28}
             height={28}

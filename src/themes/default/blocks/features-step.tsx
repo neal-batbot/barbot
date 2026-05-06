@@ -2,7 +2,6 @@
 
 import { ArrowBigRight } from 'lucide-react';
 
-import { SmartIcon } from '@/shared/blocks/common';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
@@ -42,11 +41,7 @@ export function FeaturesStep({
                       {idx + 1}
                     </span>
                     <div className="relative">
-                      <div className="mx-auto my-6 w-fit">
-                        {item.icon && (
-                          <SmartIcon name={item.icon as string} size={24} />
-                        )}
-                      </div>
+                      <div className="mx-auto my-6 h-6 w-fit" />
                       {idx < (section.items?.length ?? 0) - 1 && (
                         <ArrowBigRight className="fill-muted stroke-primary absolute inset-y-0 right-0 my-auto mt-1 hidden translate-x-[150%] drop-shadow @3xl:block" />
                       )}

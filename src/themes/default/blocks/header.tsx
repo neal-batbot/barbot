@@ -8,7 +8,6 @@ import {
   BrandLogo,
   LocaleSelector,
   SignUser,
-  SmartIcon,
   ThemeToggler,
 } from '@/shared/blocks/common';
 import {
@@ -110,7 +109,6 @@ export function Header({ header }: { header: HeaderType }) {
                         : ''
                     }`}
                   >
-                    {item.icon && <SmartIcon name={item.icon as string} />}
                     {item.title}
                   </Link>
                 </NavigationMenuLink>
@@ -120,9 +118,6 @@ export function Header({ header }: { header: HeaderType }) {
             return (
               <NavigationMenuItem key={idx}>
                 <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm">
-                  {item.icon && (
-                    <SmartIcon name={item.icon as string} className="h-4 w-4" />
-                  )}
                   {item.title}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-2xs origin-top p-0.5">
@@ -135,11 +130,7 @@ export function Header({ header }: { header: HeaderType }) {
                           target={subItem.target || '_self'}
                           title={subItem.title || ''}
                           description={subItem.description || ''}
-                        >
-                          {subItem.icon && (
-                            <SmartIcon name={subItem.icon as string} />
-                          )}
-                        </ListItem>
+                        />
                       ))}
                     </ul>
                   </div>
@@ -184,16 +175,8 @@ export function Header({ header }: { header: HeaderType }) {
                               href={subItem.url || ''}
                               target={subItem.target || '_self'}
                               onClick={closeMenu}
-                              className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2"
+                              className="px-4 py-2"
                             >
-                              <div
-                                aria-hidden
-                                className="flex items-center justify-center *:size-4"
-                              >
-                                {subItem.icon && (
-                                  <SmartIcon name={subItem.icon as string} />
-                                )}
-                              </div>
                               <div className="text-base">{subItem.title}</div>
                             </Link>
                           </li>
@@ -222,7 +205,6 @@ export function Header({ header }: { header: HeaderType }) {
   function ListItem({
     title,
     description,
-    children,
     href,
     target,
     ...props
@@ -238,11 +220,8 @@ export function Header({ header }: { header: HeaderType }) {
           <Link
             href={href}
             target={target || '_self'}
-            className="grid grid-cols-[auto_1fr] gap-3.5"
+            className="block"
           >
-            <div className="bg-background ring-foreground/10 relative flex size-9 items-center justify-center rounded border border-transparent shadow shadow-sm ring-1">
-              {children}
-            </div>
             <div className="space-y-0.5">
               <div className="text-foreground text-sm font-medium">{title}</div>
               <p className="text-muted-foreground line-clamp-1 text-xs">
@@ -260,13 +239,13 @@ export function Header({ header }: { header: HeaderType }) {
       <header
         data-state={isMobileMenuOpen ? 'active' : 'inactive'}
         {...(isScrolled && { 'data-scrolled': true })}
-        className="has-data-[state=open]:bg-background/50 fixed inset-x-0 top-0 z-50 has-data-[state=open]:h-screen has-data-[state=open]:backdrop-blur"
+        className="fixed inset-x-0 top-0 z-50 border-b border-zinc-800/70 bg-black/85 text-zinc-100 backdrop-blur has-data-[state=open]:h-screen has-data-[state=open]:bg-black/80"
       >
         <div
           className={cn(
             'absolute inset-x-0 top-0 z-50 h-18 border-transparent ring-1 ring-transparent transition-all duration-300',
-            'in-data-scrolled:border-foreground/5 in-data-scrolled:bg-background/75 in-data-scrolled:border-b in-data-scrolled:backdrop-blur',
-            'has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card/75 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10 has-data-[state=open]:backdrop-blur',
+            'in-data-scrolled:border-zinc-800/70 in-data-scrolled:bg-black/85 in-data-scrolled:border-b in-data-scrolled:backdrop-blur',
+            'has-data-[state=open]:ring-zinc-700/60 has-data-[state=open]:bg-zinc-950/85 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/30 has-data-[state=open]:backdrop-blur',
             'max-lg:in-data-[state=active]:bg-background/75 max-lg:h-14 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen max-lg:in-data-[state=active]:backdrop-blur'
           )}
         >
@@ -326,12 +305,6 @@ export function Header({ header }: { header: HeaderType }) {
                             : 'bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md ring-1 shadow-black/20 ring-(--ring-color) [--ring-color:color-mix(in_oklab,var(--color-foreground)15%,var(--color-primary))]'
                         )}
                       >
-                        {button.icon && (
-                          <SmartIcon
-                            name={button.icon as string}
-                            className="size-4"
-                          />
-                        )}
                         <span>{button.title}</span>
                       </Link>
                     ))}

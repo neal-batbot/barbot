@@ -59,7 +59,7 @@ export function getMetadata(
       defaultMetadata.description;
 
     // image url
-    let imageUrl = options.imageUrl || '/logo.png';
+    let imageUrl = options.imageUrl || '/logo/harvey-icon-128.png';
     if (imageUrl.startsWith('http')) {
       imageUrl = imageUrl;
     } else {

@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from '@/core/i18n/navigation';
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
+import { LazyImage } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
@@ -36,7 +36,7 @@ export function FeaturesList({
           </ScrollAnimation>
           <div className="w-full min-w-0 flex-1">
             <ScrollAnimation delay={0.1}>
-              <h2 className="text-foreground text-4xl font-semibold text-balance break-words">
+              <h2 className="text-cursor-heading text-foreground font-semibold text-balance break-words">
                 {section.title}
               </h2>
             </ScrollAnimation>
@@ -65,9 +65,6 @@ export function FeaturesList({
                           'bg-background ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200'
                         )}
                       >
-                        {button.icon && (
-                          <SmartIcon name={button.icon as string} size={24} />
-                        )}
                         {button.title}
                       </Link>
                     </Button>
@@ -84,9 +81,6 @@ export function FeaturesList({
             {section.items?.map((item, idx) => (
               <div className="min-w-0 space-y-3 break-words" key={idx}>
                 <div className="flex min-w-0 items-center gap-2">
-                  {item.icon && (
-                    <SmartIcon name={item.icon as string} size={16} />
-                  )}
                   <h3 className="min-w-0 text-sm font-medium break-words">
                     {item.title}
                   </h3>
