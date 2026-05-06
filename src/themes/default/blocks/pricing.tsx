@@ -386,27 +386,32 @@ export function Pricing({
             const currencies = getCurrenciesFromItem(item);
 
             return (
-              <Card key={idx} className="relative">
+              <Card
+                key={idx}
+                className="relative gap-5 border-zinc-800/90 bg-zinc-950/90"
+              >
                 {item.label && (
                   <span className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full bg-linear-to-br/increasing from-purple-400 to-amber-300 px-3 py-1 text-xs font-medium text-amber-950 ring-1 ring-white/20 ring-offset-1 ring-offset-gray-950/5 ring-inset">
                     {item.label}
                   </span>
                 )}
 
-                <CardHeader>
+                <CardHeader className="gap-2.5">
                   <CardTitle className="font-medium">
-                    <h3 className="text-sm font-medium">{item.title}</h3>
+                    <h3 className="text-base font-semibold text-zinc-100">
+                      {item.title}
+                    </h3>
                   </CardTitle>
 
-                  <div className="my-3 flex items-baseline gap-2">
+                  <div className="my-2 flex items-baseline gap-2.5">
                     {displayedItem.original_price && (
                       <span className="text-muted-foreground text-sm line-through">
                         {displayedItem.original_price}
                       </span>
                     )}
 
-                    <div className="my-3 block text-2xl font-semibold">
-                      <span className="text-primary">
+                    <div className="my-2 block text-3xl font-semibold tracking-tight">
+                      <span className="text-[#ece673]">
                         {displayedItem.price}
                       </span>{' '}
                       {displayedItem.unit ? (
@@ -427,7 +432,7 @@ export function Pricing({
                       >
                         <SelectTrigger
                           size="sm"
-                          className="border-muted-foreground/30 bg-background/50 h-6 min-w-[60px] px-2 text-xs"
+                          className="h-7 min-w-[64px] rounded-lg border-zinc-700 bg-zinc-900 px-2 text-xs"
                         >
                           <SelectValue placeholder="Currency" />
                         </SelectTrigger>
@@ -446,11 +451,11 @@ export function Pricing({
                     )}
                   </div>
 
-                  <CardDescription className="text-sm">
+                  <CardDescription className="text-sm text-zinc-300">
                     {item.description}
                   </CardDescription>
                   {item.tip && (
-                    <span className="text-muted-foreground text-sm">
+                    <span className="text-sm text-zinc-400">
                       {item.tip}
                     </span>
                   )}
@@ -469,11 +474,7 @@ export function Pricing({
                     <Button
                       onClick={() => handlePayment(item)}
                       disabled={isLoading}
-                      className={cn(
-                        'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-                        'mt-4 h-9 w-full px-4 py-2',
-                        'bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md shadow-black/20'
-                      )}
+                      className="mt-4 h-10 w-full"
                     >
                       {isLoading && item.product_id === productId ? (
                         <>
@@ -490,15 +491,17 @@ export function Pricing({
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  <hr className="border-dashed" />
+                  <hr className="border-zinc-800 border-dashed" />
 
                   {item.features_title && (
-                    <p className="text-sm font-medium">{item.features_title}</p>
+                    <p className="text-sm font-medium text-zinc-200">
+                      {item.features_title}
+                    </p>
                   )}
-                  <ul className="list-outside space-y-3 text-sm">
+                  <ul className="list-outside space-y-2.5 text-sm text-zinc-300">
                     {item.features?.map((item, index) => (
                       <li key={index} className="flex items-center gap-2">
-                        <Check className="size-3" />
+                        <Check className="size-3 text-[#ece673]" />
                         {item}
                       </li>
                     ))}
