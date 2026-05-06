@@ -34,7 +34,11 @@ export function ThemeToggler({
 
   if (type === 'button') {
     return (
-      <Button variant="outline" size="sm" className="hover:bg-primary/10">
+      <Button
+        variant="outline"
+        size="sm"
+        className="border-zinc-700 bg-zinc-900/80 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
+      >
         <SunDim />
       </Button>
     );

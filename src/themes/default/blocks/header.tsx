@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
-import { Link, usePathname, useRouter } from '@/core/i18n/navigation';
+import { Link, usePathname } from '@/core/i18n/navigation';
 import {
   BrandLogo,
   LocaleSelector,
@@ -22,7 +22,6 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle,
   NavigationMenuTrigger as RawNavigationMenuTrigger,
 } from '@/shared/components/ui/navigation-menu';
 import { useMedia } from '@/shared/hooks/use-media';
@@ -47,7 +46,6 @@ export function Header({ header }: { header: HeaderType }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isLarge = useMedia('(min-width: 64rem)');
-  const router = useRouter();
   const pathname = usePathname();
 
   /** Settings console: hide marketing nav + logo + user menu; keep theme / locale. */
@@ -64,32 +62,6 @@ export function Header({ header }: { header: HeaderType }) {
 
   // Navigation menu for large screens
   const NavMenu = () => {
-    const menuRef = useRef<React.ElementRef<typeof NavigationMenu>>(null);
-
-    // Calculate dynamic viewport height for animated menu
-    const handleViewportHeight = () => {
-      requestAnimationFrame(() => {
-        const menuNode = menuRef.current;
-        if (!menuNode) return;
-
-        const openContent = document.querySelector<HTMLElement>(
-          '[data-slot="navigation-menu-viewport"][data-state="open"]'
-        );
-
-        if (openContent) {
-          const height = openContent.scrollHeight;
-          document.documentElement.style.setProperty(
-            '--navigation-menu-viewport-height',
-            `${height}px`
-          );
-        } else {
-          document.documentElement.style.removeProperty(
-            '--navigation-menu-viewport-height'
-          );
-        }
-      });
-    };
-
     return (
       <NavigationMenu
         viewport={false}
@@ -246,7 +218,7 @@ export function Header({ header }: { header: HeaderType }) {
             'absolute inset-x-0 top-0 z-50 h-18 border-transparent ring-1 ring-transparent transition-all duration-300',
             'in-data-scrolled:border-zinc-800/70 in-data-scrolled:bg-black/85 in-data-scrolled:border-b in-data-scrolled:backdrop-blur',
             'has-data-[state=open]:ring-zinc-700/60 has-data-[state=open]:bg-zinc-950/85 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/30 has-data-[state=open]:backdrop-blur',
-            'max-lg:in-data-[state=active]:bg-background/75 max-lg:h-14 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen max-lg:in-data-[state=active]:backdrop-blur'
+            'max-lg:in-data-[state=active]:bg-zinc-950/95 max-lg:h-15 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen max-lg:in-data-[state=active]:backdrop-blur'
           )}
         >
           <div className="container">
@@ -257,7 +229,7 @@ export function Header({ header }: { header: HeaderType }) {
               )}
             >
               {!hideLandingChrome && (
-                <div className="flex justify-between gap-8 max-lg:h-14 max-lg:w-full max-lg:border-b">
+                <div className="flex justify-between gap-8 max-lg:h-15 max-lg:w-full max-lg:border-b max-lg:border-zinc-800/70">
                   {/* Brand Logo */}
                   {header.brand && <BrandLogo brand={header.brand} />}
 
@@ -269,7 +241,7 @@ export function Header({ header }: { header: HeaderType }) {
                     aria-label={
                       isMobileMenuOpen == true ? 'Close Menu' : 'Open Menu'
                     }
-                    className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden"
+                    className="relative z-20 -m-2.5 -mr-3 block cursor-pointer rounded-full p-2.5 text-zinc-200 hover:bg-zinc-900/80 hover:text-zinc-100 lg:hidden"
                   >
                     <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
                     <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
@@ -308,7 +280,9 @@ export function Header({ header }: { header: HeaderType }) {
                       </Link>
                     ))}
 
-                  {header.show_theme ? <ThemeToggler /> : null}
+                  {header.show_theme ? (
+                    <ThemeToggler className="rounded-full border border-zinc-700 bg-zinc-900/80 p-0.5" />
+                  ) : null}
                   {header.show_locale ? <LocaleSelector /> : null}
                   <div className="flex-1 md:hidden"></div>
                   {header.show_sign && !hideLandingChrome ? (

@@ -46,7 +46,9 @@ export function LocaleSelector({
         variant={type === 'icon' ? 'ghost' : 'outline'}
         size={type === 'icon' ? 'icon' : 'sm'}
         className={
-          type === 'icon' ? 'h-auto w-auto p-0' : 'hover:bg-primary/10'
+          type === 'icon'
+            ? 'h-10 w-10 rounded-full border border-zinc-700 bg-zinc-900/80 p-0 text-zinc-200'
+            : 'border-zinc-700 bg-zinc-900/80 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100'
         }
         disabled
       >
@@ -66,11 +68,19 @@ export function LocaleSelector({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {type === 'icon' ? (
-          <Button variant="ghost" size="icon" className="h-auto w-auto p-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 rounded-full border border-zinc-700 bg-zinc-900/80 p-0 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
+          >
             <Languages size={18} />
           </Button>
         ) : (
-          <Button variant="outline" size="sm" className="hover:bg-primary/10">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-zinc-700 bg-zinc-900/80 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
+          >
             <Globe size={16} />
             {localeNames[currentLocale]}
           </Button>

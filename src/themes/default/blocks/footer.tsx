@@ -6,7 +6,6 @@ import {
   LocaleSelector,
   ThemeToggler,
 } from '@/shared/blocks/common';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { NavItem } from '@/shared/types/blocks/common';
 import { Footer as FooterType } from '@/shared/types/blocks/landing';
 
@@ -14,7 +13,7 @@ export function Footer({ footer }: { footer: FooterType }) {
   return (
     <footer
       id={footer.id}
-      className={`bg-black py-8 text-zinc-100 sm:py-8 ${footer.className || ''} overflow-x-hidden`}
+      className={`overflow-x-hidden border-t border-zinc-900 bg-black py-10 text-zinc-100 sm:py-12 ${footer.className || ''}`}
       // overflow-x-hidden防止-footer-撑出水平滚动条
     >
       <div className="container space-y-8 overflow-x-hidden">
@@ -43,7 +42,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                       key={iidx}
                       href={subItem.url || ''}
                       target={subItem.target || ''}
-                      className="text-muted-foreground hover:text-primary block break-words duration-150"
+                      className="block break-words text-zinc-400 duration-150 hover:text-zinc-100"
                     >
                       <span className="break-words">{subItem.title || ''}</span>
                     </Link>
@@ -86,7 +85,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
-                  className="text-muted-foreground hover:text-primary block text-xs break-words underline duration-150"
+                  className="block text-xs break-words text-zinc-400 underline duration-150 hover:text-zinc-100"
                 >
                   {item.title || ''}
                 </Link>
@@ -101,12 +100,10 @@ export function Footer({ footer }: { footer: FooterType }) {
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
-                  className="text-muted-foreground hover:text-primary bg-background block cursor-pointer rounded-full p-2 duration-150"
+                  className="block cursor-pointer rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1.5 text-xs text-zinc-300 duration-150 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
                   aria-label={item.title || 'Social media link'}
                 >
-                  {item.icon && (
-                    <SmartIcon name={item.icon as string} size={20} />
-                  )}
+                  {item.title || 'Link'}
                 </Link>
               ))}
             </div>
