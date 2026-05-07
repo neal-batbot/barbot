@@ -891,7 +891,7 @@ export async function getSettings() {
       name: 'dify_api_url',
       title: 'Dify API URL',
       type: 'url',
-      placeholder: 'http://156.224.28.114',
+      placeholder: 'https://api.dify.ai',
       tip: 'Dify API base URL',
       group: 'dify',
       tab: 'ai',

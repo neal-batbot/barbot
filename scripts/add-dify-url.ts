@@ -3,7 +3,7 @@ import { config } from '../src/config/db/schema';
 import { eq } from 'drizzle-orm';
 
 async function addDifyUrl() {
-  const difyUrl = 'http://156.224.28.114';
+  const difyUrl = process.env.DIFY_API_URL || 'https://api.dify.ai';
 
   // Check if dify_api_url already exists
   const existing = await db().select().from(config).where(eq(config.name, 'dify_api_url'));

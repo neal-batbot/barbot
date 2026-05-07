@@ -1,4 +1,3 @@
-import { getModel } from '@mariozechner/pi-ai';
 import type { AgentEvent, AgentMessage, AgentState, ThinkingLevel } from '@mariozechner/pi-agent-core';
 
 type ChatNewResponse = {
@@ -22,10 +21,14 @@ export class BarbotPiSession {
   private readonly listeners = new Set<(event: AgentEvent) => void>();
   private abortController: AbortController | null = null;
   private backendChatId: string | null = null;
-  private _state: AgentState;
+  private _state: any;
 
   constructor() {
-    const model = getModel('openai', 'gpt-4.1-mini');
+    const model = {
+      provider: 'openai',
+      id: 'gpt-4.1-mini',
+      name: 'GPT-4.1 mini',
+    } as AgentState['model'];
     this._state = {
       systemPrompt: '',
       model,
@@ -33,9 +36,8 @@ export class BarbotPiSession {
       tools: [],
       messages: [],
       isStreaming: false,
-      streamMessage: null,
+      streamingMessage: undefined,
       pendingToolCalls: new Set<string>(),
-      error: undefined,
     };
   }
 
@@ -84,8 +86,7 @@ export class BarbotPiSession {
 
     this.abortController = new AbortController();
     this._state.isStreaming = true;
-    this._state.streamMessage = null;
-    this._state.error = undefined;
+    this._state.streamingMessage = undefined;
     this.emit({ type: 'agent_start' });
     this.emit({ type: 'turn_start' });
 
@@ -113,7 +114,6 @@ export class BarbotPiSession {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'chat_request_failed';
-      this._state.error = message;
       const errorAssistant: AgentMessage = {
         role: 'assistant',
         api: 'openai-completions',
@@ -149,7 +149,7 @@ export class BarbotPiSession {
       this.emit({ type: 'agent_end', messages: this._state.messages });
     } finally {
       this._state.isStreaming = false;
-      this._state.streamMessage = null;
+      this._state.streamingMessage = undefined;
       this.abortController = null;
     }
   }
@@ -249,7 +249,7 @@ export class BarbotPiSession {
       timestamp: Date.now(),
     };
 
-    this._state.streamMessage = baseAssistantMessage;
+    this._state.streamingMessage = baseAssistantMessage;
     this.emit({ type: 'message_start', message: baseAssistantMessage });
 
     const reader = response.body.getReader();
@@ -300,7 +300,7 @@ export class BarbotPiSession {
             ...baseAssistantMessage,
             content: [{ type: 'text', text: assistantText }],
           };
-          this._state.streamMessage = updatedMessage;
+          this._state.streamingMessage = updatedMessage;
           this.emit({
             type: 'message_update',
             message: updatedMessage,
@@ -328,7 +328,7 @@ export class BarbotPiSession {
       content: [{ type: 'text', text: finalText || 'No response' }],
     };
 
-    this._state.streamMessage = null;
+    this._state.streamingMessage = undefined;
     this._state.messages = [...this._state.messages, finalAssistantMessage];
     this.emit({ type: 'message_end', message: finalAssistantMessage });
     return finalAssistantMessage;

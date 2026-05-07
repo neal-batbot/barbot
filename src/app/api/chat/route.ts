@@ -31,8 +31,46 @@ import {
 import { getAllConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
 import { hasPermission } from '@/shared/services/rbac';
+import { getUserUsageSince } from '@/shared/models/usage-log';
+import { captureExceptionToSentry, recordApiMetric } from '@/shared/lib/monitoring';
+import {
+  getRateLimitStore,
+  withRateLimitFailureMode,
+} from '@/shared/lib/rate-limit-store';
+
+function getClientIp(req: Request): string {
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  }
+  return req.headers.get('x-real-ip') || 'unknown';
+}
+
+function getRateLimitConfig(configs: any) {
+  const ipWindowMs = Number(
+    process.env.RATE_LIMIT_IP_WINDOW_MS || configs.rate_limit_ip_window_ms || 60_000
+  );
+  const ipMax = Number(
+    process.env.RATE_LIMIT_IP_MAX || configs.rate_limit_ip_max || 60
+  );
+  const userWindowMs = Number(
+    process.env.RATE_LIMIT_USER_WINDOW_MS || configs.rate_limit_user_window_ms || 60_000
+  );
+  const userMax = Number(
+    process.env.RATE_LIMIT_USER_MAX || configs.rate_limit_user_max || 40
+  );
+  const dailyUserMax = Number(
+    process.env.RATE_LIMIT_DAILY_USER_MAX || configs.rate_limit_daily_user_max || 800
+  );
+  return { ipWindowMs, ipMax, userWindowMs, userMax, dailyUserMax };
+}
 
 export async function POST(req: Request) {
+  const requestId = generateId().toLowerCase();
+  const startedAt = Date.now();
+  let statusCode = 200;
+  let provider = 'unknown';
+  let userId = '';
   try {
     const {
       chatId,
@@ -63,11 +101,14 @@ export async function POST(req: Request) {
     // check user sign
     const user = await getUserInfo();
     if (!user) {
+      statusCode = 401;
       return new Response('Unauthorized', { status: 401 });
     }
+    userId = user.id;
 
     const allowed = await hasPermission(user.id, PERMISSIONS.CHAT_MODEL_USE);
     if (!allowed) {
+      statusCode = 403;
       return new Response('Forbidden', { status: 403 });
     }
 
@@ -82,9 +123,164 @@ export async function POST(req: Request) {
     }
 
     const configs = await getAllConfigs();
+    const ip = getClientIp(req);
+    const limitConfig = getRateLimitConfig(configs);
+    const now = Date.now();
+    const dayKey = new Date(now).toISOString().slice(0, 10);
+    const rateLimitStore = getRateLimitStore();
+    const ipLimit = await withRateLimitFailureMode(
+      () =>
+        rateLimitStore.consumeWindow({
+          scope: 'ip',
+          key: ip,
+          nowMs: now,
+          windowMs: limitConfig.ipWindowMs,
+          max: limitConfig.ipMax,
+        }),
+      {
+        allowed: true,
+        remaining: limitConfig.ipMax,
+        retryAfterSec: Math.ceil(limitConfig.ipWindowMs / 1000),
+        degraded: true,
+      }
+    );
+    if (!ipLimit.allowed) {
+      statusCode = 429;
+      return Response.json(
+        {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: 'Too many requests from this IP.',
+          retryAfter: ipLimit.retryAfterSec,
+          quotaRemaining: 0,
+        },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(ipLimit.retryAfterSec), 'X-Request-Id': requestId },
+        }
+      );
+    }
+    const userLimit = await withRateLimitFailureMode(
+      () =>
+        rateLimitStore.consumeWindow({
+          scope: 'user',
+          key: user.id,
+          nowMs: now,
+          windowMs: limitConfig.userWindowMs,
+          max: limitConfig.userMax,
+        }),
+      {
+        allowed: true,
+        remaining: limitConfig.userMax,
+        retryAfterSec: Math.ceil(limitConfig.userWindowMs / 1000),
+        degraded: true,
+      }
+    );
+    if (!userLimit.allowed) {
+      statusCode = 429;
+      return Response.json(
+        {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: 'Too many requests from this user.',
+          retryAfter: userLimit.retryAfterSec,
+          quotaRemaining: 0,
+        },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(userLimit.retryAfterSec), 'X-Request-Id': requestId },
+        }
+      );
+    }
+    const dailyLimit = await withRateLimitFailureMode(
+      () =>
+        rateLimitStore.consumeDaily({
+          scope: 'user',
+          key: user.id,
+          dayKey,
+          max: limitConfig.dailyUserMax,
+        }),
+      {
+        allowed: true,
+        remaining: limitConfig.dailyUserMax,
+        degraded: true,
+      }
+    );
+    if (!dailyLimit.allowed) {
+      statusCode = 429;
+      return Response.json(
+        {
+          code: 'DAILY_QUOTA_EXCEEDED',
+          message: 'Daily request quota exceeded.',
+          retryAfter: 86_400,
+          quotaRemaining: 0,
+        },
+        { status: 429, headers: { 'Retry-After': '86400', 'X-Request-Id': requestId } }
+      );
+    }
+
     const currentTime = new Date();
     
-    const provider = requestProvider || inferChatProvider(model);
+    provider = requestProvider || inferChatProvider(model);
+
+    const nowDate = new Date();
+    const dayStart = new Date(
+      Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), nowDate.getUTCDate(), 0, 0, 0)
+    );
+    const maxDailyTokens = Number(
+      process.env.COST_GUARD_DAILY_TOKENS_MAX ||
+        configs.cost_guard_daily_tokens_max ||
+        0
+    );
+    const maxDailyCost = Number(
+      process.env.COST_GUARD_DAILY_COST_MAX ||
+        configs.cost_guard_daily_cost_max ||
+        0
+    );
+    const maxDailyModelTokens = Number(
+      process.env.COST_GUARD_DAILY_MODEL_TOKENS_MAX ||
+        configs.cost_guard_daily_model_tokens_max ||
+        0
+    );
+    if (maxDailyTokens > 0 || maxDailyCost > 0 || maxDailyModelTokens > 0) {
+      const [dailyUsage, modelDailyUsage] = await Promise.all([
+        getUserUsageSince({
+          userId: user.id,
+          startDate: dayStart,
+          endDate: nowDate,
+        }),
+        maxDailyModelTokens > 0
+          ? getUserUsageSince({
+              userId: user.id,
+              startDate: dayStart,
+              endDate: nowDate,
+              model,
+            })
+          : Promise.resolve({ totalTokens: 0, totalCost: 0, totalRequests: 0 }),
+      ]);
+
+      const tokenExceeded = maxDailyTokens > 0 && dailyUsage.totalTokens >= maxDailyTokens;
+      const costExceeded = maxDailyCost > 0 && dailyUsage.totalCost >= maxDailyCost;
+      const modelExceeded =
+        maxDailyModelTokens > 0 && modelDailyUsage.totalTokens >= maxDailyModelTokens;
+
+      if (tokenExceeded || costExceeded || modelExceeded) {
+        statusCode = 429;
+        return Response.json(
+          {
+            code: 'COST_GUARD_EXCEEDED',
+            message: 'Daily usage limit reached. Please retry later or upgrade your plan.',
+            retryAfter: 86_400,
+            quotaRemaining: 0,
+            usage: {
+              dailyTokens: dailyUsage.totalTokens,
+              dailyCost: dailyUsage.totalCost,
+              modelDailyTokens: modelDailyUsage.totalTokens,
+            },
+            upgradeUrl: '/pricing',
+          },
+          { status: 429, headers: { 'Retry-After': '86400', 'X-Request-Id': requestId } }
+        );
+      }
+    }
 
     const metadata = {
       model,
@@ -111,7 +307,7 @@ export async function POST(req: Request) {
 
     // Route to different providers
     if (provider === 'dify') {
-      return handleDifyChat({
+      const response = await handleDifyChat({
         chatId,
         chat,
         message,
@@ -121,10 +317,12 @@ export async function POST(req: Request) {
         model,
         rating,
       });
+      statusCode = response.status || 200;
+      return response;
     }
 
     if (provider === 'openai') {
-      return handleOpenAIChat({
+      const response = await handleOpenAIChat({
         chatId,
         message,
         user,
@@ -133,10 +331,12 @@ export async function POST(req: Request) {
         model,
         reasoning,
       });
+      statusCode = response.status || 200;
+      return response;
     }
 
     if (provider === 'kimi' || provider === 'claude-proxy' || provider === 'zhipu') {
-      return handleStaticModelsWithFailover({
+      const response = await handleStaticModelsWithFailover({
         chatId,
         message,
         user,
@@ -146,10 +346,12 @@ export async function POST(req: Request) {
         reasoning,
         initialProvider: provider,
       });
+      statusCode = response.status || 200;
+      return response;
     }
 
     if (provider === 'anthropic') {
-      return handleAnthropicChat({
+      const response = await handleAnthropicChat({
         chatId,
         message,
         user,
@@ -158,10 +360,12 @@ export async function POST(req: Request) {
         model,
         reasoning,
       });
+      statusCode = response.status || 200;
+      return response;
     }
 
     // OpenRouter (default)
-    return handleOpenRouterChat({
+    const response = await handleOpenRouterChat({
       chatId,
       message,
       user,
@@ -170,9 +374,38 @@ export async function POST(req: Request) {
       model,
       reasoning,
     });
+    statusCode = response.status || 200;
+    return response;
   } catch (e: any) {
-    console.log('chat failed:', e);
+    statusCode = 500;
+    console.error(
+      JSON.stringify({
+        level: 'error',
+        event: 'chat.failed',
+        requestId,
+        route: '/api/chat',
+        errorCode: 'CHAT_INTERNAL_ERROR',
+        message: e?.message || 'unknown error',
+        latencyMs: Date.now() - startedAt,
+      })
+    );
+    await captureExceptionToSentry(e, {
+      route: '/api/chat',
+      requestId,
+      userId,
+      provider,
+      errorCode: 'CHAT_INTERNAL_ERROR',
+    });
     return new Response(e.message, { status: 500 });
+  } finally {
+    await recordApiMetric({
+      route: '/api/chat',
+      status: statusCode,
+      latencyMs: Date.now() - startedAt,
+      requestId,
+      userId,
+      provider,
+    });
   }
 }
 
@@ -695,10 +928,6 @@ async function handleDifyChat({
   model: string;
   rating?: string;
 }) {
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:entry',message:'handleDifyChat called',data:{chatId,model,rating},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
-  // #endregion
-
   const { streamDifyChatMessages, createDifyOpenAIStream } = await import(
     '@/extensions/ai/dify'
   );
@@ -820,18 +1049,10 @@ async function handleDifyChat({
     }
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:handleDifyChat:difyStreamReady',message:'Dify stream ready',timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
-  // #endregion
-
   // Create OpenAI SSE formatted stream
   const { stream: readable } = createDifyOpenAIStream(difyStream, {
     showNodeEvents: true,
     onMessageEnd: async (state) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:messageEnd',message:'Dify message_end, saving to DB',data:{fullAnswerLength:state.fullAnswer.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
-      // #endregion
-
       // Save assistant message to database
       try {
         const assistantMessage: NewChatMessage = {
@@ -864,18 +1085,11 @@ async function handleDifyChat({
             }),
           });
         }
-
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:dbSaved',message:'Message saved to DB successfully',data:{messageId:assistantMessage.id,fullAnswerLength:state.fullAnswer.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
-        // #endregion
       } catch (dbErr: any) {
         console.error('[Dify] DB save error:', dbErr);
       }
     },
     onError: (err) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/a4799810-f105-441c-94c0-b907c26d1e07',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:stream:error',message:'Stream error',data:{error:(err as any)?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'})}).catch(()=>{});
-      // #endregion
       console.error('[Dify] Stream error:', err);
     },
   });

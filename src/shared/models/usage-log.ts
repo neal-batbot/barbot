@@ -119,6 +119,42 @@ export interface UsageDailyItem {
   requests: number;
 }
 
+export async function getUserUsageSince({
+  userId,
+  startDate,
+  endDate,
+  model,
+}: {
+  userId: string;
+  startDate: Date;
+  endDate: Date;
+  model?: string;
+}): Promise<{ totalTokens: number; totalCost: number; totalRequests: number }> {
+  const conditions = [
+    eq(usageLog.userId, userId),
+    gte(usageLog.createdAt, startDate),
+    lte(usageLog.createdAt, endDate),
+    model ? eq(usageLog.model, model) : undefined,
+  ].filter(Boolean);
+
+  const whereClause = and(...(conditions as Parameters<typeof and>));
+
+  const [row] = await db()
+    .select({
+      totalTokens: sum(usageLog.tokens),
+      totalCost: sum(sql`CAST(${usageLog.cost} AS DECIMAL)`),
+      totalRequests: count(),
+    })
+    .from(usageLog)
+    .where(whereClause);
+
+  return {
+    totalTokens: Number(row?.totalTokens ?? 0),
+    totalCost: Number(row?.totalCost ?? 0),
+    totalRequests: Number(row?.totalRequests ?? 0),
+  };
+}
+
 export async function getUsageSummary({
   userId,
   startDate,

@@ -1,5 +1,4 @@
-# 本地 Docker 启动，连接宿主机 PostgreSQL（端口 5432）
-# 宿主机 pgsql：账号 postgres，密码 harvey123
+# 本地 Docker 启动模板（生产请使用密钥管理系统注入环境变量）
 services:
   app:
     build: .
@@ -8,12 +7,16 @@ services:
       NODE_ENV: production
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
-      # 连接宿主机 PostgreSQL
-      DATABASE_URL: "postgresql://postgres:harvey123@localhost:5432/postgres"
-      DATABASE_PROVIDER: "postgresql"
-      DB_SINGLETON_ENABLED: "true"
-      NEXT_PUBLIC_APP_URL: "https://vectoraifae.online"
-      DIFY_API_URL: "http://156.224.28.114/v1"
-      DIFY_API_KEY: "app-DedVoF7OO1fGXB1svOFBAgJw"
-      # 生产环境请自行生成：openssl rand -base64 32，并设置环境变量 AUTH_SECRET
-      AUTH_SECRET: "${AUTH_SECRET:-u7XHWVvSnGu15hGltwrh1t8VO4mLSCc2AxxeV8WxCNU=}"
+      DATABASE_URL: "${DATABASE_URL}"
+      DATABASE_PROVIDER: "${DATABASE_PROVIDER:-postgresql}"
+      DB_SINGLETON_ENABLED: "${DB_SINGLETON_ENABLED:-true}"
+      DB_MAX_CONNECTIONS: "${DB_MAX_CONNECTIONS:-10}"
+      NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL}"
+      DIFY_API_URL: "${DIFY_API_URL}"
+      DIFY_API_KEY: "${DIFY_API_KEY}"
+      AUTH_SECRET: "${AUTH_SECRET}"
+      RATE_LIMIT_IP_WINDOW_MS: "${RATE_LIMIT_IP_WINDOW_MS:-60000}"
+      RATE_LIMIT_IP_MAX: "${RATE_LIMIT_IP_MAX:-60}"
+      RATE_LIMIT_USER_WINDOW_MS: "${RATE_LIMIT_USER_WINDOW_MS:-60000}"
+      RATE_LIMIT_USER_MAX: "${RATE_LIMIT_USER_MAX:-40}"
+      RATE_LIMIT_DAILY_USER_MAX: "${RATE_LIMIT_DAILY_USER_MAX:-800}"

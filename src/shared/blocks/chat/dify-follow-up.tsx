@@ -32,6 +32,32 @@ interface DifyFollowUpProps {
   difyChat: UseDifyChatReturn;
 }
 
+type LimitErrorInfo = {
+  code?: string;
+  message: string;
+  retryAfter?: number;
+  upgradeUrl?: string;
+};
+
+function parseLimitError(error: Error | null): LimitErrorInfo | null {
+  if (!error) return null;
+  const anyErr = error as any;
+  const code = anyErr.code;
+  if (
+    code === 'RATE_LIMIT_EXCEEDED' ||
+    code === 'DAILY_QUOTA_EXCEEDED' ||
+    code === 'COST_GUARD_EXCEEDED'
+  ) {
+    return {
+      code,
+      message: error.message,
+      retryAfter: Number(anyErr.retryAfter || 0) || undefined,
+      upgradeUrl: anyErr.upgradeUrl,
+    };
+  }
+  return null;
+}
+
 export function DifyFollowUp({
   difyChat,
 }: DifyFollowUpProps) {
@@ -44,12 +70,31 @@ export function DifyFollowUp({
   const [model, setModel] = useState<string>('');
   const [rating, setRating] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+  const [retryAfterSeconds, setRetryAfterSeconds] = useState<number>(0);
   const autoSentRef = useRef(false);
 
   const formatDifyLabel = useCallback((title: string) => {
     const trimmed = title.replace(/^Vector\s*/i, '').trim();
     return `Vector-${trimmed || 'Assistant'}`;
   }, []);
+
+  const limitError = useMemo(() => parseLimitError(error), [error]);
+
+  useEffect(() => {
+    if (!limitError) {
+      setRetryAfterSeconds(0);
+      return;
+    }
+    setRetryAfterSeconds(limitError.retryAfter || 0);
+  }, [limitError]);
+
+  useEffect(() => {
+    if (retryAfterSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setRetryAfterSeconds((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [retryAfterSeconds]);
 
   // Fetch Dify bots from API
   useEffect(() => {
@@ -159,10 +204,10 @@ export function DifyFollowUp({
       model: string;
       isThinkingEnabled: boolean;
     }) => {
-      if (!data.message.trim() || isLoading) return;
+      if (!data.message.trim() || isLoading || retryAfterSeconds > 0) return;
       await sendMessage(data.message, { rating });
     },
-    [isLoading, sendMessage, rating]
+    [isLoading, sendMessage, rating, retryAfterSeconds]
   );
 
   if (!chat) {
@@ -181,6 +226,15 @@ export function DifyFollowUp({
     [models, formatDifyLabel]
   );
 
+  const disabledByLimit = retryAfterSeconds > 0;
+  const countdownText = useMemo(() => {
+    if (!disabledByLimit) return '';
+    const minutes = Math.floor(retryAfterSeconds / 60);
+    const seconds = retryAfterSeconds % 60;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
+  }, [disabledByLimit, retryAfterSeconds]);
+
   return (
     <div className="w-full">
       <AnimatedChatInput
@@ -189,9 +243,23 @@ export function DifyFollowUp({
         selectedModelId={model}
         onSelectModel={handleModelChange}
         placeholder={t('input_placeholder')}
-        disabled={isLoading}
+        disabled={isLoading || disabledByLimit}
       />
-      {error ? (
+      {limitError ? (
+        <p className="mt-2 text-sm text-amber-600" role="alert">
+          {limitError.message}
+          {disabledByLimit ? ` ${t('limit.retry_in')} ${countdownText}` : ''}
+          {limitError.upgradeUrl ? (
+            <>
+              {' '}
+              <a className="underline" href={limitError.upgradeUrl}>
+                {t('limit.upgrade')}
+              </a>
+            </>
+          ) : null}
+        </p>
+      ) : null}
+      {error && !limitError ? (
         <p className="text-destructive mt-2 text-sm" role="alert">
           {error.message}
         </p>
@@ -199,4 +267,3 @@ export function DifyFollowUp({
     </div>
   );
 }
-

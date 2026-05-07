@@ -3,7 +3,11 @@ import postgres from 'postgres';
 import { config } from '../src/config/db/schema.postgres';
 import { eq } from 'drizzle-orm';
 
-const connectionString = process.env.DATABASE_URL || "postgresql://postgres.ephbgwqsykcapizrimnd:ebvT8FhFjzVlEnnB@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres";
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is required');
+}
 
 async function main() {
   const client = postgres(connectionString);

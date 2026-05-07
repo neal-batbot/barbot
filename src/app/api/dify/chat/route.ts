@@ -18,37 +18,48 @@ import { createUsageLogIdempotent } from '@/shared/models/usage-log';
 import { getUserInfo } from '@/shared/models/user';
 import { checkChatAccess, getBillingPeriodLabel } from '@/shared/services/entitlement';
 import { hasPermission } from '@/shared/services/rbac';
+import { captureExceptionToSentry, recordApiMetric } from '@/shared/lib/monitoring';
 
 // Force dynamic to ensure streaming works properly
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  const startedAt = Date.now();
+  const metricRequestId = generateId().toLowerCase();
+  let metricStatus = 200;
+  let metricUserId = '';
   try {
     const { chatId, query, rating } = await req.json();
 
     if (!chatId || !query) {
+      metricStatus = 400;
       return new Response('Missing chatId or query', { status: 400 });
     }
 
     // Check user auth
     const user = await getUserInfo();
     if (!user) {
+      metricStatus = 401;
       return new Response('Unauthorized', { status: 401 });
     }
+    metricUserId = user.id;
 
     const allowed = await hasPermission(user.id, PERMISSIONS.CHAT_MODEL_USE);
     if (!allowed) {
+      metricStatus = 403;
       return new Response('Forbidden', { status: 403 });
     }
 
     // Check chat exists and belongs to user
     const chat = await findChatById(chatId);
     if (!chat) {
+      metricStatus = 404;
       return new Response('Chat not found', { status: 404 });
     }
 
     if (chat.userId !== user.id) {
+      metricStatus = 403;
       return new Response('Forbidden', { status: 403 });
     }
 
@@ -57,6 +68,7 @@ export async function POST(req: Request) {
       model: chat.model || 'dify/default',
     });
     if (!access.allowed) {
+      metricStatus = 402;
       return Response.json(
         {
           code: access.code,
@@ -72,6 +84,7 @@ export async function POST(req: Request) {
     const difyApiUrl = configs.dify_api_url || process.env.DIFY_API_URL;
 
     if (!difyApiUrl) {
+      metricStatus = 500;
       return new Response('Dify API not configured', { status: 500 });
     }
 
@@ -101,6 +114,7 @@ export async function POST(req: Request) {
     }
 
     if (!difyApiKey) {
+      metricStatus = 500;
       return new Response('Dify API key not configured', { status: 500 });
     }
 
@@ -177,7 +191,17 @@ export async function POST(req: Request) {
 
     if (!difyResponse.ok) {
       const errorText = await difyResponse.text();
-      console.error('Dify API error:', errorText);
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          event: 'dify.chat.failed',
+          route: '/api/dify/chat',
+          errorCode: 'DIFY_HTTP_ERROR',
+          status: difyResponse.status,
+          chatId,
+          detail: errorText.slice(0, 500),
+        })
+      );
 
       // Special handling for 404 conversation not found error
       if (difyResponse.status === 404 && conversationId) {
@@ -207,10 +231,12 @@ export async function POST(req: Request) {
         );
       }
 
+      metricStatus = difyResponse.status;
       return new Response(`Dify API error: ${errorText}`, { status: difyResponse.status });
     }
 
     if (!difyResponse.body) {
+      metricStatus = 500;
       return new Response('No response body from Dify', { status: 500 });
     }
 
@@ -299,7 +325,7 @@ export async function POST(req: Request) {
     });
 
     // Return the transformed stream
-    return new Response(responseStream, {
+    const response = new Response(responseStream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache, no-transform',
@@ -307,13 +333,30 @@ export async function POST(req: Request) {
         'X-Accel-Buffering': 'no',
       },
     });
+    metricStatus = response.status || 200;
+    return response;
   } catch (error) {
+    metricStatus = 500;
     console.error('Dify chat error:', error);
+    await captureExceptionToSentry(error, {
+      route: '/api/dify/chat',
+      requestId: metricRequestId,
+      userId: metricUserId,
+      provider: 'dify',
+      errorCode: 'DIFY_CHAT_INTERNAL_ERROR',
+    });
     return new Response(
       error instanceof Error ? error.message : 'Internal server error',
       { status: 500 }
     );
+  } finally {
+    await recordApiMetric({
+      route: '/api/dify/chat',
+      status: metricStatus,
+      latencyMs: Date.now() - startedAt,
+      requestId: metricRequestId,
+      userId: metricUserId,
+      provider: 'dify',
+    });
   }
 }
-
-

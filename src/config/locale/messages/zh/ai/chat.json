@@ -78,7 +78,11 @@
   },
   "generator": {
     "title": "今天有什么可以帮到你？",
-    "input_placeholder": "你可以问我任何问题"
+    "input_placeholder": "你可以问我任何问题",
+    "limit": {
+      "retry_in": "可重试时间：",
+      "upgrade": "升级套餐"
+    }
   },
   "history": {
     "title": "历史对话",

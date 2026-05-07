@@ -1,17 +1,15 @@
-# 本地 Docker 启动说明
+# Docker 部署说明（安全版）
 
 ## 前置条件
 
-- 宿主机已安装并运行 **PostgreSQL**（端口 5432，账号 `postgres`，密码 `123456`）
-- 数据库名使用默认 `postgres`（若你创建了其他库，请修改 `docker-compose.yml` 中的 `DATABASE_URL`）
+- 已准备 PostgreSQL 实例（连接信息通过环境变量注入）
+- 已配置 `.env.production`（可从 `.env.production.example` 复制）
 
 ## 首次启动
 
-1. **（可选）初始化数据库表结构**  
-   若数据库为空，需在宿主机项目目录执行一次 Drizzle 推送（需本地装好 Node/pnpm 和 `.env`）：
+1. **初始化数据库表结构（首次）**
    ```bash
    pnpm install
-   # 确保 .env 中 DATABASE_URL=postgresql://postgres:123456@localhost:5432/postgres
    pnpm db:push
    ```
 
@@ -22,11 +20,16 @@
 
 3. 浏览器访问：**http://localhost:3000**
 
-## 自定义配置
+## 生产发布步骤（推荐）
 
-- **更换数据库名**：在 `docker-compose.yml` 里把 `DATABASE_URL` 中的 `/postgres` 改成你的数据库名。
-- **自定义 AUTH_SECRET**：在项目根目录创建 `.env`，写 `AUTH_SECRET=你的base64密钥`，或执行 `docker compose` 时传入：  
-  `AUTH_SECRET=xxx docker compose up -d`
+```bash
+cp .env.production.example .env.production
+# 编辑真实密钥（不要提交）
+docker compose --env-file .env.production up -d --build
+./scripts/release-prod.sh
+```
+
+发布完成后，使用 `GET /api/health` 做门禁检查。
 
 ## 常用命令
 

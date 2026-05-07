@@ -29,6 +29,45 @@ interface ExtendedChatModel extends ChatModel {
   default_rating?: string;
 }
 
+type LimitErrorInfo = {
+  code?: string;
+  message: string;
+  retryAfter?: number;
+  upgradeUrl?: string;
+};
+
+function parseLimitError(raw?: string | null): LimitErrorInfo | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  const candidates = [trimmed];
+  const match = trimmed.match(/\{[\s\S]*\}/);
+  if (match?.[0] && match[0] !== trimmed) candidates.push(match[0]);
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate) as any;
+      if (parsed && typeof parsed === 'object') {
+        const code = parsed.code;
+        if (
+          code === 'RATE_LIMIT_EXCEEDED' ||
+          code === 'DAILY_QUOTA_EXCEEDED' ||
+          code === 'COST_GUARD_EXCEEDED'
+        ) {
+          return {
+            code,
+            message: parsed.message || trimmed,
+            retryAfter: Number(parsed.retryAfter || 0) || undefined,
+            upgradeUrl: parsed.upgradeUrl || parsed.upgrade_url,
+          };
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
 export function ChatInput({
   handleSubmit,
   status,
@@ -53,6 +92,8 @@ export function ChatInput({
   const [reasoning, setReasoning] = useState(false);
   const [rating, setRating] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+  const [retryAfterSeconds, setRetryAfterSeconds] = useState<number>(0);
+  const [limitError, setLimitError] = useState<LimitErrorInfo | null>(null);
   const [userPlan, setUserPlan] = useState<{ plan: string; allowedModels: string[] }>({
     plan: 'free',
     allowedModels: ['kimi-*', 'glm-*'],
@@ -113,6 +154,25 @@ export function ChatInput({
         setRating('Catalog工业');
       });
   }, []);
+
+  useEffect(() => {
+    const parsed = parseLimitError(error);
+    if (!parsed) {
+      setLimitError(null);
+      setRetryAfterSeconds(0);
+      return;
+    }
+    setLimitError(parsed);
+    setRetryAfterSeconds(parsed.retryAfter || 0);
+  }, [error]);
+
+  useEffect(() => {
+    if (retryAfterSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setRetryAfterSeconds((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [retryAfterSeconds]);
 
   // Combine Dify bots with static models
   const models: ExtendedChatModel[] = useMemo(() => {
@@ -217,7 +277,13 @@ export function ChatInput({
       model: string;
       isThinkingEnabled: boolean;
     }) => {
-      if ((!data.message.trim() && data.files.length === 0) || status === 'submitted') return;
+      if (
+        (!data.message.trim() && data.files.length === 0) ||
+        status === 'submitted' ||
+        retryAfterSeconds > 0
+      ) {
+        return;
+      }
 
       // Check if selected model is locked
       const currentUiModel = uiModels.find((m) => m.id === model);
@@ -268,8 +334,27 @@ export function ChatInput({
         console.error('Error submitting message:', err);
       }
     },
-    [handleSubmit, status, selectedModel, model, webSearch, reasoning, rating, uiModels]
+    [
+      handleSubmit,
+      status,
+      selectedModel,
+      model,
+      webSearch,
+      reasoning,
+      rating,
+      uiModels,
+      retryAfterSeconds,
+    ]
   );
+
+  const disabledByLimit = retryAfterSeconds > 0;
+  const countdownText = useMemo(() => {
+    if (!disabledByLimit) return '';
+    const minutes = Math.floor(retryAfterSeconds / 60);
+    const seconds = retryAfterSeconds % 60;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
+  }, [disabledByLimit, retryAfterSeconds]);
 
   return (
     <div className="w-full">
@@ -279,10 +364,25 @@ export function ChatInput({
         selectedModelId={model}
         onSelectModel={handleModelChange}
         placeholder={t('input_placeholder')}
-        disabled={status === 'submitted'}
+        disabled={status === 'submitted' || disabledByLimit}
       />
       
-      {error ? (
+      {limitError ? (
+        <p className="mt-2 text-center text-sm text-amber-600" role="alert">
+          {limitError.message}
+          {disabledByLimit ? ` ${t('limit.retry_in')} ${countdownText}` : ''}
+          {limitError.upgradeUrl ? (
+            <>
+              {' '}
+              <a className="underline" href={limitError.upgradeUrl}>
+                {t('limit.upgrade')}
+              </a>
+            </>
+          ) : null}
+        </p>
+      ) : null}
+
+      {error && !limitError ? (
         <p className="text-destructive mt-2 text-sm text-center" role="alert">
           {error}
         </p>

@@ -145,5 +145,17 @@ export function FollowUp({
     return null;
   }
 
-  return <ChatInput handleSubmit={submitMessage} status={status} />;
+  return (
+    <ChatInput
+      handleSubmit={submitMessage}
+      status={status}
+      error={
+        chatError instanceof Error
+          ? chatError.message
+          : typeof chatError === 'string'
+            ? chatError
+            : null
+      }
+    />
+  );
 }

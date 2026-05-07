@@ -2,7 +2,6 @@ import bundleAnalyzer from '@next/bundle-analyzer';
 import { createMDX } from 'fumadocs-mdx/next';
 import createNextIntlPlugin from 'next-intl/plugin';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const withMDX = createMDX();
 
@@ -14,14 +13,38 @@ const withNextIntl = createNextIntlPlugin({
   requestConfig: './src/core/i18n/request.ts',
 });
 
-const projectRoot = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(projectRoot, '..', '..');
-const piAiEntry = path.resolve(projectRoot, 'node_modules/@mariozechner/pi-ai/dist/index.js');
-const piAgentCoreEntry = path.resolve(
-  projectRoot,
-  'node_modules/@mariozechner/pi-agent-core/dist/index.js',
-);
+const workspaceRoot = path.resolve(process.cwd(), '..', '..');
 const piWebUiProxyOrigin = process.env.PI_WEB_UI_PROXY_ORIGIN?.replace(/\/$/, '');
+
+const allowedImageHosts = (process.env.NEXT_PUBLIC_ALLOWED_IMAGE_HOSTS || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean);
+
+const strictSecurityHeaders = [
+  {
+    key: 'X-Frame-Options',
+    value: process.env.SECURITY_HEADERS_X_FRAME_OPTIONS || 'DENY',
+  },
+  {
+    key: 'Referrer-Policy',
+    value: process.env.SECURITY_HEADERS_REFERRER_POLICY || 'strict-origin-when-cross-origin',
+  },
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff',
+  },
+  {
+    key: 'Strict-Transport-Security',
+    value: process.env.SECURITY_HEADERS_HSTS || 'max-age=63072000; includeSubDomains; preload',
+  },
+  {
+    key: 'Content-Security-Policy',
+    value:
+      process.env.SECURITY_HEADERS_CSP ||
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+  },
+];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -37,12 +60,10 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     qualities: [60, 70, 75],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*',
-      },
-    ],
+    remotePatterns: allowedImageHosts.map((hostname) => ({
+      protocol: 'https',
+      hostname,
+    })),
   },
   async redirects() {
     return [];
@@ -102,24 +123,16 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/:path*',
+        headers: strictSecurityHeaders,
+      },
     ];
   },
   turbopack: {
     // pnpm hoists real package paths to the shared workspace node_modules.
     // Turbopack must allow that root so it can resolve next/package.json correctly.
     root: workspaceRoot,
-    resolveAlias: {
-      '@mariozechner/pi-ai': piAiEntry,
-      '@mariozechner/pi-agent-core': piAgentCoreEntry,
-    },
-  },
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      '@mariozechner/pi-ai': piAiEntry,
-      '@mariozechner/pi-agent-core': piAgentCoreEntry,
-    };
-    return config;
   },
   experimental: {
     externalDir: true,

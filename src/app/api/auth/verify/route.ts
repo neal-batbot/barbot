@@ -12,11 +12,27 @@ function extractBearerToken(req: Request): string | null {
 export async function GET(req: Request) {
   const token = extractBearerToken(req);
   if (!token) {
+    console.error(
+      JSON.stringify({
+        level: 'warn',
+        event: 'auth.verify.failed',
+        route: '/api/auth/verify',
+        errorCode: 'MISSING_BEARER_TOKEN',
+      })
+    );
     return Response.json({ error: 'Authorization header required' }, { status: 401 });
   }
 
   const session = await validateDesktopToken(token);
   if (!session) {
+    console.error(
+      JSON.stringify({
+        level: 'warn',
+        event: 'auth.verify.failed',
+        route: '/api/auth/verify',
+        errorCode: 'INVALID_OR_EXPIRED_TOKEN',
+      })
+    );
     return Response.json({ error: 'Invalid or expired token' }, { status: 401 });
   }
 
@@ -33,6 +49,15 @@ export async function GET(req: Request) {
     .limit(1);
 
   if (!userRecord) {
+    console.error(
+      JSON.stringify({
+        level: 'warn',
+        event: 'auth.verify.failed',
+        route: '/api/auth/verify',
+        errorCode: 'USER_NOT_FOUND',
+        userId: session.userId,
+      })
+    );
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 

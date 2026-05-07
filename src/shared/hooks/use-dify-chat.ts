@@ -61,20 +61,52 @@ interface ChatApiErrorPayload {
   code?: string;
   message?: string;
   upgrade_url?: string;
+  upgradeUrl?: string;
+  retryAfter?: number;
+  quotaRemaining?: number;
 }
 
 function toReadableChatApiError(payload: ChatApiErrorPayload): Error | null {
+  const upgradeUrl = payload.upgradeUrl || payload.upgrade_url;
+
+  if (payload.code === 'RATE_LIMIT_EXCEEDED') {
+    const err = new Error(payload.message || '请求过于频繁，请稍后重试。');
+    (err as any).code = payload.code;
+    (err as any).retryAfter = payload.retryAfter || 60;
+    (err as any).quotaRemaining = payload.quotaRemaining ?? 0;
+    (err as any).upgradeUrl = upgradeUrl;
+    return err;
+  }
+
+  if (payload.code === 'DAILY_QUOTA_EXCEEDED') {
+    const err = new Error(payload.message || '今日请求额度已用尽，请明天再试。');
+    (err as any).code = payload.code;
+    (err as any).retryAfter = payload.retryAfter || 86400;
+    (err as any).quotaRemaining = payload.quotaRemaining ?? 0;
+    (err as any).upgradeUrl = upgradeUrl;
+    return err;
+  }
+
+  if (payload.code === 'COST_GUARD_EXCEEDED') {
+    const err = new Error(payload.message || '今日使用额度已达上限，请稍后重试或升级套餐。');
+    (err as any).code = payload.code;
+    (err as any).retryAfter = payload.retryAfter || 86400;
+    (err as any).quotaRemaining = payload.quotaRemaining ?? 0;
+    (err as any).upgradeUrl = upgradeUrl;
+    return err;
+  }
+
   if (payload.code === 'QUOTA_EXCEEDED') {
     return new Error(
       `本月 token 配额已用尽，请升级套餐或等待下个计费周期重置。${
-        payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''
+        upgradeUrl ? ` 升级入口：${upgradeUrl}` : ''
       }`
     );
   }
 
   if (payload.code === 'SUBSCRIPTION_REQUIRED') {
     return new Error(
-      `当前模型需要付费订阅。${payload.upgrade_url ? ` 升级入口：${payload.upgrade_url}` : ''}`
+      `当前模型需要付费订阅。${upgradeUrl ? ` 升级入口：${upgradeUrl}` : ''}`
     );
   }
 
