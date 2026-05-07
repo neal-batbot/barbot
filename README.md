@@ -100,6 +100,7 @@ pnpm install
 ```bash
 cp .env.example .env
 # 编辑 .env，填入 DATABASE_URL、AUTH_SECRET 等
+# 可选：CHAT_UI=pi|legacy（默认 pi，legacy 用于回滚旧聊天 UI）
 ```
 
 ### 3. 数据库

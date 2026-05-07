@@ -24,9 +24,12 @@ export default async function PricingPage({
   // get current subscription
   let currentSubscription;
   try {
-    const user = await getUserInfo();
+    const user = await withTimeout(getUserInfo(), 1200);
     if (user) {
-      currentSubscription = await getCurrentSubscription(user.id);
+      currentSubscription = await withTimeout(
+        getCurrentSubscription(user.id),
+        1200
+      );
     }
   } catch (error) {
     console.log('getting current subscription failed:', error);
@@ -57,4 +60,21 @@ export default async function PricingPage({
   const Page = await getThemePage('dynamic-page');
 
   return <Page locale={locale} page={page} />;
+}
+
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number
+): Promise<T | undefined> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race<T | undefined>([
+      promise,
+      new Promise<undefined>((resolve) => {
+        timer = setTimeout(() => resolve(undefined), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }

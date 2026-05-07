@@ -83,5 +83,6 @@ export const envConfigs = {
   db_max_connections: process.env.DB_MAX_CONNECTIONS || '1',
   auth_url: resolveAuthUrl(),
   auth_secret: resolveAuthSecret(),
+  chat_ui: process.env.CHAT_UI === 'legacy' ? 'legacy' : 'pi',
   version: packageJson.version,
 };

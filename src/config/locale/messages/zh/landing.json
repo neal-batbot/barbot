@@ -21,7 +21,7 @@
             {
               "title": "Pi Mono Agent",
               "description": "多模型 Agent 工作台（已接入统一登录）",
-              "url": "http://localhost:5173",
+              "url": "/chat",
               "icon": "RiRobot2Line",
               "target": "_blank"
             },
@@ -54,7 +54,7 @@
         },
         {
           "title": "Agent 助手",
-          "url": "http://localhost:5173",
+          "url": "/chat",
           "icon": "RiRobot2Line",
           "target": "_blank"
         },

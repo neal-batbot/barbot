@@ -21,7 +21,7 @@
             {
               "title": "Pi Mono Agent",
               "description": "Multi-model agent workspace with unified auth",
-              "url": "http://localhost:5173",
+              "url": "/chat",
               "icon": "RiRobot2Line",
               "target": "_blank"
             },
@@ -54,7 +54,7 @@
         },
         {
           "title": "Agent",
-          "url": "http://localhost:5173",
+          "url": "/chat",
           "icon": "RiRobot2Line",
           "target": "_blank"
         },
