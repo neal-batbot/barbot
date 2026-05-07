@@ -21,6 +21,7 @@ const piAgentCoreEntry = path.resolve(
   projectRoot,
   'node_modules/@mariozechner/pi-agent-core/dist/index.js',
 );
+const piWebUiProxyOrigin = process.env.PI_WEB_UI_PROXY_ORIGIN?.replace(/\/$/, '');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -45,6 +46,50 @@ const nextConfig = {
   },
   async redirects() {
     return [];
+  },
+  async rewrites() {
+    if (!piWebUiProxyOrigin) {
+      return [];
+    }
+
+    return {
+      beforeFiles: [
+        {
+          source: '/chat',
+          destination: `${piWebUiProxyOrigin}/chat`,
+        },
+        {
+          source: '/chat/:path*',
+          destination: `${piWebUiProxyOrigin}/chat/:path*`,
+        },
+        {
+          source: '/:locale(zh|en)/chat',
+          destination: `${piWebUiProxyOrigin}/:locale/chat`,
+        },
+        {
+          source: '/:locale(zh|en)/chat/:path*',
+          destination: `${piWebUiProxyOrigin}/:locale/chat/:path*`,
+        },
+        {
+          source: '/@vite/:path*',
+          destination: `${piWebUiProxyOrigin}/@vite/:path*`,
+        },
+        {
+          source: '/src/:path*',
+          destination: `${piWebUiProxyOrigin}/src/:path*`,
+        },
+        {
+          source: '/node_modules/:path*',
+          destination: `${piWebUiProxyOrigin}/node_modules/:path*`,
+        },
+        {
+          source: '/@fs/:path*',
+          destination: `${piWebUiProxyOrigin}/@fs/:path*`,
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
   },
   async headers() {
     return [

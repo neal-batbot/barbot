@@ -20,6 +20,30 @@ type PiChatPanelElement = HTMLElement & {
 
 type PiWebUiModule = typeof import('@mariozechner/pi-web-ui');
 
+function withSafeDefineProperty<T>(run: () => Promise<T>): Promise<T> {
+  const originalDefineProperty = Object.defineProperty;
+  const safeDefineProperty = <U,>(
+    obj: U,
+    prop: PropertyKey,
+    attributes: PropertyDescriptor & ThisType<unknown>
+  ): U => {
+    if (obj === null || (typeof obj !== 'object' && typeof obj !== 'function')) {
+      return obj;
+    }
+    return originalDefineProperty(
+      obj as object,
+      prop,
+      attributes
+    ) as U;
+  };
+
+  Object.defineProperty = safeDefineProperty as typeof Object.defineProperty;
+
+  return run().finally(() => {
+    Object.defineProperty = originalDefineProperty;
+  });
+}
+
 function initPiWebUiStorage(piWebUi: PiWebUiModule) {
   const settings = new piWebUi.SettingsStore();
   const providerKeys = new piWebUi.ProviderKeysStore();
@@ -60,6 +84,7 @@ export function PiWorkspaceShell() {
   const sessionRef = useRef<BarbotPiSession | null>(null);
   const initedRef = useRef(false);
   const [piReady, setPiReady] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
 
   const { user, isCheckSign, setIsShowSignModal } = useAppContext();
 
@@ -70,13 +95,23 @@ export function PiWorkspaceShell() {
     let cancelled = false;
 
     (async () => {
-      const piWebUi = await import('@mariozechner/pi-web-ui');
-      if (cancelled) {
-        return;
+      try {
+        const piWebUi = await withSafeDefineProperty(() =>
+          import('@mariozechner/pi-web-ui')
+        );
+        if (cancelled) {
+          return;
+        }
+        initPiWebUiStorage(piWebUi);
+        initedRef.current = true;
+        setPiReady(true);
+      } catch (error) {
+        if (!cancelled) {
+          const message =
+            error instanceof Error ? error.message : 'Unknown Pi Web-UI init error';
+          setInitError(message);
+        }
       }
-      initPiWebUiStorage(piWebUi);
-      initedRef.current = true;
-      setPiReady(true);
     })();
 
     return () => {
@@ -98,7 +133,7 @@ export function PiWorkspaceShell() {
     let session: BarbotPiSession | null = null;
 
     void (async () => {
-      await import('@mariozechner/pi-web-ui');
+      await withSafeDefineProperty(() => import('@mariozechner/pi-web-ui'));
       if (disposed || !mountRef.current) {
         return;
       }
@@ -112,10 +147,15 @@ export function PiWorkspaceShell() {
       mountRef.current.appendChild(panel);
       panelRef.current = panel;
 
-      await panel.setAgent(session as unknown as Agent, {
-        onApiKeyRequired: async () => true,
-        toolsFactory: () => [],
-      });
+      if (!panel) {
+        return;
+      }
+      await withSafeDefineProperty(() =>
+        panel!.setAgent(session as unknown as Agent, {
+          onApiKeyRequired: async () => true,
+          toolsFactory: () => [],
+        })
+      );
     })();
 
     return () => {
@@ -145,15 +185,30 @@ export function PiWorkspaceShell() {
             Your Barbot account session is used directly in this workspace.
           </p>
           <Button onClick={() => setIsShowSignModal(true)}>Sign In</Button>
-          <SignModal callbackUrl="/workspace" />
+          <SignModal callbackUrl="/chat" />
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="h-[calc(100vh-56px)] min-h-[640px] w-full">
-      <div ref={mountRef} className="h-full w-full" />
-    </div>
-  );
+  if (initError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center px-6">
+        <div className="space-y-3 text-center">
+          <h2 className="text-xl font-semibold">Pi Web-UI failed to initialize</h2>
+          <p className="text-sm text-muted-foreground">{initError}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!piReady) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <p className="text-sm text-muted-foreground">Loading Pi Web-UI...</p>
+      </div>
+    );
+  }
+
+  return <div ref={mountRef} className="h-screen min-h-screen w-full" />;
 }

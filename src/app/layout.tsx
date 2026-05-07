@@ -110,10 +110,12 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${dmSans.variable} ${lato.variable} ${lora.variable} ${geistMono.variable}`}
+      className={`${dmSans.variable} ${lato.variable} ${lora.variable} ${geistMono.variable} notranslate`}
+      translate="no"
       suppressHydrationWarning
     >
       <head>
+        <meta name="google" content="notranslate" />
         <link rel="icon" href="/logo/harvey-icon-128.png" type="image/png" sizes="128x128" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -151,7 +153,7 @@ export default async function RootLayout({
         {/* inject customer service head scripts */}
         {customerServiceHeadScripts}
       </head>
-      <body suppressHydrationWarning className="overflow-x-hidden">
+      <body suppressHydrationWarning className="overflow-x-hidden notranslate" translate="no">
         <NextTopLoader
           color="#3ecf8e"
           initialPosition={0.08}

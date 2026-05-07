@@ -1,16 +1,25 @@
-'use client';
-
 import { ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
 import { ChatLibrary } from '@/shared/blocks/chat/library';
 import { LocaleDetector } from '@/shared/blocks/common';
 import { DashboardLayout } from '@/shared/blocks/dashboard';
 import { ChatContextProvider } from '@/shared/contexts/chat';
+import { getChatUiMode } from '@/shared/lib/chat-ui-mode';
 import { Sidebar as SidebarType } from '@/shared/types/blocks/dashboard';
 
-export default function ChatLayout({ children }: { children: ReactNode }) {
-  const t = useTranslations('ai.chat');
+export default async function ChatLayout({ children }: { children: ReactNode }) {
+  const mode = getChatUiMode();
+
+  if (mode === 'pi') {
+    return (
+      <div className="terminal-skin min-h-screen">
+        {children}
+      </div>
+    );
+  }
+
+  const t = await getTranslations('ai.chat');
 
   const sidebar: SidebarType = t.raw('sidebar');
 

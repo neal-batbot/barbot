@@ -5,9 +5,31 @@ import createIntlMiddleware from 'next-intl/middleware';
 import { routing } from '@/core/i18n/config';
 
 const intlMiddleware = createIntlMiddleware(routing);
+const piWebUiProxyOrigin = process.env.PI_WEB_UI_PROXY_ORIGIN?.replace(/\/$/, '');
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (piWebUiProxyOrigin) {
+    const isChatPath =
+      pathname === '/chat' ||
+      pathname.startsWith('/chat/') ||
+      pathname === '/zh/chat' ||
+      pathname.startsWith('/zh/chat/') ||
+      pathname === '/en/chat' ||
+      pathname.startsWith('/en/chat/');
+    const isViteRuntimePath =
+      pathname.startsWith('/@vite/') ||
+      pathname.startsWith('/src/') ||
+      pathname.startsWith('/@fs/');
+
+    if (isChatPath || isViteRuntimePath) {
+      const rewriteUrl = new URL(
+        `${piWebUiProxyOrigin}${pathname}${request.nextUrl.search}`
+      );
+      return NextResponse.rewrite(rewriteUrl);
+    }
+  }
 
   // Handle internationalization first
   const intlResponse = intlMiddleware(request);

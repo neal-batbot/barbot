@@ -101,6 +101,8 @@ pnpm install
 cp .env.example .env
 # 编辑 .env，填入 DATABASE_URL、AUTH_SECRET 等
 # 可选：CHAT_UI=pi|legacy（默认 pi，legacy 用于回滚旧聊天 UI）
+# 可选：PI_WEB_UI_PROXY_ORIGIN=http://127.0.0.1:5173
+# 启用后 /chat 与 /zh(chat) 会在 Next 层 beforeFiles 重写到独立 pi-web-ui 服务
 ```
 
 ### 3. 数据库
