@@ -1,0 +1,26 @@
+{
+  "name": "@barbot/platform-sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for integrating external AI products with Barbot account, entitlement, device, provider, and usage APIs.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsx --test src/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3",
+    "typescript": "^5"
+  }
+}
