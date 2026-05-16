@@ -19,30 +19,27 @@
           "url": "/#introduce",
           "children": [
             {
-              "title": "Pi Mono Agent",
+              "title": "Pi Agent Web UI",
               "description": "Multi-model agent workspace with unified auth",
-              "url": "/chat",
-              "icon": "RiRobot2Line",
-              "target": "_blank"
+              "url": "/platform/pi-agent",
+              "icon": "RiRobot2Line"
             },
             {
               "title": "Supabase SSH",
               "description": "Web + SSH access via short-lived credentials",
-              "url": "http://localhost:3001",
-              "icon": "TerminalSquare",
-              "target": "_blank"
+              "url": "/platform/supabase-ssh",
+              "icon": "TerminalSquare"
             },
             {
               "title": "Fumadocs",
               "description": "Docs site and API capability portal",
-              "url": "http://localhost:3002",
-              "icon": "BookOpenText",
-              "target": "_blank"
+              "url": "/platform/fumadocs",
+              "icon": "BookOpenText"
             },
             {
               "title": "Coding Agent",
               "description": "Code assistant entry under platform entitlement",
-              "url": "/chat",
+              "url": "/platform/coding-agent",
               "icon": "RiCodeFill"
             }
           ]
@@ -53,10 +50,9 @@
           "icon": "BookOpenText"
         },
         {
-          "title": "Agent",
-          "url": "/chat",
-          "icon": "RiRobot2Line",
-          "target": "_blank"
+          "title": "Pi Agent",
+          "url": "/platform/pi-agent",
+          "icon": "RiRobot2Line"
         },
         {
           "title": "Pricing",

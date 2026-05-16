@@ -35,6 +35,7 @@ export function SignIn({
 }) {
   const router = useRouter();
   const t = useTranslations('common.sign');
+  const locale = useLocale();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,7 +55,6 @@ export function SignIn({
       : '';
 
   if (callbackUrl) {
-    const locale = useLocale();
     if (
       locale !== defaultLocale &&
       callbackUrl.startsWith('/') &&
@@ -107,7 +107,14 @@ export function SignIn({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <form
+          className="grid gap-4"
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSignIn();
+          }}
+        >
           {isEmailAuthEnabled && (
             <>
               <div className="grid gap-2">
@@ -159,7 +166,6 @@ export function SignIn({
                 type="submit"
                 className="w-full"
                 disabled={loading}
-                onClick={handleSignIn}
               >
                 {loading ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -177,7 +183,7 @@ export function SignIn({
             setLoading={setLoading}
             onBeforeSignIn={() => {}}
           />
-        </div>
+        </form>
       </CardContent>
       {isEmailAuthEnabled && (
         <CardFooter>

@@ -31,12 +31,11 @@ export default async function DashboardBillingPage() {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - 30);
 
-  const [subscription, orders, harveyUsage] = await Promise.all([
+  const [subscription, orders, usage] = await Promise.all([
     getCurrentSubscription(user.id),
     getOrders({ userId: user.id, status: OrderStatus.PAID, page: 1, limit: 10 }),
     getUsageSummary({
       userId: user.id,
-      appId: 'harvey',
       startDate,
       endDate,
       groupBy: 'product',
@@ -102,15 +101,25 @@ export default async function DashboardBillingPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell>Harvey</TableCell>
-                <TableCell className="text-right">
-                  {harveyUsage.summary.totalTokens.toLocaleString()}
-                </TableCell>
-                <TableCell className="text-right">
-                  {harveyUsage.summary.totalRequests.toLocaleString()}
-                </TableCell>
-              </TableRow>
+              {usage.breakdown.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="py-6 text-center text-muted-foreground">
+                    {t('invoices.empty')}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                usage.breakdown.map((item) => (
+                  <TableRow key={item.key}>
+                    <TableCell>{item.key}</TableCell>
+                    <TableCell className="text-right">
+                      {item.tokens.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.requests.toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

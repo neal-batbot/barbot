@@ -11,7 +11,7 @@ import { UsageExportButton } from '@/shared/blocks/dashboard/usage-export-button
 import { Button } from '@/shared/components/ui/button';
 
 type Period = '7d' | '30d' | '90d';
-type AppFilter = 'all' | 'harvey';
+type AppFilter = 'all' | 'pi-web-ui' | 'api';
 
 interface SummaryData {
   summary: { totalTokens: number; totalCost: string; totalRequests: number };
@@ -137,10 +137,17 @@ export function UsagePageClient() {
         </Button>
         <Button
           size="sm"
-          variant={appFilter === 'harvey' ? 'default' : 'outline'}
-          onClick={() => handleAppFilterChange('harvey')}
+          variant={appFilter === 'pi-web-ui' ? 'default' : 'outline'}
+          onClick={() => handleAppFilterChange('pi-web-ui')}
         >
-          {t('app_filter.harvey')}
+          Pi Agent
+        </Button>
+        <Button
+          size="sm"
+          variant={appFilter === 'api' ? 'default' : 'outline'}
+          onClick={() => handleAppFilterChange('api')}
+        >
+          API
         </Button>
       </div>
 

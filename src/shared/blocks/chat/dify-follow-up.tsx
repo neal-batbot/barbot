@@ -162,6 +162,25 @@ export function DifyFollowUp({
 
   const selectedModel = models.find((m) => m.name === model);
   const isDifyModel = mounted && selectedModel?.provider === 'dify';
+  const uiModels = useMemo<ModelOption[]>(
+    () =>
+      models.map((m) => ({
+        id: m.name,
+        name: formatDifyLabel(m.title),
+        description: m.ratings?.length
+          ? 'Supports rating selection'
+          : 'Standard chat',
+      })),
+    [models, formatDifyLabel]
+  );
+  const disabledByLimit = retryAfterSeconds > 0;
+  const countdownText = useMemo(() => {
+    if (!disabledByLimit) return '';
+    const minutes = Math.floor(retryAfterSeconds / 60);
+    const seconds = retryAfterSeconds % 60;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
+  }, [disabledByLimit, retryAfterSeconds]);
 
   // Handle model change
   const handleModelChange = useCallback(
@@ -213,27 +232,6 @@ export function DifyFollowUp({
   if (!chat) {
     return null;
   }
-
-  const uiModels = useMemo<ModelOption[]>(
-    () =>
-      models.map((m) => ({
-        id: m.name,
-        name: formatDifyLabel(m.title),
-        description: m.ratings?.length
-          ? 'Supports rating selection'
-          : 'Standard chat',
-      })),
-    [models, formatDifyLabel]
-  );
-
-  const disabledByLimit = retryAfterSeconds > 0;
-  const countdownText = useMemo(() => {
-    if (!disabledByLimit) return '';
-    const minutes = Math.floor(retryAfterSeconds / 60);
-    const seconds = retryAfterSeconds % 60;
-    if (minutes > 0) return `${minutes}m ${seconds}s`;
-    return `${seconds}s`;
-  }, [disabledByLimit, retryAfterSeconds]);
 
   return (
     <div className="w-full">

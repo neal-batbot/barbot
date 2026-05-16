@@ -36,6 +36,7 @@ export function SignUp({
 }) {
   const router = useRouter();
   const t = useTranslations('common.sign');
+  const locale = useLocale();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -59,7 +60,6 @@ export function SignUp({
       : '';
 
   if (callbackUrl) {
-    const locale = useLocale();
     if (
       locale !== defaultLocale &&
       callbackUrl.startsWith('/') &&

@@ -19,6 +19,7 @@
   },
   "view": {
     "title": "积分余额",
+    "description": "用于 AI 功能、用量抵扣和增值服务的可用积分。",
     "buttons": {
       "purchase": "购买积分"
     }

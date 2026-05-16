@@ -120,6 +120,7 @@ async function run() {
         const res = await fetch(`${BASE_URL}/api/v1/usage/report`, {
           method: "POST", headers,
           body: JSON.stringify({
+            app_id: "pi-web-ui",
             product: "desktop_code",
             type: "chat",
             model: "gpt-5.3-codex",
@@ -142,6 +143,7 @@ async function run() {
         body: JSON.stringify({
           records: [
             {
+              app_id: "pi-web-ui",
               product: "desktop_code",
               type: "chat",
               model: "gpt-5.2",
@@ -151,6 +153,7 @@ async function run() {
               request_id: `${requestId}:batch:1`,
             },
             {
+              app_id: "pi-web-ui",
               product: "desktop_code",
               type: "chat",
               model: "gpt-5.5",

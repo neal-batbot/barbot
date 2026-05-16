@@ -37,6 +37,83 @@ type TokenResponse = {
 
 const ALLOWED_REDIRECT_SCHEMES = ['vscode', 'vscode-insiders', 'vscode-oss'];
 
+function getAudienceCopy(audience: string) {
+  switch (audience) {
+    case 'vector-web-ui':
+      return {
+        appName: 'Pi Agent Web UI',
+        titleZh: '授权 Pi Agent Web UI',
+        descriptionZh: 'Pi Agent Web UI 正在请求访问您的 Barbot 账户。',
+        scopeZh:
+          '这将允许 Pi Agent Web UI 读取您的账户信息、套餐权益和剩余额度，用于本地 Web 聊天体验。',
+        titleEn: 'Authorize Pi Agent Web UI',
+        descriptionEn:
+          'Pi Agent Web UI is requesting access to your Barbot account.',
+        scopeEn:
+          'This allows Pi Agent Web UI to read your account, plan, and quota information for the local web chat experience.',
+        successSuffix: '',
+      };
+    case 'fumadocs-web':
+      return {
+        appName: 'Fumadocs',
+        titleZh: '授权 Fumadocs',
+        descriptionZh: 'Fumadocs 正在请求访问您的 Barbot 账户。',
+        scopeZh:
+          '这将允许 Fumadocs 读取您的账户权益，用于 AI 搜索、MCP 和 EPUB 导出等高级功能。',
+        titleEn: 'Authorize Fumadocs',
+        descriptionEn: 'Fumadocs is requesting access to your Barbot account.',
+        scopeEn:
+          'This allows Fumadocs to read your account entitlements for premium features such as AI search, MCP, and EPUB export.',
+        successSuffix: '',
+      };
+    case 'supabase-ssh-web':
+    case 'supabase-ssh-ssh':
+      return {
+        appName: 'Supabase SSH',
+        titleZh: '授权 Supabase SSH',
+        descriptionZh: 'Supabase SSH 正在请求访问您的 Barbot 账户。',
+        scopeZh:
+          '这将允许 Supabase SSH 校验您的账户权益并启用 SSH 访问能力。',
+        titleEn: 'Authorize Supabase SSH',
+        descriptionEn:
+          'Supabase SSH is requesting access to your Barbot account.',
+        scopeEn:
+          'This allows Supabase SSH to check your account entitlements and enable SSH access.',
+        successSuffix: '',
+      };
+    case 'vector-vscode':
+    default:
+      return {
+        appName: 'Vector VS Code',
+        titleZh: '授权 Vector VS Code 扩展',
+        descriptionZh: 'Vector VS Code 扩展正在请求访问您的账户。',
+        scopeZh:
+          '这将允许 Vector VS Code 扩展访问您的账户信息并代表您使用 API 积分。',
+        titleEn: 'Authorize Vector for VS Code',
+        descriptionEn:
+          'The Vector extension is requesting access to your account.',
+        scopeEn:
+          'This will allow the Vector VS Code extension to access your account information and use API credits on your behalf.',
+        successSuffix: 'vscode',
+      };
+  }
+}
+
+function useAudienceCopy(audience: string) {
+  const locale =
+    typeof document !== 'undefined' && document.documentElement.lang === 'zh'
+      ? 'zh'
+      : 'en';
+  const copy = getAudienceCopy(audience);
+  return {
+    appName: copy.appName,
+    title: locale === 'zh' ? copy.titleZh : copy.titleEn,
+    description: locale === 'zh' ? copy.descriptionZh : copy.descriptionEn,
+    scope: locale === 'zh' ? copy.scopeZh : copy.scopeEn,
+    successSuffix: copy.successSuffix,
+  };
+}
+
 function isAllowedRedirectUri(redirectUri: string, audience: string) {
   try {
     const parsed = new URL(redirectUri);
@@ -52,7 +129,7 @@ function isAllowedRedirectUri(redirectUri: string, audience: string) {
 
     if (
       (protocol === 'https' || protocol === 'http') &&
-      ['fumadocs', 'supabase-ssh'].includes(product)
+      ['pi-web-ui', 'fumadocs', 'supabase-ssh'].includes(product)
     ) {
       return (
         protocol === 'https' ||
@@ -84,6 +161,7 @@ export function AuthorizeExtension({
   const resolvedAudience: string = isAllowedBridgeAudience(audience)
     ? audience!
     : VSCODE_AUDIENCE;
+  const audienceCopy = useAudienceCopy(resolvedAudience);
 
   useEffect(() => {
     if (redirectedRef.current || isPending) return;
@@ -150,7 +228,9 @@ export function AuthorizeExtension({
       }
 
       toast.success(
-        `${t('extension_login_success')} ${t('extension_open_vscode')}`
+        audienceCopy.successSuffix === 'vscode'
+          ? `${t('extension_login_success')} ${t('extension_open_vscode')}`
+          : t('extension_login_success')
       );
 
       const link = document.createElement('a');
@@ -199,10 +279,10 @@ export function AuthorizeExtension({
     <Card className="mx-auto w-full md:max-w-md">
       <CardHeader className="text-center">
         <CardTitle className="text-lg md:text-xl">
-          <h1>{t('authorize_title')}</h1>
+          <h1>{audienceCopy.title}</h1>
         </CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          <h2>{t('authorize_description')}</h2>
+          <h2>{audienceCopy.description}</h2>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -227,7 +307,7 @@ export function AuthorizeExtension({
           </div>
 
           <div className="w-full rounded-lg border bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-            {t('authorize_scope')}
+            {audienceCopy.scope}
           </div>
 
           <Button

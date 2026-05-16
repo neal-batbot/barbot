@@ -15,6 +15,7 @@ import {
 } from '@/shared/services/model-pricing';
 
 const recordSchema = z.object({
+  app_id: z.string().min(1).optional(),
   product: z.string().min(1),
   model: z.string().optional(),
   provider: z.string().optional(),
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
       const metadata = JSON.stringify(withPricingMetadata(r.metadata, usageCost));
       return {
         userId: identity.userId,
-        appId: 'api',
+        appId: r.app_id ?? 'api',
         product: r.product,
         model: r.model ?? null,
         provider: r.provider ?? null,

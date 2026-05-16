@@ -1,7 +1,8 @@
 import { getTranslations } from 'next-intl/server';
+import { Coins } from 'lucide-react';
 
 import { Empty } from '@/shared/blocks/common';
-import { PanelCard } from '@/shared/blocks/panel';
+import { Link } from '@/core/i18n/navigation';
 import { TableCard } from '@/shared/blocks/table';
 import {
   Credit,
@@ -119,22 +120,43 @@ export default async function CreditsPage({
 
   return (
     <div className="space-y-8">
-      <PanelCard
-        title={t('view.title')}
-        buttons={[
-          {
-            title: t('view.buttons.purchase'),
-            url: '/pricing',
-            target: '_blank',
-            icon: 'Coins',
-          },
-        ]}
-        className="max-w-md"
-      >
-        <div className="text-primary text-3xl font-bold">
-          {remainingCredits}
+      <section className="max-w-3xl overflow-hidden rounded-2xl border border-zinc-200/80 bg-white text-zinc-950 shadow-[0_18px_60px_-36px_rgba(15,23,42,0.35)] dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
+        <div className="flex flex-col gap-8 p-6 md:flex-row md:items-end md:justify-between md:p-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                <Coins size={18} />
+              </span>
+              <div>
+                <h2 className="text-xl font-semibold tracking-tight">
+                  {t('view.title')}
+                </h2>
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  {t('view.description')}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-baseline gap-3">
+              <span className="text-5xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+                {remainingCredits.toLocaleString()}
+              </span>
+              <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                {t('fields.credits')}
+              </span>
+            </div>
+          </div>
+
+          <Link
+            href="/pricing"
+            target="_blank"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-900 bg-zinc-950 px-4 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 dark:border-zinc-700 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white"
+          >
+            <Coins size={16} />
+            {t('view.buttons.purchase')}
+          </Link>
         </div>
-      </PanelCard>
+      </section>
       <TableCard title={t('list.title')} tabs={tabs} table={table} />
     </div>
   );

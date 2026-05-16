@@ -34,6 +34,7 @@ export function PaymentProviders({
   className?: string;
 }) {
   const t = useTranslations('common.payment');
+  const locale = useLocale();
   const router = useRouter();
 
   const { setIsShowPaymentModal } = useAppContext();
@@ -41,7 +42,6 @@ export function PaymentProviders({
   const [paymentProvider, setPaymentProvider] = useState<string | null>(null);
 
   if (callbackUrl) {
-    const locale = useLocale();
     if (
       locale !== defaultLocale &&
       callbackUrl.startsWith('/') &&

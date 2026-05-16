@@ -35,12 +35,25 @@ export function TableCard({
   className?: string;
 }) {
   return (
-    <Card className={cn(className)}>
+    <Card
+      className={cn(
+        'border border-zinc-200/80 bg-white text-zinc-950 shadow-[0_18px_60px_-36px_rgba(15,23,42,0.35)] dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50',
+        className
+      )}
+    >
       {(title || description || buttons) && (
-        <CardHeader className="flex flex-wrap items-center gap-2">
+        <CardHeader className="flex flex-wrap items-center gap-2 border-b border-zinc-100 pb-5 dark:border-zinc-850">
           <div className="flex flex-col gap-2">
-            {title && <CardTitle>{title}</CardTitle>}
-            {description && <CardDescription>{description}</CardDescription>}
+            {title && (
+              <CardTitle className="text-xl tracking-tight text-zinc-950 dark:text-zinc-50">
+                {title}
+              </CardTitle>
+            )}
+            {description && (
+              <CardDescription className="text-sm text-zinc-500 dark:text-zinc-400">
+                {description}
+              </CardDescription>
+            )}
           </div>
           <div className="flex-1"></div>
           {buttons && buttons.length > 0 && (
@@ -67,7 +80,7 @@ export function TableCard({
       )}
 
       {table && (
-        <CardContent>
+        <CardContent className="pt-5">
           {tabs && tabs.length > 0 ? <Tabs tabs={tabs} /> : null}
           <Table {...table} />
         </CardContent>

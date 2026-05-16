@@ -26,12 +26,12 @@ export function SocialProviders({
   onBeforeSignIn?: () => void;
 }) {
   const t = useTranslations('common.sign');
+  const locale = useLocale();
   const router = useRouter();
 
   const { setIsShowSignModal } = useAppContext();
 
   if (callbackUrl) {
-    const locale = useLocale();
     if (
       locale !== defaultLocale &&
       callbackUrl.startsWith('/') &&

@@ -19,6 +19,7 @@
   },
   "view": {
     "title": "Credits Balance",
+    "description": "Available credits for AI features, usage offsets, and premium services.",
     "buttons": {
       "purchase": "Purchase Credits"
     }

@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Sign-In Page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/sign-in', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     // Wait for the sign-in card to render
     await expect(
       page.getByRole('heading', { name: 'Sign In', exact: true })

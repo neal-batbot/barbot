@@ -23,7 +23,7 @@ export default async function LandingLayout({
   // header and footer to display
   const header: HeaderType = t.raw('header');
   const footer: FooterType = t.raw('footer');
-  const chatRoute = getChatUiMode() === 'legacy' ? '/chat-legacy' : '/chat';
+  const chatRoute = getChatUiMode() === 'legacy' ? '/chat-legacy' : '/pi-agent';
 
   if (header.nav?.items?.length) {
     header.nav.items = header.nav.items.map((item) => {

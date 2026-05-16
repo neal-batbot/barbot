@@ -1,210 +1,342 @@
 /**
- * Seed test data for usage and billing pages
- * Usage: npx tsx scripts/seed-test-data.ts
+ * Seed deterministic SaaS billing data for local dashboard/E2E validation.
+ * Usage: pnpm exec tsx scripts/seed-test-data.ts
  */
 
-import { db } from '@/core/db';
-import { user, account, subscription, order, credit, usageLog } from '@/config/db/schema';
 import { hashPassword } from 'better-auth/crypto';
+import { and, eq } from 'drizzle-orm';
+
+import {
+  account,
+  apikey,
+  billingEvent,
+  credit,
+  order,
+  role,
+  subscription,
+  usageLog,
+  user,
+  userRole,
+} from '@/config/db/schema';
+import { db } from '@/core/db';
 import { getUuid } from '@/shared/lib/hash';
-import { eq } from 'drizzle-orm';
+import { ApikeyStatus } from '@/shared/models/apikey';
 
-const TEST_EMAIL = 'test@example.com';
-const TEST_PASSWORD = 'Test@123456';
+const TEST_EMAIL = process.env.E2E_BILLING_EMAIL || 'billing-e2e@example.com';
+const ADMIN_EMAIL =
+  process.env.E2E_BILLING_ADMIN_EMAIL || 'billing-admin-e2e@example.com';
+const TEST_PASSWORD = process.env.E2E_BILLING_PASSWORD || 'Test@123456';
+const API_KEY = process.env.E2E_BILLING_API_KEY || 'sk_e2e_billing_local';
 
-const PRODUCTS = ['ti-chatbot', 'novosns', 'image-gen'];
-const MODELS = ['claude-3.5-sonnet', 'gpt-4o', 'dall-e-3'];
-const TYPES = ['chat', 'image', 'chat', 'chat', 'image'];
-
-function randomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function daysAgo(days: number): Date {
+  const value = new Date();
+  value.setDate(value.getDate() - days);
+  return value;
 }
 
-function randomFrom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+async function ensureUser(email: string, name: string) {
+  const [existing] = await db().select().from(user).where(eq(user.email, email));
+  if (existing) return existing.id;
+
+  const userId = getUuid();
+  await db().insert(user).values({
+    id: userId,
+    name,
+    email,
+    emailVerified: true,
+  });
+
+  await db().insert(account).values({
+    id: getUuid(),
+    userId,
+    providerId: 'credential',
+    accountId: userId,
+    password: await hashPassword(TEST_PASSWORD),
+  });
+
+  return userId;
 }
 
-function daysAgo(n: number): Date {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d;
+async function ensureAdminRole(adminUserId: string) {
+  const [adminRole] = await db()
+    .select()
+    .from(role)
+    .where(eq(role.name, 'admin'));
+
+  if (!adminRole) return;
+
+  const [existing] = await db()
+    .select()
+    .from(userRole)
+    .where(
+      and(eq(userRole.userId, adminUserId), eq(userRole.roleId, adminRole.id))
+    );
+
+  if (existing) return;
+
+  await db().insert(userRole).values({
+    id: getUuid(),
+    userId: adminUserId,
+    roleId: adminRole.id,
+  });
 }
 
-async function main() {
-  console.log('🌱 Seeding test data...\n');
+async function ensureApiKey(userId: string) {
+  const [existing] = await db()
+    .select()
+    .from(apikey)
+    .where(and(eq(apikey.userId, userId), eq(apikey.key, API_KEY)));
 
-  // 1. Create test user
-  let [existingUser] = await db().select().from(user).where(eq(user.email, TEST_EMAIL));
-  let userId: string;
+  if (existing) return;
 
-  if (existingUser) {
-    userId = existingUser.id;
-    console.log(`✓ User already exists: ${TEST_EMAIL}`);
-  } else {
-    userId = getUuid();
-    await db().insert(user).values({
-      id: userId,
-      name: 'Test User',
-      email: TEST_EMAIL,
-      emailVerified: true,
-    });
+  await db().insert(apikey).values({
+    id: getUuid(),
+    userId,
+    key: API_KEY,
+    title: 'E2E Billing Usage Reporter',
+    status: ApikeyStatus.ACTIVE,
+  });
+}
 
-    const passwordHash = await hashPassword(TEST_PASSWORD);
-    await db().insert(account).values({
-      id: getUuid(),
-      userId,
-      providerId: 'credential',
-      accountId: userId,
-      password: passwordHash,
-    });
-    console.log(`✓ Created user: ${TEST_EMAIL} / ${TEST_PASSWORD}`);
-  }
-
-  // 2. Create subscription
-  const [existingSub] = await db()
+async function ensureSubscription(userId: string) {
+  const subscriptionNo = 'e2e-sub-pi-web-ui';
+  const [existing] = await db()
     .select()
     .from(subscription)
-    .where(eq(subscription.userId, userId));
+    .where(eq(subscription.subscriptionNo, subscriptionNo));
 
-  if (!existingSub) {
-    const now = new Date();
-    const periodEnd = new Date(now);
-    periodEnd.setMonth(periodEnd.getMonth() + 1);
+  const now = new Date();
+  const periodEnd = new Date(now);
+  periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-    await db().insert(subscription).values({
-      id: getUuid(),
-      subscriptionNo: `SUB-${Date.now()}`,
-      userId,
-      userEmail: TEST_EMAIL,
-      status: 'active',
-      paymentProvider: 'stripe',
-      subscriptionId: `sub_test_${Date.now()}`,
-      planName: 'Pro Plan',
-      productName: 'IC-AI Pro',
-      amount: 2900,
-      currency: 'usd',
-      interval: 'month',
-      intervalCount: 1,
-      currentPeriodStart: now,
-      currentPeriodEnd: periodEnd,
-      creditsAmount: 1000000,
-      creditsValidDays: 30,
-      billingUrl: 'https://billing.stripe.com/test',
-    });
-    console.log('✓ Created subscription: Pro Plan ($29/mo)');
-  } else {
-    console.log('✓ Subscription already exists');
-  }
+  const values = {
+    id: getUuid(),
+    subscriptionNo,
+    userId,
+    userEmail: TEST_EMAIL,
+    status: 'active',
+    paymentProvider: 'stripe',
+    subscriptionId: 'sub_e2e_pi_web_ui',
+    subscriptionResult: JSON.stringify({ mode: 'e2e' }),
+    productId: 'pi-web-ui-pro',
+    productName: 'Pi Agent Pro',
+    planName: 'Pi Agent Pro',
+    description: 'E2E subscription for Pi Agent billing dashboard',
+    amount: 1390,
+    currency: 'usd',
+    interval: 'month',
+    intervalCount: 1,
+    currentPeriodStart: now,
+    currentPeriodEnd: periodEnd,
+    creditsAmount: 100000,
+    creditsValidDays: 30,
+    paymentProductId: 'price_e2e_pi_web_ui_monthly',
+    billingUrl: 'https://billing.stripe.com/e2e',
+  };
 
-  // 3. Create credits
-  const [existingCredit] = await db()
+  if (existing) return;
+  await db().insert(subscription).values(values);
+}
+
+async function ensureOrder(userId: string) {
+  const orderNo = 'e2e-order-pi-web-ui-paid';
+  const [existing] = await db()
     .select()
-    .from(credit)
-    .where(eq(credit.userId, userId));
+    .from(order)
+    .where(eq(order.orderNo, orderNo));
 
-  if (!existingCredit) {
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + 1);
+  if (existing) return;
+
+  await db().insert(order).values({
+    id: getUuid(),
+    orderNo,
+    userId,
+    userEmail: TEST_EMAIL,
+    status: 'paid',
+    amount: 1390,
+    currency: 'usd',
+    productId: 'pi-web-ui-pro',
+    productName: 'Pi Agent Pro',
+    paymentType: 'subscription',
+    paymentInterval: 'month',
+    paymentProvider: 'stripe',
+    paymentSessionId: 'cs_e2e_pi_web_ui',
+    checkoutInfo: JSON.stringify({ mode: 'e2e' }),
+    checkoutResult: JSON.stringify({ url: 'https://checkout.stripe.com/e2e' }),
+    paymentResult: JSON.stringify({ paid: true }),
+    paymentEmail: TEST_EMAIL,
+    paymentAmount: 1390,
+    paymentCurrency: 'usd',
+    paidAt: daysAgo(2),
+    description: 'E2E paid invoice for Pi Agent Pro',
+    creditsAmount: 100000,
+    creditsValidDays: 30,
+    planName: 'Pi Agent Pro',
+    paymentProductId: 'price_e2e_pi_web_ui_monthly',
+    invoiceId: 'in_e2e_pi_web_ui',
+    invoiceUrl: 'https://invoice.stripe.com/e2e',
+    subscriptionNo: 'e2e-sub-pi-web-ui',
+    transactionId: 'txn_e2e_pi_web_ui',
+  });
+}
+
+async function ensureCredits(userId: string) {
+  const grants = [
+    {
+      transactionNo: 'e2e-credit-grant-pi-web-ui',
+      transactionType: 'grant',
+      transactionScene: 'subscription',
+      credits: 100000,
+      remainingCredits: 97500,
+      description: 'E2E subscription grant',
+    },
+    {
+      transactionNo: 'e2e-credit-consume-pi-web-ui',
+      transactionType: 'consume',
+      transactionScene: 'chat',
+      credits: -2500,
+      remainingCredits: 0,
+      description: 'E2E Pi Agent chat usage',
+    },
+  ];
+
+  const expiresAt = new Date();
+  expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+  for (const item of grants) {
+    const [existing] = await db()
+      .select()
+      .from(credit)
+      .where(eq(credit.transactionNo, item.transactionNo));
+    if (existing) continue;
 
     await db().insert(credit).values({
       id: getUuid(),
-      transactionNo: `TXN-${Date.now()}`,
       userId,
-      transactionType: 'grant',
-      scene: 'subscription',
-      credits: 1000000,
-      balance: 1000000,
-      status: 'active',
+      userEmail: TEST_EMAIL,
+      orderNo: 'e2e-order-pi-web-ui-paid',
+      subscriptionNo: 'e2e-sub-pi-web-ui',
+      transactionNo: item.transactionNo,
+      transactionType: item.transactionType,
+      transactionScene: item.transactionScene,
+      credits: item.credits,
+      remainingCredits: item.remainingCredits,
+      description: item.description,
       expiresAt,
+      status: 'active',
+      metadata: JSON.stringify({ source: 'e2e-seed', product: 'pi-web-ui' }),
     });
-    console.log('✓ Created credits: 1,000,000');
-  } else {
-    console.log('✓ Credits already exist');
   }
-
-  // 4. Create paid orders (invoices)
-  const existingOrders = await db()
-    .select()
-    .from(order)
-    .where(eq(order.userId, userId));
-
-  if (existingOrders.length === 0) {
-    for (let i = 0; i < 3; i++) {
-      const paidAt = daysAgo(i * 30);
-      await db().insert(order).values({
-        id: getUuid(),
-        orderNo: `ORD-${Date.now()}-${i}`,
-        userId,
-        userEmail: TEST_EMAIL,
-        status: 'paid',
-        paymentProvider: 'stripe',
-        paymentType: 'subscription',
-        amount: 2900,
-        currency: 'usd',
-        paymentAmount: 2900,
-        paymentCurrency: 'usd',
-        planName: 'Pro Plan',
-        productName: 'IC-AI Pro',
-        paidAt,
-        invoiceId: `in_test_${Date.now()}_${i}`,
-        checkoutInfo: '{}',
-      });
-    }
-    console.log('✓ Created 3 invoices');
-  } else {
-    console.log('✓ Orders already exist');
-  }
-
-  // 5. Create usage logs (90 days of data)
-  const existingLogs = await db()
-    .select()
-    .from(usageLog)
-    .where(eq(usageLog.userId, userId));
-
-  if (existingLogs.length === 0) {
-    const logs = [];
-    for (let day = 89; day >= 0; day--) {
-      const requestsToday = randomInt(5, 40);
-      for (let r = 0; r < requestsToday; r++) {
-        const product = randomFrom(PRODUCTS);
-        const type = product === 'image-gen' ? 'image' : randomFrom(['chat', 'chat', 'chat']);
-        const model = type === 'image' ? 'dall-e-3' : randomFrom(['claude-3.5-sonnet', 'gpt-4o']);
-        const tokens = type === 'image' ? 0 : randomInt(200, 4000);
-        const cost = type === 'image' ? 0.04 : tokens * 0.000003;
-
-        const createdAt = daysAgo(day);
-        createdAt.setHours(randomInt(8, 22), randomInt(0, 59));
-
-        logs.push({
-          id: getUuid(),
-          userId,
-          appId: 'legacy',
-          product,
-          model,
-          type,
-          tokens,
-          cost: cost.toFixed(8),
-          status: Math.random() > 0.05 ? 'success' : 'error',
-          createdAt,
-        });
-      }
-    }
-
-    // Insert in batches of 100
-    for (let i = 0; i < logs.length; i += 100) {
-      await db().insert(usageLog).values(logs.slice(i, i + 100));
-    }
-    console.log(`✓ Created ${logs.length} usage log entries (90 days)`);
-  } else {
-    console.log(`✓ Usage logs already exist (${existingLogs.length} entries)`);
-  }
-
-  console.log('\n✅ Done! Login at http://localhost:3000/en/sign-in');
-  console.log(`   Email:    ${TEST_EMAIL}`);
-  console.log(`   Password: ${TEST_PASSWORD}`);
 }
 
-main().catch((e) => {
-  console.error('\n❌ Error:', e);
+async function ensureUsage(userId: string) {
+  const rows = [
+    {
+      requestId: 'e2e-pi-web-ui-dify-1',
+      product: 'pi-web-ui',
+      model: 'mcuAgent_v2',
+      provider: 'dify',
+      tokens: 1840,
+      cost: '0.00000000',
+      createdAt: daysAgo(1),
+    },
+    {
+      requestId: 'e2e-pi-web-ui-dify-2',
+      product: 'pi-web-ui',
+      model: 'mcuAgent_v2',
+      provider: 'dify',
+      tokens: 2110,
+      cost: '0.00000000',
+      createdAt: daysAgo(3),
+    },
+    {
+      requestId: 'e2e-api-gpt55-1',
+      product: 'desktop_code',
+      model: 'gpt-5.5',
+      provider: 'test_dragoncode',
+      tokens: 3200,
+      cost: '0.06400000',
+      createdAt: daysAgo(4),
+    },
+  ];
+
+  for (const row of rows) {
+    const [existing] = await db()
+      .select()
+      .from(usageLog)
+      .where(and(eq(usageLog.userId, userId), eq(usageLog.requestId, row.requestId)));
+    if (!existing) {
+      await db().insert(usageLog).values({
+        id: getUuid(),
+        userId,
+        appId: row.product,
+        product: row.product,
+        model: row.model,
+        provider: row.provider,
+        type: 'chat',
+        tokens: row.tokens,
+        cost: row.cost,
+        source: 'server',
+        requestId: row.requestId,
+        status: 'success',
+        metadata: JSON.stringify({ source: 'e2e-seed' }),
+        createdAt: row.createdAt,
+      });
+    }
+
+    const [event] = await db()
+      .select()
+      .from(billingEvent)
+      .where(
+        and(
+          eq(billingEvent.userId, userId),
+          eq(billingEvent.requestId, row.requestId)
+        )
+      );
+    if (event) continue;
+
+    await db().insert(billingEvent).values({
+      id: getUuid(),
+      userId,
+      appId: row.product,
+      requestId: row.requestId,
+      source: 'server',
+      product: row.product,
+      model: row.model,
+      provider: row.provider,
+      billableTokens: row.tokens,
+      unitPrice:
+        row.tokens > 0 ? (Number(row.cost) / row.tokens).toFixed(12) : '0',
+      amount: row.cost,
+      period: new Date().toISOString().slice(0, 7),
+      status: 'billable',
+      metadata: JSON.stringify({ source: 'e2e-seed' }),
+      createdAt: row.createdAt,
+    });
+  }
+}
+
+async function main() {
+  console.log('Seeding billing E2E data...');
+
+  const userId = await ensureUser(TEST_EMAIL, 'Billing E2E User');
+  const adminUserId = await ensureUser(ADMIN_EMAIL, 'Billing E2E Admin');
+
+  await ensureAdminRole(adminUserId);
+  await ensureApiKey(userId);
+  await ensureSubscription(userId);
+  await ensureOrder(userId);
+  await ensureCredits(userId);
+  await ensureUsage(userId);
+
+  console.log('Done.');
+  console.log(`User:  ${TEST_EMAIL} / ${TEST_PASSWORD}`);
+  console.log(`Admin: ${ADMIN_EMAIL} / ${TEST_PASSWORD}`);
+  console.log(`Usage token for Pi BFF: ${API_KEY}`);
+  process.exit(0);
+}
+
+main().catch((error) => {
+  console.error('Seed failed:', error);
   process.exit(1);
 });

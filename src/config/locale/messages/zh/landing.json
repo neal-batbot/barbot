@@ -19,30 +19,27 @@
           "url": "/#introduce",
           "children": [
             {
-              "title": "Pi Mono Agent",
+              "title": "Pi Agent Web UI",
               "description": "多模型 Agent 工作台（已接入统一登录）",
-              "url": "/chat",
-              "icon": "RiRobot2Line",
-              "target": "_blank"
+              "url": "/platform/pi-agent",
+              "icon": "RiRobot2Line"
             },
             {
               "title": "Supabase SSH",
               "description": "Web + SSH 临时凭证接入",
-              "url": "http://localhost:3001",
-              "icon": "TerminalSquare",
-              "target": "_blank"
+              "url": "/platform/supabase-ssh",
+              "icon": "TerminalSquare"
             },
             {
               "title": "Fumadocs",
               "description": "文档站与 API 能力入口",
-              "url": "http://localhost:3002",
-              "icon": "BookOpenText",
-              "target": "_blank"
+              "url": "/platform/fumadocs",
+              "icon": "BookOpenText"
             },
             {
               "title": "Coding Agent",
               "description": "统一鉴权下的代码助手入口",
-              "url": "/chat",
+              "url": "/platform/coding-agent",
               "icon": "RiCodeFill"
             }
           ]
@@ -53,10 +50,9 @@
           "icon": "BookOpenText"
         },
         {
-          "title": "Agent 助手",
-          "url": "/chat",
-          "icon": "RiRobot2Line",
-          "target": "_blank"
+          "title": "Pi Agent",
+          "url": "/platform/pi-agent",
+          "icon": "RiRobot2Line"
         },
         {
           "title": "定价",

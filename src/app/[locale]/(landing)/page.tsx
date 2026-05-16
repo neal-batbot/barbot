@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 
 import { getAuth } from '@/core/auth';
 import { getThemePage } from '@/core/theme';
+import { getChatUiMode } from '@/shared/lib/chat-ui-mode';
 import { DynamicPage, Section } from '@/shared/types/blocks/landing';
 
 export const revalidate = 3600;
@@ -22,7 +23,7 @@ export default async function LandingPage({
     const headersList = await headers();
     const session = await auth.api.getSession({ headers: headersList });
     if (session?.user) {
-      redirect('/chat');
+      redirect(getChatUiMode() === 'legacy' ? '/chat-legacy' : '/pi-agent');
     }
   } catch {
     // Continue to landing page if auth check fails

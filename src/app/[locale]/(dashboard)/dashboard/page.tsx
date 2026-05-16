@@ -3,10 +3,19 @@ import { getTranslations } from 'next-intl/server';
 import { getUserInfo } from '@/shared/models/user';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getRemainingCredits } from '@/shared/models/credit';
+import { getUsageLogs, getUsageSummary } from '@/shared/models/usage-log';
 import { Empty } from '@/shared/blocks/common';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Badge } from '@/shared/components/ui/badge';
 import { MainHeader } from '@/shared/blocks/dashboard/main-header';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/shared/components/ui/table';
 
 export default async function DashboardPage() {
   const t = await getTranslations('dashboard');
@@ -16,9 +25,26 @@ export default async function DashboardPage() {
     return <Empty message="no auth" />;
   }
 
-  const [subscription, remainingCredits] = await Promise.all([
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 30);
+
+  const [subscription, remainingCredits, usage, recentUsage] = await Promise.all([
     getCurrentSubscription(user.id),
     getRemainingCredits(user.id),
+    getUsageSummary({
+      userId: user.id,
+      startDate,
+      endDate,
+      groupBy: 'product',
+    }),
+    getUsageLogs({
+      userId: user.id,
+      startDate,
+      endDate,
+      page: 1,
+      limit: 6,
+    }),
   ]);
 
   const planName = subscription?.planName ?? t('overview.subscription.free');
@@ -75,7 +101,9 @@ export default async function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">0</p>
+            <p className="text-2xl font-bold">
+              {usage.summary.totalRequests.toLocaleString()}
+            </p>
             <p className="text-xs text-muted-foreground mt-1">{t('overview.usage.requests')}</p>
           </CardContent>
         </Card>
@@ -86,9 +114,36 @@ export default async function DashboardPage() {
           <CardTitle className="text-base">{t('overview.recent.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-24 items-center justify-center text-sm text-muted-foreground">
-            {t('overview.recent.empty')}
-          </div>
+          {recentUsage.data.length === 0 ? (
+            <div className="flex h-24 items-center justify-center text-sm text-muted-foreground">
+              {t('overview.recent.empty')}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Model</TableHead>
+                  <TableHead className="text-right">Tokens</TableHead>
+                  <TableHead className="text-right">Cost</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentUsage.data.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.product}</TableCell>
+                    <TableCell>{item.model ?? '—'}</TableCell>
+                    <TableCell className="text-right">
+                      {(item.tokens ?? 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      ${Number(item.cost ?? 0).toFixed(8)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

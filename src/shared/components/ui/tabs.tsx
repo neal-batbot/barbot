@@ -14,7 +14,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-11 items-center justify-center rounded-full border border-zinc-800 bg-black/50 p-1 text-zinc-300 shadow-[0_0_0_1px_rgba(255,255,255,0.03)_inset]",
+      "inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 p-1 text-zinc-600 shadow-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300",
       className
     )}
     {...props}
@@ -29,7 +29,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full border border-transparent px-4 text-sm font-medium transition-[background-color,color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ece673]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-50 active:translate-y-px data-[state=active]:border-[#f0e889]/80 data-[state=active]:bg-[#ece673] data-[state=active]:text-zinc-900 data-[state=active]:shadow-[0_0_0_1px_rgba(255,255,255,0.14)_inset] hover:bg-zinc-800/70 hover:text-zinc-100",
+      "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-full border border-transparent px-4 text-sm font-medium transition-[background-color,color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:translate-y-px data-[state=active]:border-zinc-200 data-[state=active]:bg-white data-[state=active]:text-zinc-950 data-[state=active]:shadow-sm hover:bg-white/70 hover:text-zinc-950 dark:data-[state=active]:border-zinc-700 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-zinc-50 dark:hover:bg-zinc-800/70 dark:hover:text-zinc-50",
       className
     )}
     {...props}

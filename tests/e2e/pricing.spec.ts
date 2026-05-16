@@ -40,7 +40,7 @@ test.describe('Pricing Page', () => {
     page,
   }) => {
     // Monthly tab should be active by default (featured)
-    const monthlyTab = page.getByRole('tab', { name: 'Monthly' });
+    const monthlyTab = page.getByRole('tab', { name: 'Monthly', exact: true });
     await monthlyTab.click();
 
     const pricingSection = page.locator('section#pricing');
@@ -55,28 +55,17 @@ test.describe('Pricing Page', () => {
       pricingSection.getByRole('heading', { name: 'Pro' }).first()
     ).toBeVisible();
 
-    // Prices should contain expected values (either USD or CNY)
-    const priceTexts = await pricingSection
-      .locator('.text-primary')
-      .allTextContents();
-    const priceString = priceTexts.join(' ');
-
-    // USD: $5.9 / $13.9, CNY: 39.9 / 99
-    const hasExpectedPrices =
-      (priceString.includes('$5.9') && priceString.includes('$13.9')) ||
-      (priceString.includes('39.9') && priceString.includes('99'));
-
-    expect(hasExpectedPrices).toBeTruthy();
+    await expect(pricingSection.getByText('$5.9 / month')).toBeVisible();
+    await expect(pricingSection.getByText('$13.9 / month')).toBeVisible();
   });
 
   test('should switch to Annually tab and show annual plans', async ({
     page,
   }) => {
-    const annuallyTab = page.getByRole('tab', { name: 'Annually' });
+    const annuallyTab = page.getByRole('tab', {
+      name: 'Annually Save 17%',
+    });
     await annuallyTab.click();
-
-    // Wait for tab content to update
-    await page.waitForTimeout(500);
 
     const pricingSection = page.locator('section#pricing');
 
@@ -88,17 +77,8 @@ test.describe('Pricing Page', () => {
       pricingSection.getByRole('heading', { name: 'Pro' }).first()
     ).toBeVisible();
 
-    // Annual prices (USD: $59/$139, CNY: 399/999)
-    const priceTexts = await pricingSection
-      .locator('.text-primary')
-      .allTextContents();
-    const priceString = priceTexts.join(' ');
-
-    const hasExpectedPrices =
-      (priceString.includes('$59') && priceString.includes('$139')) ||
-      (priceString.includes('399') && priceString.includes('999'));
-
-    expect(hasExpectedPrices).toBeTruthy();
+    await expect(pricingSection.getByText('$59 / year')).toBeVisible();
+    await expect(pricingSection.getByText('$139 / year')).toBeVisible();
   });
 
   test('should switch to Enterprise tab and show Contact Us / Book a Demo', async ({

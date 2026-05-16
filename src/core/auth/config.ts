@@ -13,6 +13,10 @@ const DEFAULT_DEV_ORIGINS = [
   'http://127.0.0.1:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+  'http://localhost:3002',
+  'http://127.0.0.1:3002',
 ];
 
 function buildTrustedOrigins() {
@@ -38,6 +42,11 @@ function buildTrustedOrigins() {
 
   addOrigin(envConfigs.app_url);
   addOrigin(envConfigs.auth_url);
+  addOrigin(process.env.PI_AGENT_WEB_URL);
+  addOrigin(process.env.NEXT_PUBLIC_PI_WEB_UI_URL);
+  addOrigin(process.env.PI_WEB_UI_PROXY_ORIGIN);
+  addOrigin(process.env.SUPABASE_SSH_WEB_URL);
+  addOrigin(process.env.FUMADOCS_WEB_URL);
 
   if (process.env.NODE_ENV !== 'production') {
     DEFAULT_DEV_ORIGINS.forEach((origin) => addOrigin(origin));

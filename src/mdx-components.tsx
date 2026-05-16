@@ -46,11 +46,11 @@ export function withNoFollow(
     React.AnchorHTMLAttributes<HTMLAnchorElement>
   >
 ) {
-  return ({
+  function NoFollowLink({
     href,
     children,
     ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
     // Check if the link is external
     const isExternal = href?.startsWith('http') || href?.startsWith('//');
 
@@ -74,7 +74,13 @@ export function withNoFollow(
         {children}
       </LinkComponent>
     );
-  };
+  }
+
+  NoFollowLink.displayName = `NoFollowLink(${
+    LinkComponent.displayName || LinkComponent.name || 'Component'
+  })`;
+
+  return NoFollowLink;
 }
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
@@ -82,7 +88,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...defaultMdxComponents,
     a: CustomLink,
     img: (props: React.ComponentProps<'img'>) => {
-      const { src } = props;
+      const { alt = '', src } = props;
       // If src is an object (imported image), use its src property
       const imageSrc =
         typeof src === 'object' && src !== null && 'src' in src
@@ -92,6 +98,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
       return (
         <img
           {...props}
+          alt={alt}
           src={imageSrc}
           className={cn('rounded-lg border', props.className)}
           style={{ maxWidth: '100%', height: 'auto' }}

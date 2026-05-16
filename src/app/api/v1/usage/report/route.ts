@@ -15,6 +15,7 @@ import {
 } from '@/shared/services/model-pricing';
 
 const reportSchema = z.object({
+  app_id: z.string().min(1).optional(),
   product: z.string().min(1),
   model: z.string().optional(),
   provider: z.string().optional(),
@@ -44,6 +45,7 @@ export async function POST(req: Request) {
 
     const {
       product,
+      app_id,
       model,
       provider,
       type,
@@ -70,7 +72,7 @@ export async function POST(req: Request) {
 
     const record = await createUsageLogIdempotent({
       userId: identity.userId,
-      appId: 'api',
+      appId: app_id ?? 'api',
       product,
       model: model ?? null,
       provider: provider ?? null,
@@ -85,7 +87,7 @@ export async function POST(req: Request) {
 
     await upsertBillingEvent({
       userId: identity.userId,
-      appId: 'api',
+      appId: app_id ?? 'api',
       requestId,
       source: BillingEventSource.CLIENT,
       product,

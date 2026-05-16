@@ -6,6 +6,11 @@ const config = [
   {
     rules: {
       '@next/next/no-img-element': 'off',
+      'react-hooks/error-boundaries': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/static-components': 'warn',
     },
   },
   {
