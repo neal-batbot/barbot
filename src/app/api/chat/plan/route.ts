@@ -1,6 +1,9 @@
-import { getUserInfo } from '@/shared/models/user';
-import { resolveEntitlement } from '@/shared/services/entitlement';
 import { respData, respErr } from '@/shared/lib/resp';
+import { getUserInfo } from '@/shared/models/user';
+import {
+  resolveChatPlanView,
+  resolvePlanPolicy,
+} from '@/shared/services/model-supply';
 
 /**
  * GET /api/chat/plan
@@ -10,14 +13,18 @@ export async function GET() {
   try {
     const user = await getUserInfo();
     if (!user) {
-      return respData({ plan: 'free', allowedModels: ['kimi-*', 'glm-*'] });
+      const policy = resolvePlanPolicy('free');
+      return respData({
+        plan: policy.plan,
+        allowedModels: policy.allowedModels,
+        autoModelEnabled: policy.autoModelEnabled,
+        quotaTokens: policy.quotaTokens,
+        remainingTokens: policy.quotaTokens,
+        overageEnabled: policy.overageEnabled,
+      });
     }
 
-    const entitlement = await resolveEntitlement(user.id);
-    return respData({
-      plan: entitlement.plan,
-      allowedModels: entitlement.allowedModels,
-    });
+    return respData(await resolveChatPlanView({ userId: user.id }));
   } catch (e: any) {
     return respErr(`Failed to resolve plan: ${e.message}`);
   }

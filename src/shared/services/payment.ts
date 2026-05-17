@@ -6,9 +6,12 @@ import {
   StripeProvider,
 } from '@/extensions/payment';
 import {
+  PaymentInterval,
   PaymentSession,
   PaymentStatus,
+  SubscriptionStatus as PaymentSubscriptionStatus,
   PaymentType,
+  type SubscriptionInfo,
 } from '@/extensions/payment/types';
 import { getSnowId, getUuid } from '@/shared/lib/hash';
 import { Configs, getAllConfigs } from '@/shared/models/config';
@@ -152,6 +155,8 @@ export async function handleCheckoutSuccess({
     throw new Error('invalid order');
   }
 
+  session = normalizeManualCycleSubscriptionSession({ order, session });
+
   if (order.paymentType === PaymentType.SUBSCRIPTION) {
     if (!session.subscriptionId || !session.subscriptionInfo) {
       throw new Error('subscription id or subscription info not found');
@@ -292,6 +297,8 @@ export async function handlePaymentSuccess({
     throw new Error('invalid order');
   }
 
+  session = normalizeManualCycleSubscriptionSession({ order, session });
+
   if (order.paymentType === PaymentType.SUBSCRIPTION) {
     if (!session.subscriptionId || !session.subscriptionInfo) {
       throw new Error('subscription id or subscription info not found');
@@ -398,6 +405,97 @@ export async function handlePaymentSuccess({
   } else {
     throw new Error('unknown payment status');
   }
+}
+
+function addPaymentInterval(
+  date: Date,
+  interval?: string | null,
+  intervalCount = 1
+): Date {
+  const result = new Date(date);
+  const count = Math.max(1, intervalCount || 1);
+
+  if (interval === PaymentInterval.YEAR) {
+    result.setFullYear(result.getFullYear() + count);
+  } else if (interval === PaymentInterval.MONTH) {
+    result.setMonth(result.getMonth() + count);
+  } else if (interval === PaymentInterval.WEEK) {
+    result.setDate(result.getDate() + count * 7);
+  } else {
+    result.setDate(result.getDate() + count);
+  }
+
+  return result;
+}
+
+export function buildManualCycleSubscriptionInfo({
+  order,
+  session,
+}: {
+  order: Order;
+  session: PaymentSession;
+}): SubscriptionInfo | undefined {
+  if (order.paymentProvider !== 'alipay') return undefined;
+  if (order.paymentType !== PaymentType.SUBSCRIPTION) return undefined;
+  if (session.subscriptionInfo) return session.subscriptionInfo;
+  if (session.paymentStatus !== PaymentStatus.SUCCESS) return undefined;
+
+  const currentPeriodStart = session.paymentInfo?.paidAt || new Date();
+  const interval = (order.paymentInterval ||
+    PaymentInterval.MONTH) as PaymentInterval;
+  const intervalCount = 1;
+
+  return {
+    subscriptionId: `alipay:${order.orderNo}`,
+    productId: order.productId || undefined,
+    description:
+      order.description ||
+      order.productName ||
+      'Alipay manual cycle subscription',
+    amount:
+      session.paymentInfo?.paymentAmount ?? order.paymentAmount ?? order.amount,
+    currency:
+      session.paymentInfo?.paymentCurrency ||
+      order.paymentCurrency ||
+      order.currency,
+    interval,
+    intervalCount,
+    currentPeriodStart,
+    currentPeriodEnd: addPaymentInterval(
+      currentPeriodStart,
+      interval,
+      intervalCount
+    ),
+    status: PaymentSubscriptionStatus.ACTIVE,
+    metadata: {
+      mode: 'manual_cycle',
+      provider: 'alipay',
+      order_no: order.orderNo,
+    },
+  };
+}
+
+function normalizeManualCycleSubscriptionSession({
+  order,
+  session,
+}: {
+  order: Order;
+  session: PaymentSession;
+}): PaymentSession {
+  const subscriptionInfo = buildManualCycleSubscriptionInfo({ order, session });
+  if (!subscriptionInfo || session.subscriptionInfo) return session;
+
+  return {
+    ...session,
+    subscriptionId: subscriptionInfo.subscriptionId,
+    subscriptionInfo,
+    subscriptionResult: {
+      ...(session.subscriptionResult || {}),
+      manual_cycle: true,
+      provider: 'alipay',
+      order_no: order.orderNo,
+    },
+  };
 }
 
 export async function handleSubscriptionRenewal({

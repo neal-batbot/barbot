@@ -61,6 +61,7 @@
         },
         "product_id": "starter-monthly",
         "product_name": "BatBot Starter (Monthly)",
+        "plan_name": "free",
         "credits": 200,
         "valid_days": 30,
         "group": "monthly"
@@ -89,7 +90,7 @@
             "amount": 9900,
             "price": "¥99",
             "original_price": "¥139",
-            "payment_providers": ["stripe"]
+            "payment_providers": ["stripe", "alipay"]
           }
         ],
         "unit": "/ month",
@@ -102,6 +103,7 @@
         },
         "product_id": "pro-monthly",
         "product_name": "BatBot Pro (Monthly)",
+        "plan_name": "pro",
         "credits": 1000,
         "valid_days": 30,
         "group": "monthly"
@@ -129,7 +131,7 @@
             "amount": 39900,
             "price": "¥399",
             "original_price": "¥478",
-            "payment_providers": ["stripe"]
+            "payment_providers": ["stripe", "alipay"]
           }
         ],
         "unit": "/ year",
@@ -145,7 +147,7 @@
         "credits": 2400,
         "valid_days": 365,
         "group": "yearly",
-        "plan_name": "Starter"
+        "plan_name": "free"
       },
       {
         "title": "Pro",
@@ -171,7 +173,7 @@
             "amount": 99900,
             "price": "¥999",
             "original_price": "¥1188",
-            "payment_providers": ["stripe"]
+            "payment_providers": ["stripe", "alipay"]
           }
         ],
         "unit": "/ year",
@@ -187,7 +189,7 @@
         "credits": 12000,
         "valid_days": 365,
         "group": "yearly",
-        "plan_name": "Pro"
+        "plan_name": "pro"
       },
       {
         "title": "Team",
@@ -225,6 +227,7 @@
         },
         "product_id": "team",
         "product_name": "BatBot Team",
+        "plan_name": "team",
         "credits": 0,
         "valid_days": 0,
         "group": "enterprise"

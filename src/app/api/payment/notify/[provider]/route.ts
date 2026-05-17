@@ -135,11 +135,29 @@ export async function POST(
       console.log('not handle other event type: ' + eventType);
     }
 
+    if (provider === 'alipay') {
+      return new Response('success', {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    }
+
     return Response.json({
       message: 'success',
     });
   } catch (err: any) {
     console.log('handle payment notify failed', err);
+    try {
+      const { provider } = await params;
+      if (provider === 'alipay') {
+        return new Response('fail', {
+          status: 500,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        });
+      }
+    } catch {
+      // fall through to JSON error
+    }
     return Response.json(
       {
         message: `handle payment notify failed: ${err.message}`,

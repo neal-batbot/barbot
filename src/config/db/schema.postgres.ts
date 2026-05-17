@@ -593,9 +593,7 @@ export const appToken = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [
-    index('idx_app_token_user_status').on(table.userId, table.status),
-  ]
+  (table) => [index('idx_app_token_user_status').on(table.userId, table.status)]
 );
 
 export const billingEvent = pgTable(
@@ -653,9 +651,7 @@ export const product = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [
-    index('idx_product_code').on(table.code),
-  ]
+  (table) => [index('idx_product_code').on(table.code)]
 );
 
 export const planEntitlement = pgTable(
@@ -677,8 +673,14 @@ export const planEntitlement = pgTable(
       .notNull(),
   },
   (table) => [
-    index('idx_plan_entitlement_plan_product').on(table.planName, table.productCode),
-    uniqueIndex('idx_plan_entitlement_unique').on(table.planName, table.productCode),
+    index('idx_plan_entitlement_plan_product').on(
+      table.planName,
+      table.productCode
+    ),
+    uniqueIndex('idx_plan_entitlement_unique').on(
+      table.planName,
+      table.productCode
+    ),
   ]
 );
 
@@ -700,7 +702,11 @@ export const device = pgTable(
   },
   (table) => [
     index('idx_device_user_product').on(table.userId, table.productCode),
-    uniqueIndex('idx_device_unique').on(table.userId, table.productCode, table.deviceId),
+    uniqueIndex('idx_device_unique').on(
+      table.userId,
+      table.productCode,
+      table.deviceId
+    ),
   ]
 );
 
@@ -719,9 +725,7 @@ export const desktopAuthCode = pgTable(
     expiresAt: timestamp('expires_at').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_desktop_auth_code').on(table.code),
-  ]
+  (table) => [index('idx_desktop_auth_code').on(table.code)]
 );
 
 export const desktopSession = pgTable(
@@ -757,6 +761,15 @@ export const providerConfig = pgTable(
     baseUrl: text('base_url').notNull(),
     apiKey: text('api_key').notNull(),
     modelName: text('model_name'),
+    priority: integer('priority').notNull().default(100),
+    weight: integer('weight').notNull().default(0),
+    healthStatus: text('health_status').notNull().default('healthy'),
+    cooldownUntil: timestamp('cooldown_until'),
+    fallbackGroup: text('fallback_group').notNull().default('chat'),
+    costPer1kInput: text('cost_per_1k_input'),
+    costPer1kOutput: text('cost_per_1k_output'),
+    supportsStreaming: boolean('supports_streaming').notNull().default(true),
+    isDefaultAuto: boolean('is_default_auto').notNull().default(false),
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
@@ -764,7 +777,14 @@ export const providerConfig = pgTable(
       .notNull(),
   },
   (table) => [
-    index('idx_provider_config_plan_product').on(table.planName, table.productCode),
+    index('idx_provider_config_plan_product').on(
+      table.planName,
+      table.productCode
+    ),
+    index('idx_provider_config_health').on(
+      table.healthStatus,
+      table.cooldownUntil
+    ),
   ]
 );
 
@@ -812,6 +832,9 @@ export const enterpriseMember = pgTable(
   (table) => [
     index('idx_enterprise_member_enterprise').on(table.enterpriseId),
     index('idx_enterprise_member_user').on(table.userId),
-    uniqueIndex('idx_enterprise_member_unique').on(table.enterpriseId, table.userId),
+    uniqueIndex('idx_enterprise_member_unique').on(
+      table.enterpriseId,
+      table.userId
+    ),
   ]
 );

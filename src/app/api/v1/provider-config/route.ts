@@ -1,9 +1,16 @@
 import { z } from 'zod';
-import { getCurrentSubscription } from '@/shared/models/subscription';
-import { getProviderConfigs } from '@/shared/models/provider-config';
-import { findPlanEntitlement, parseFeatures } from '@/shared/models/plan-entitlement';
+
+import {
+  resolvePlatformAuth,
+  unauthorizedResponse,
+} from '@/shared/lib/platform-auth';
 import { respData } from '@/shared/lib/resp';
-import { resolvePlatformAuth, unauthorizedResponse } from '@/shared/lib/platform-auth';
+import {
+  findPlanEntitlement,
+  parseFeatures,
+} from '@/shared/models/plan-entitlement';
+import { getProviderConfigs } from '@/shared/models/provider-config';
+import { getCurrentSubscription } from '@/shared/models/subscription';
 
 const querySchema = z.object({
   product: z.string().min(1),
@@ -17,9 +24,14 @@ export async function GET(req: Request) {
     if (!identity) return unauthorizedResponse();
 
     const { searchParams } = new URL(req.url);
-    const parsed = querySchema.safeParse({ product: searchParams.get('product') });
+    const parsed = querySchema.safeParse({
+      product: searchParams.get('product'),
+    });
     if (!parsed.success) {
-      return Response.json({ code: -1, message: 'product parameter is required' }, { status: 400 });
+      return Response.json(
+        { code: -1, message: 'product parameter is required' },
+        { status: 400 }
+      );
     }
 
     const { product } = parsed.data;
@@ -28,8 +40,10 @@ export async function GET(req: Request) {
     const subscription = await getCurrentSubscription(userId);
     const planName = subscription?.planName ?? FREE_PLAN;
     const entitlement =
-      await findPlanEntitlement(planName, product)
-      ?? (planName !== FREE_PLAN ? await findPlanEntitlement(FREE_PLAN, product) : undefined);
+      (await findPlanEntitlement(planName, product)) ??
+      (planName !== FREE_PLAN
+        ? await findPlanEntitlement(FREE_PLAN, product)
+        : undefined);
     const features = parseFeatures(entitlement?.features ?? null);
 
     if (!entitlement?.isEnabled) {
@@ -59,6 +73,13 @@ export async function GET(req: Request) {
       baseUrl: config.baseUrl,
       apiKey: config.apiKey,
       modelName: config.modelName ?? '',
+      priority: config.priority,
+      weight: config.weight,
+      healthStatus: config.healthStatus,
+      cooldownUntil: config.cooldownUntil,
+      fallbackGroup: config.fallbackGroup,
+      supportsStreaming: config.supportsStreaming,
+      isDefaultAuto: config.isDefaultAuto,
     });
     const [primary, ...fallbacks] = configs.map(toChannel);
     const allowedModels = Array.isArray(features.allowed_models)
@@ -85,6 +106,9 @@ export async function GET(req: Request) {
     });
   } catch (e) {
     console.error('[GET /api/v1/provider-config] error:', e);
-    return Response.json({ code: -1, message: 'Failed to get provider config' }, { status: 500 });
+    return Response.json(
+      { code: -1, message: 'Failed to get provider config' },
+      { status: 500 }
+    );
   }
 }

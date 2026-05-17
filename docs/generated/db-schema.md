@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED: Do not edit manually. Run: pnpm docs:gen-schema -->
 # Database Schema Reference
 
-Generated: 2026-03-29
+Generated: 2026-05-16
 Source: `src/config/db/schema.postgres.ts`
 
 ---
@@ -229,6 +229,66 @@ Source: `src/config/db/schema.postgres.ts`
 | id | text | no |  |
 | userId | text | no |  |
 
+## desktop_auth_code
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| code | text | YES | UNIQUE |
+| userId | text | no |  |
+
+## desktop_session
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| userId | text | no |  |
+
+## provider_config
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| planName | text | YES |  |
+| productCode | text | YES |  |
+| providerName | text | YES |  |
+| baseUrl | text | YES |  |
+| apiKey | text | YES |  |
+| modelName | text | no |  |
+| priority | integer | YES |  |
+| weight | integer | YES |  |
+| healthStatus | text | YES |  |
+| cooldownUntil | timestamp | no |  |
+| fallbackGroup | text | YES |  |
+| costPer1kInput | text | no |  |
+| costPer1kOutput | text | no |  |
+| supportsStreaming | boolean | YES |  |
+| isDefaultAuto | boolean | YES |  |
+| isActive | boolean | YES |  |
+| createdAt | timestamp | YES | default: now() |
+| updatedAt | timestamp | no |  |
+
+## enterprise_account
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| slug | text | YES | UNIQUE |
+| name | text | YES |  |
+| logoUrl | text | no |  |
+| botIds | text | YES |  |
+| quotaTokens | integer | YES |  |
+| status | text | YES |  |
+| createdAt | timestamp | YES | default: now() |
+| updatedAt | timestamp | no |  |
+
+## enterprise_member
+
+| Column | Type | Required | Notes |
+|--------|------|----------|-------|
+| id | text | no |  |
+| enterpriseId | text | no |  |
+
 ---
 
 ## Table Summary
@@ -259,5 +319,10 @@ Source: `src/config/db/schema.postgres.ts`
 | product | 7 |
 | plan_entitlement | 9 |
 | device | 2 |
+| desktop_auth_code | 3 |
+| desktop_session | 2 |
+| provider_config | 19 |
+| enterprise_account | 9 |
+| enterprise_member | 2 |
 
-_Total: 24 tables_
+_Total: 29 tables_

@@ -61,6 +61,7 @@
         },
         "product_id": "starter-monthly",
         "product_name": "BatBot 入门版（月付）",
+        "plan_name": "free",
         "credits": 200,
         "valid_days": 30,
         "group": "monthly"
@@ -102,6 +103,7 @@
         },
         "product_id": "pro-monthly",
         "product_name": "BatBot 专业版（月付）",
+        "plan_name": "pro",
         "credits": 1000,
         "valid_days": 30,
         "group": "monthly"
@@ -145,7 +147,7 @@
         "credits": 2400,
         "valid_days": 365,
         "group": "yearly",
-        "plan_name": "入门版"
+        "plan_name": "free"
       },
       {
         "title": "专业版",
@@ -187,7 +189,7 @@
         "credits": 12000,
         "valid_days": 365,
         "group": "yearly",
-        "plan_name": "专业版"
+        "plan_name": "pro"
       },
       {
         "title": "团队版",
@@ -225,6 +227,7 @@
         },
         "product_id": "team",
         "product_name": "BatBot 团队版",
+        "plan_name": "team",
         "credits": 0,
         "valid_days": 0,
         "group": "enterprise"

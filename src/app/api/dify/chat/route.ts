@@ -1,24 +1,31 @@
 import { generateId } from 'ai';
 
 import { PERMISSIONS } from '@/core/rbac';
+import { createDifyOpenAIStream } from '@/extensions/ai/dify';
+import {
+  captureExceptionToSentry,
+  recordApiMetric,
+} from '@/shared/lib/monitoring';
+import {
+  BillingEventSource,
+  BillingEventStatus,
+  upsertBillingEvent,
+} from '@/shared/models/billing-event';
 import { findChatById, updateChat } from '@/shared/models/chat';
 import {
   ChatMessageStatus,
   createChatMessage,
   NewChatMessage,
 } from '@/shared/models/chat_message';
-import { createDifyOpenAIStream } from '@/extensions/ai/dify';
 import { getAllConfigs } from '@/shared/models/config';
-import {
-  BillingEventSource,
-  BillingEventStatus,
-  upsertBillingEvent,
-} from '@/shared/models/billing-event';
 import { createUsageLogIdempotent } from '@/shared/models/usage-log';
 import { getUserInfo } from '@/shared/models/user';
-import { checkChatAccess, getBillingPeriodLabel } from '@/shared/services/entitlement';
+import { getBillingPeriodLabel } from '@/shared/services/entitlement';
+import {
+  isModelSupplyDecision,
+  resolveChatModelSupply,
+} from '@/shared/services/model-supply';
 import { hasPermission } from '@/shared/services/rbac';
-import { captureExceptionToSentry, recordApiMetric } from '@/shared/lib/monitoring';
 
 // Force dynamic to ensure streaming works properly
 export const dynamic = 'force-dynamic';
@@ -63,19 +70,21 @@ export async function POST(req: Request) {
       return new Response('Forbidden', { status: 403 });
     }
 
-    const access = await checkChatAccess({
+    const supply = await resolveChatModelSupply({
       userId: user.id,
-      model: chat.model || 'dify/default',
+      requestedModel: chat.model || 'dify/default',
+      requestedProvider: 'dify',
+      productCode: 'chat',
     });
-    if (!access.allowed) {
-      metricStatus = 402;
+    if (!isModelSupplyDecision(supply)) {
+      metricStatus = supply.code === 'PROVIDER_UNAVAILABLE' ? 503 : 402;
       return Response.json(
         {
-          code: access.code,
-          message: access.message,
-          upgrade_url: access.upgradeUrl || '/pricing',
+          code: supply.code,
+          message: supply.message,
+          upgrade_url: supply.upgradeUrl || '/pricing',
         },
-        { status: 402 }
+        { status: metricStatus }
       );
     }
 
@@ -103,13 +112,21 @@ export async function POST(req: Request) {
 
           if (botConfig && botConfig.api_key) {
             difyApiKey = botConfig.api_key;
-            console.log('[DEBUG POST /api/dify/chat] Using bot API key for:', botConfig.title);
+            console.log(
+              '[DEBUG POST /api/dify/chat] Using bot API key for:',
+              botConfig.title
+            );
           } else {
-            console.log('[DEBUG POST /api/dify/chat] Bot not found or no API key, using fallback');
+            console.log(
+              '[DEBUG POST /api/dify/chat] Bot not found or no API key, using fallback'
+            );
           }
         }
       } catch (e) {
-        console.error('[DEBUG POST /api/dify/chat] Failed to parse dify_bots config:', e);
+        console.error(
+          '[DEBUG POST /api/dify/chat] Failed to parse dify_bots config:',
+          e
+        );
       }
     }
 
@@ -125,9 +142,18 @@ export async function POST(req: Request) {
     // Debug logging
     console.log('[DEBUG POST /api/dify/chat] Chat ID:', chatId);
     console.log('[DEBUG POST /api/dify/chat] Chat Model:', chat.model);
-    console.log('[DEBUG POST /api/dify/chat] Conversation ID:', conversationId || '(empty)');
-    console.log('[DEBUG POST /api/dify/chat] Using bot:', botConfig?.title || 'default');
-    console.log('[DEBUG POST /api/dify/chat] API Key:', difyApiKey.substring(0, 15) + '...');
+    console.log(
+      '[DEBUG POST /api/dify/chat] Conversation ID:',
+      conversationId || '(empty)'
+    );
+    console.log(
+      '[DEBUG POST /api/dify/chat] Using bot:',
+      botConfig?.title || 'default'
+    );
+    console.log(
+      '[DEBUG POST /api/dify/chat] API Key:',
+      difyApiKey.substring(0, 15) + '...'
+    );
     const normalizedDifyApiUrl = difyApiUrl.replace(/\/+$/, '');
     const difyApiBase = normalizedDifyApiUrl.endsWith('/v1')
       ? normalizedDifyApiUrl
@@ -146,8 +172,15 @@ export async function POST(req: Request) {
       updatedAt: currentTime,
       role: 'user',
       parts: JSON.stringify([{ type: 'text', text: query }]),
-      metadata: JSON.stringify({ rating }),
-      model: 'dify/default',
+      metadata: JSON.stringify({
+        rating,
+        requested_model: chat.model || 'dify/default',
+        actual_model: chat.model || 'dify/default',
+        actual_provider: 'dify',
+        usage_type: supply.billingPolicy.usageType,
+        plan: supply.plan,
+      }),
+      model: chat.model || 'dify/default',
       provider: 'dify',
     };
     await createChatMessage(userMessage);
@@ -157,7 +190,12 @@ export async function POST(req: Request) {
     const inputs: Record<string, any> = {};
     if (rating) {
       inputs.rating = rating;
-    } else if (botConfig && botConfig.has_rating && botConfig.ratings && botConfig.ratings.length > 0) {
+    } else if (
+      botConfig &&
+      botConfig.has_rating &&
+      botConfig.ratings &&
+      botConfig.ratings.length > 0
+    ) {
       // Only use default rating if bot has rating feature
       inputs.rating = botConfig.default_rating || botConfig.ratings[0];
     }
@@ -175,9 +213,14 @@ export async function POST(req: Request) {
     // Only include conversation_id if it exists and is not empty
     if (conversationId && conversationId.trim()) {
       requestBody.conversation_id = conversationId;
-      console.log('[DEBUG POST /api/dify/chat] Using existing conversation_id:', conversationId);
+      console.log(
+        '[DEBUG POST /api/dify/chat] Using existing conversation_id:',
+        conversationId
+      );
     } else {
-      console.log('[DEBUG POST /api/dify/chat] Starting new conversation (no conversation_id)');
+      console.log(
+        '[DEBUG POST /api/dify/chat] Starting new conversation (no conversation_id)'
+      );
     }
 
     const difyResponse = await fetch(`${difyApiBase}/chat-messages`, {
@@ -205,7 +248,9 @@ export async function POST(req: Request) {
 
       // Special handling for 404 conversation not found error
       if (difyResponse.status === 404 && conversationId) {
-        console.log('[DEBUG] Conversation not found, clearing invalid conversation_id from database...');
+        console.log(
+          '[DEBUG] Conversation not found, clearing invalid conversation_id from database...'
+        );
 
         try {
           // Clear the invalid conversation_id from database
@@ -216,7 +261,9 @@ export async function POST(req: Request) {
             }),
           });
 
-          console.log('[DEBUG] Conversation_id cleared. User should retry the message.');
+          console.log(
+            '[DEBUG] Conversation_id cleared. User should retry the message.'
+          );
         } catch (e) {
           console.error('[DEBUG] Failed to clear conversation_id:', e);
         }
@@ -225,14 +272,17 @@ export async function POST(req: Request) {
         return new Response(
           JSON.stringify({
             error: 'conversation_not_found',
-            message: 'The conversation has expired or been deleted. A new conversation will be created automatically when you send your message again.',
+            message:
+              'The conversation has expired or been deleted. A new conversation will be created automatically when you send your message again.',
           }),
           { status: 404 }
         );
       }
 
       metricStatus = difyResponse.status;
-      return new Response(`Dify API error: ${errorText}`, { status: difyResponse.status });
+      return new Response(`Dify API error: ${errorText}`, {
+        status: difyResponse.status,
+      });
     }
 
     if (!difyResponse.body) {
@@ -240,89 +290,106 @@ export async function POST(req: Request) {
       return new Response('No response body from Dify', { status: 500 });
     }
 
-    const { stream: responseStream } = createDifyOpenAIStream(difyResponse.body, {
-      model: chat.model || 'dify/default',
-      showNodeEvents: true,
-      onMessageEnd: async (state) => {
-        const now = new Date();
-        const assistantMessage: NewChatMessage = {
-          id: generateId().toLowerCase(),
-          chatId,
-          userId: user.id,
-          status: ChatMessageStatus.CREATED,
-          createdAt: currentTime,
-          updatedAt: currentTime,
-          role: 'assistant',
-          parts: JSON.stringify([{ type: 'text', text: state.fullAnswer }]),
-          metadata: JSON.stringify({
-            conversation_id: state.conversationId,
-            message_id: state.messageId,
-            task_id: state.taskId,
-            dify_metadata: state.metadata || null,
-          }),
-          model: 'dify/default',
-          provider: 'dify',
-        };
-        await createChatMessage(assistantMessage);
-
-        const usageTokens = Number(state?.metadata?.usage?.total_tokens || 0);
-        const fallbackTokens = Math.max(
-          1,
-          Math.ceil((state.fullAnswer?.length || 0) / 4)
-        );
-        const finalTokens = usageTokens > 0 ? usageTokens : fallbackTokens;
-        const requestId = state.messageId || `${chatId}:${now.getTime()}:dify`;
-
-        await createUsageLogIdempotent({
-          userId: user.id,
-          appId: 'web',
-          product: 'chat',
-          model: chat.model || 'dify/default',
-          provider: 'dify',
-          type: 'chat',
-          tokens: finalTokens,
-          cost: '0',
-          source: BillingEventSource.SERVER,
-          requestId,
-          status: 'success',
-          metadata: JSON.stringify({
-            conversation_id: state.conversationId,
-            message_id: state.messageId,
-            task_id: state.taskId,
-          }),
-          createdAt: now,
-        });
-
-        await upsertBillingEvent({
-          userId: user.id,
-          appId: 'web',
-          requestId,
-          source: BillingEventSource.SERVER,
-          product: 'chat',
-          model: chat.model || 'dify/default',
-          provider: 'dify',
-          billableTokens: finalTokens,
-          unitPrice: '0',
-          amount: '0',
-          period: getBillingPeriodLabel(now),
-          status: BillingEventStatus.BILLABLE,
-          metadata: JSON.stringify({
-            conversation_id: state.conversationId,
-            message_id: state.messageId,
-            task_id: state.taskId,
-          }),
-        });
-
-        if (state.conversationId && state.conversationId !== conversationId) {
-          await updateChat(chatId, {
+    const { stream: responseStream } = createDifyOpenAIStream(
+      difyResponse.body,
+      {
+        model: chat.model || 'dify/default',
+        showNodeEvents: true,
+        onMessageEnd: async (state) => {
+          const now = new Date();
+          const assistantMessage: NewChatMessage = {
+            id: generateId().toLowerCase(),
+            chatId,
+            userId: user.id,
+            status: ChatMessageStatus.CREATED,
+            createdAt: currentTime,
+            updatedAt: currentTime,
+            role: 'assistant',
+            parts: JSON.stringify([{ type: 'text', text: state.fullAnswer }]),
             metadata: JSON.stringify({
-              ...chatMetadata,
-              dify_conversation_id: state.conversationId,
+              requested_model: chat.model || 'dify/default',
+              actual_model: chat.model || 'dify/default',
+              actual_provider: 'dify',
+              conversation_id: state.conversationId,
+              message_id: state.messageId,
+              task_id: state.taskId,
+              dify_metadata: state.metadata || null,
+            }),
+            model: chat.model || 'dify/default',
+            provider: 'dify',
+          };
+          await createChatMessage(assistantMessage);
+
+          const usageTokens = Number(state?.metadata?.usage?.total_tokens || 0);
+          const fallbackTokens = Math.max(
+            1,
+            Math.ceil((state.fullAnswer?.length || 0) / 4)
+          );
+          const finalTokens = usageTokens > 0 ? usageTokens : fallbackTokens;
+          const requestId =
+            state.messageId || `${chatId}:${now.getTime()}:dify`;
+
+          await createUsageLogIdempotent({
+            userId: user.id,
+            appId: 'web',
+            product: 'chat',
+            model: chat.model || 'dify/default',
+            provider: 'dify',
+            type: 'chat',
+            tokens: finalTokens,
+            cost: '0',
+            source: BillingEventSource.SERVER,
+            requestId,
+            status: 'success',
+            metadata: JSON.stringify({
+              requested_model: chat.model || 'dify/default',
+              actual_model: chat.model || 'dify/default',
+              actual_provider: 'dify',
+              usage_type: supply.billingPolicy.usageType,
+              plan: supply.plan,
+              conversation_id: state.conversationId,
+              message_id: state.messageId,
+              task_id: state.taskId,
+            }),
+            createdAt: now,
+          });
+
+          await upsertBillingEvent({
+            userId: user.id,
+            appId: 'web',
+            requestId,
+            source: BillingEventSource.SERVER,
+            product: 'chat',
+            model: chat.model || 'dify/default',
+            provider: 'dify',
+            billableTokens: finalTokens,
+            unitPrice: '0',
+            amount: '0',
+            period: getBillingPeriodLabel(now),
+            status: BillingEventStatus.BILLABLE,
+            metadata: JSON.stringify({
+              requested_model: chat.model || 'dify/default',
+              actual_model: chat.model || 'dify/default',
+              actual_provider: 'dify',
+              usage_type: supply.billingPolicy.usageType,
+              plan: supply.plan,
+              conversation_id: state.conversationId,
+              message_id: state.messageId,
+              task_id: state.taskId,
             }),
           });
-        }
-      },
-    });
+
+          if (state.conversationId && state.conversationId !== conversationId) {
+            await updateChat(chatId, {
+              metadata: JSON.stringify({
+                ...chatMetadata,
+                dify_conversation_id: state.conversationId,
+              }),
+            });
+          }
+        },
+      }
+    );
 
     // Return the transformed stream
     const response = new Response(responseStream, {

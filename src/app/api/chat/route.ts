@@ -1,6 +1,6 @@
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import {
   convertToModelMessages,
   createIdGenerator,
@@ -9,6 +9,7 @@ import {
   UIMessage,
 } from 'ai';
 
+import { PERMISSIONS } from '@/core/rbac';
 import {
   buildStaticProviderFailoverChain,
   CLAUDE_PROXY,
@@ -16,12 +17,21 @@ import {
   KIMI_CODING,
   ZHIPU_CODING,
 } from '@/config/chat-providers';
-import { PERMISSIONS } from '@/core/rbac';
+import {
+  captureExceptionToSentry,
+  recordApiMetric,
+} from '@/shared/lib/monitoring';
+import {
+  getRateLimitStore,
+  withRateLimitFailureMode,
+} from '@/shared/lib/rate-limit-store';
+import {
+  BillingEventSource,
+  BillingEventStatus,
+  upsertBillingEvent,
+} from '@/shared/models/billing-event';
 import { findChatById } from '@/shared/models/chat';
-
-// Force dynamic to ensure streaming works properly
-export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // Allow longer response time for AI
+// Allow longer response time for AI
 import {
   ChatMessageStatus,
   createChatMessage,
@@ -29,14 +39,29 @@ import {
   NewChatMessage,
 } from '@/shared/models/chat_message';
 import { getAllConfigs } from '@/shared/models/config';
-import { getUserInfo } from '@/shared/models/user';
-import { hasPermission } from '@/shared/services/rbac';
-import { getUserUsageSince } from '@/shared/models/usage-log';
-import { captureExceptionToSentry, recordApiMetric } from '@/shared/lib/monitoring';
 import {
-  getRateLimitStore,
-  withRateLimitFailureMode,
-} from '@/shared/lib/rate-limit-store';
+  createUsageLogIdempotent,
+  getUserUsageSince,
+} from '@/shared/models/usage-log';
+import { getUserInfo } from '@/shared/models/user';
+import {
+  calculateUsageCost,
+  withPricingMetadata,
+} from '@/shared/services/model-pricing';
+import {
+  isModelSupplyDecision,
+  markProviderChannelFailure,
+  markProviderChannelSuccess,
+  ProviderAttempt,
+  ProviderUnavailableError,
+  resolveChatModelSupply,
+  type BillingPolicy,
+} from '@/shared/services/model-supply';
+import { hasPermission } from '@/shared/services/rbac';
+
+// Force dynamic to ensure streaming works properly
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 function getClientIp(req: Request): string {
   const forwardedFor = req.headers.get('x-forwarded-for');
@@ -48,19 +73,25 @@ function getClientIp(req: Request): string {
 
 function getRateLimitConfig(configs: any) {
   const ipWindowMs = Number(
-    process.env.RATE_LIMIT_IP_WINDOW_MS || configs.rate_limit_ip_window_ms || 60_000
+    process.env.RATE_LIMIT_IP_WINDOW_MS ||
+      configs.rate_limit_ip_window_ms ||
+      60_000
   );
   const ipMax = Number(
     process.env.RATE_LIMIT_IP_MAX || configs.rate_limit_ip_max || 60
   );
   const userWindowMs = Number(
-    process.env.RATE_LIMIT_USER_WINDOW_MS || configs.rate_limit_user_window_ms || 60_000
+    process.env.RATE_LIMIT_USER_WINDOW_MS ||
+      configs.rate_limit_user_window_ms ||
+      60_000
   );
   const userMax = Number(
     process.env.RATE_LIMIT_USER_MAX || configs.rate_limit_user_max || 40
   );
   const dailyUserMax = Number(
-    process.env.RATE_LIMIT_DAILY_USER_MAX || configs.rate_limit_daily_user_max || 800
+    process.env.RATE_LIMIT_DAILY_USER_MAX ||
+      configs.rate_limit_daily_user_max ||
+      800
   );
   return { ipWindowMs, ipMax, userWindowMs, userMax, dailyUserMax };
 }
@@ -155,7 +186,10 @@ export async function POST(req: Request) {
         },
         {
           status: 429,
-          headers: { 'Retry-After': String(ipLimit.retryAfterSec), 'X-Request-Id': requestId },
+          headers: {
+            'Retry-After': String(ipLimit.retryAfterSec),
+            'X-Request-Id': requestId,
+          },
         }
       );
     }
@@ -186,7 +220,10 @@ export async function POST(req: Request) {
         },
         {
           status: 429,
-          headers: { 'Retry-After': String(userLimit.retryAfterSec), 'X-Request-Id': requestId },
+          headers: {
+            'Retry-After': String(userLimit.retryAfterSec),
+            'X-Request-Id': requestId,
+          },
         }
       );
     }
@@ -213,17 +250,27 @@ export async function POST(req: Request) {
           retryAfter: 86_400,
           quotaRemaining: 0,
         },
-        { status: 429, headers: { 'Retry-After': '86400', 'X-Request-Id': requestId } }
+        {
+          status: 429,
+          headers: { 'Retry-After': '86400', 'X-Request-Id': requestId },
+        }
       );
     }
 
     const currentTime = new Date();
-    
+
     provider = requestProvider || inferChatProvider(model);
 
     const nowDate = new Date();
     const dayStart = new Date(
-      Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), nowDate.getUTCDate(), 0, 0, 0)
+      Date.UTC(
+        nowDate.getUTCFullYear(),
+        nowDate.getUTCMonth(),
+        nowDate.getUTCDate(),
+        0,
+        0,
+        0
+      )
     );
     const maxDailyTokens = Number(
       process.env.COST_GUARD_DAILY_TOKENS_MAX ||
@@ -257,17 +304,21 @@ export async function POST(req: Request) {
           : Promise.resolve({ totalTokens: 0, totalCost: 0, totalRequests: 0 }),
       ]);
 
-      const tokenExceeded = maxDailyTokens > 0 && dailyUsage.totalTokens >= maxDailyTokens;
-      const costExceeded = maxDailyCost > 0 && dailyUsage.totalCost >= maxDailyCost;
+      const tokenExceeded =
+        maxDailyTokens > 0 && dailyUsage.totalTokens >= maxDailyTokens;
+      const costExceeded =
+        maxDailyCost > 0 && dailyUsage.totalCost >= maxDailyCost;
       const modelExceeded =
-        maxDailyModelTokens > 0 && modelDailyUsage.totalTokens >= maxDailyModelTokens;
+        maxDailyModelTokens > 0 &&
+        modelDailyUsage.totalTokens >= maxDailyModelTokens;
 
       if (tokenExceeded || costExceeded || modelExceeded) {
         statusCode = 429;
         return Response.json(
           {
             code: 'COST_GUARD_EXCEEDED',
-            message: 'Daily usage limit reached. Please retry later or upgrade your plan.',
+            message:
+              'Daily usage limit reached. Please retry later or upgrade your plan.',
             retryAfter: 86_400,
             quotaRemaining: 0,
             usage: {
@@ -277,16 +328,45 @@ export async function POST(req: Request) {
             },
             upgradeUrl: '/pricing',
           },
-          { status: 429, headers: { 'Retry-After': '86400', 'X-Request-Id': requestId } }
+          {
+            status: 429,
+            headers: { 'Retry-After': '86400', 'X-Request-Id': requestId },
+          }
         );
       }
     }
 
+    const supply = await resolveChatModelSupply({
+      userId: user.id,
+      requestedModel: model,
+      requestedProvider: requestProvider,
+      productCode: 'chat',
+    });
+    if (!isModelSupplyDecision(supply)) {
+      const deniedStatus = supply.code === 'PROVIDER_UNAVAILABLE' ? 503 : 402;
+      statusCode = deniedStatus;
+      return Response.json(
+        {
+          code: supply.code,
+          message: supply.message || 'Model access denied.',
+          upgradeUrl: supply.upgradeUrl || '/pricing',
+          quotaRemaining: supply.billingPolicy.remainingTokens,
+        },
+        { status: deniedStatus, headers: { 'X-Request-Id': requestId } }
+      );
+    }
+
+    const effectiveModel = supply.selectedModel;
+    provider = supply.selectedProvider;
+
     const metadata = {
-      model,
+      model: effectiveModel,
+      requestedModel: model,
       webSearch,
       reasoning,
       provider,
+      requestedProvider: requestProvider || inferChatProvider(model),
+      billingPolicy: supply.billingPolicy,
     };
 
     // save user message to database
@@ -300,7 +380,7 @@ export async function POST(req: Request) {
       role: 'user',
       parts: JSON.stringify(message.parts),
       metadata: JSON.stringify(metadata),
-      model: model,
+      model: effectiveModel,
       provider: provider,
     };
     await createChatMessage(userMessage);
@@ -314,8 +394,11 @@ export async function POST(req: Request) {
         user,
         configs,
         currentTime,
-        model,
+        model: effectiveModel,
         rating,
+        requestedModel: model,
+        billingPolicy: supply.billingPolicy,
+        requestId,
       });
       statusCode = response.status || 200;
       return response;
@@ -328,23 +411,51 @@ export async function POST(req: Request) {
         user,
         configs,
         currentTime,
-        model,
+        model: effectiveModel,
         reasoning,
+        requestedModel: model,
+        billingPolicy: supply.billingPolicy,
+        requestId,
+        channelId: supply.selectedChannelId,
       });
       statusCode = response.status || 200;
       return response;
     }
 
-    if (provider === 'kimi' || provider === 'claude-proxy' || provider === 'zhipu') {
+    if (provider === 'mock') {
+      const response = await handleMockChat({
+        chatId,
+        message,
+        user,
+        currentTime,
+        model: effectiveModel,
+        requestedModel: model,
+        billingPolicy: supply.billingPolicy,
+        requestId,
+        channelId: supply.selectedChannelId,
+      });
+      statusCode = response.status || 200;
+      return response;
+    }
+
+    if (
+      provider === 'kimi' ||
+      provider === 'claude-proxy' ||
+      provider === 'zhipu'
+    ) {
       const response = await handleStaticModelsWithFailover({
         chatId,
         message,
         user,
         configs,
         currentTime,
-        model,
+        model: effectiveModel,
         reasoning,
         initialProvider: provider,
+        fallbackChain: supply.fallbackChain,
+        requestedModel: model,
+        billingPolicy: supply.billingPolicy,
+        requestId,
       });
       statusCode = response.status || 200;
       return response;
@@ -357,8 +468,12 @@ export async function POST(req: Request) {
         user,
         configs,
         currentTime,
-        model,
+        model: effectiveModel,
         reasoning,
+        requestedModel: model,
+        billingPolicy: supply.billingPolicy,
+        requestId,
+        channelId: supply.selectedChannelId,
       });
       statusCode = response.status || 200;
       return response;
@@ -371,20 +486,24 @@ export async function POST(req: Request) {
       user,
       configs,
       currentTime,
-      model,
+      model: effectiveModel,
       reasoning,
+      requestedModel: model,
+      billingPolicy: supply.billingPolicy,
+      requestId,
+      channelId: supply.selectedChannelId,
     });
     statusCode = response.status || 200;
     return response;
   } catch (e: any) {
-    statusCode = 500;
+    statusCode = e instanceof ProviderUnavailableError ? e.status : 500;
     console.error(
       JSON.stringify({
         level: 'error',
         event: 'chat.failed',
         requestId,
         route: '/api/chat',
-        errorCode: 'CHAT_INTERNAL_ERROR',
+        errorCode: e?.code || 'CHAT_INTERNAL_ERROR',
         message: e?.message || 'unknown error',
         latencyMs: Date.now() - startedAt,
       })
@@ -394,8 +513,14 @@ export async function POST(req: Request) {
       requestId,
       userId,
       provider,
-      errorCode: 'CHAT_INTERNAL_ERROR',
+      errorCode: e?.code || 'CHAT_INTERNAL_ERROR',
     });
+    if (e instanceof ProviderUnavailableError) {
+      return Response.json(
+        { code: e.code, message: e.message },
+        { status: e.status }
+      );
+    }
     return new Response(e.message, { status: 500 });
   } finally {
     await recordApiMetric({
@@ -435,6 +560,7 @@ async function saveAssistantMessage({
   model,
   provider,
   parts,
+  metadata,
 }: {
   chatId: string;
   userId: string;
@@ -442,6 +568,7 @@ async function saveAssistantMessage({
   model: string;
   provider: string;
   parts: any[];
+  metadata?: Record<string, unknown>;
 }) {
   const assistantMessage: NewChatMessage = {
     id: generateId().toLowerCase(),
@@ -454,8 +581,73 @@ async function saveAssistantMessage({
     provider: provider,
     parts: JSON.stringify(parts),
     role: 'assistant',
+    metadata: metadata ? JSON.stringify(metadata) : undefined,
   };
   await createChatMessage(assistantMessage);
+}
+
+async function handleMockChat({
+  chatId,
+  message,
+  user,
+  currentTime,
+  model,
+  requestedModel,
+  billingPolicy,
+  requestId,
+  channelId,
+}: {
+  chatId: string;
+  message: UIMessage;
+  user: any;
+  currentTime: Date;
+  model: string;
+  requestedModel: string;
+  billingPolicy: BillingPolicy;
+  requestId: string;
+  channelId?: string;
+}) {
+  const userText = extractTextFromParts(message.parts);
+  const responseText = `Mock ${model} response: ${userText || 'ok'}`;
+  const parts = [{ type: 'text', text: responseText }];
+
+  await saveAssistantMessage({
+    chatId,
+    userId: user?.id,
+    currentTime,
+    model,
+    provider: 'mock',
+    parts,
+    metadata: {
+      requested_model: requestedModel,
+      actual_model: model,
+      actual_provider: 'mock',
+      channel_id: channelId,
+    },
+  });
+  await recordServerChatUsage({
+    userId: user?.id,
+    requestId,
+    requestedModel,
+    actualModel: model,
+    actualProvider: 'mock',
+    channelId,
+    parts,
+    billingPolicy,
+    tokensOverride:
+      estimateTokensFromParts(message.parts) + estimateTokensFromParts(parts),
+  });
+  await markProviderChannelSuccess(channelId);
+
+  return new Response(responseText, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Model-Supply-Provider': 'mock',
+      'X-Model-Supply-Model': model,
+      'X-Request-Id': requestId,
+    },
+  });
 }
 
 const normalizeBaseUrl = (url?: string, suffix?: string) => {
@@ -468,6 +660,103 @@ const normalizeBaseUrl = (url?: string, suffix?: string) => {
 };
 
 type StreamTextResult = ReturnType<typeof streamText>;
+
+function extractTextFromParts(parts: any[] | undefined): string {
+  if (!Array.isArray(parts)) return '';
+  return parts
+    .map((part) => {
+      if (part?.type === 'text') return part.text || '';
+      if (typeof part?.text === 'string') return part.text;
+      return '';
+    })
+    .join('\n');
+}
+
+function estimateTokensFromParts(parts: any[] | undefined): number {
+  const text = extractTextFromParts(parts);
+  return Math.max(1, Math.ceil(text.length / 4));
+}
+
+async function recordServerChatUsage({
+  userId,
+  requestId,
+  requestedModel,
+  actualModel,
+  actualProvider,
+  channelId,
+  fallbackReason,
+  parts,
+  billingPolicy,
+  tokensOverride,
+}: {
+  userId: string;
+  requestId: string;
+  requestedModel: string;
+  actualModel: string;
+  actualProvider: string;
+  channelId?: string;
+  fallbackReason?: string;
+  parts: any[];
+  billingPolicy: BillingPolicy;
+  tokensOverride?: number;
+}) {
+  const tokens =
+    tokensOverride && tokensOverride > 0
+      ? tokensOverride
+      : estimateTokensFromParts(parts);
+  const cost = calculateUsageCost({
+    model: actualModel,
+    tokens,
+  });
+  const amount = cost.pricing
+    ? (Number(cost.amount) * billingPolicy.costMultiplier).toFixed(8)
+    : '0.00000000';
+  const metadata = withPricingMetadata(
+    {
+      requested_model: requestedModel,
+      actual_model: actualModel,
+      actual_provider: actualProvider,
+      channel_id: channelId,
+      fallback_reason: fallbackReason,
+      usage_type: billingPolicy.usageType,
+      plan_period: billingPolicy.period,
+      cost_multiplier: billingPolicy.costMultiplier,
+    },
+    cost
+  );
+
+  await createUsageLogIdempotent({
+    userId,
+    appId: 'web',
+    product: 'chat',
+    model: actualModel,
+    provider: actualProvider,
+    type: 'chat',
+    tokens: cost.billableTokens,
+    cost: amount,
+    source: BillingEventSource.SERVER,
+    requestId,
+    status: 'success',
+    metadata: JSON.stringify(metadata),
+    createdAt: new Date(),
+  });
+
+  await upsertBillingEvent({
+    userId,
+    appId: 'web',
+    requestId,
+    source: BillingEventSource.SERVER,
+    product: 'chat',
+    model: actualModel,
+    provider: actualProvider,
+    billableTokens: cost.billableTokens,
+    unitPrice: cost.unitPrice,
+    amount,
+    period: billingPolicy.period,
+    status: BillingEventStatus.BILLABLE,
+    metadata: JSON.stringify(metadata),
+  });
+}
 
 /** 探测上游是否已正常产出（利用 fullStream 的 tee，不破坏后续 toUIMessageStreamResponse） */
 async function probeStaticStreamOk(result: StreamTextResult): Promise<boolean> {
@@ -545,6 +834,11 @@ async function streamAnthropicCompatible({
   baseUrlInput,
   provider,
   anthropicVersion = '2023-06-01',
+  requestedModel,
+  requestId,
+  billingPolicy,
+  channelId,
+  fallbackReason,
 }: {
   chatId: string;
   message: UIMessage;
@@ -556,15 +850,21 @@ async function streamAnthropicCompatible({
   baseUrlInput: string | undefined;
   provider: string;
   anthropicVersion?: string;
+  requestedModel: string;
+  requestId: string;
+  billingPolicy: BillingPolicy;
+  channelId?: string;
+  fallbackReason?: string;
 }) {
-  const { result, validatedMessages } = await createAnthropicCompatibleStreamResult({
-    chatId,
-    model,
-    apiKey,
-    baseUrlInput,
-    provider,
-    anthropicVersion,
-  });
+  const { result, validatedMessages } =
+    await createAnthropicCompatibleStreamResult({
+      chatId,
+      model,
+      apiKey,
+      baseUrlInput,
+      provider,
+      anthropicVersion,
+    });
 
   return result.toUIMessageStreamResponse({
     sendSources: true,
@@ -583,7 +883,26 @@ async function streamAnthropicCompatible({
           model,
           provider,
           parts: lastMessage.parts,
+          metadata: {
+            requested_model: requestedModel,
+            actual_model: model,
+            actual_provider: provider,
+            channel_id: channelId,
+            fallback_reason: fallbackReason,
+          },
         });
+        await recordServerChatUsage({
+          userId: user?.id,
+          requestId,
+          requestedModel,
+          actualModel: model,
+          actualProvider: provider,
+          channelId,
+          fallbackReason,
+          parts: lastMessage.parts,
+          billingPolicy,
+        });
+        await markProviderChannelSuccess(channelId);
       }
     },
   });
@@ -631,7 +950,7 @@ async function createZhipuStreamResult({
 }
 
 async function createStaticStreamResultForAttempt(
-  attempt: { provider: string; model: string },
+  attempt: ProviderAttempt,
   params: {
     chatId: string;
     user: any;
@@ -646,14 +965,15 @@ async function createStaticStreamResultForAttempt(
     return createAnthropicCompatibleStreamResult({
       chatId,
       model,
-      apiKey: KIMI_CODING.apiKey,
-      baseUrlInput: KIMI_CODING.baseUrl,
+      apiKey: attempt.apiKey || KIMI_CODING.apiKey,
+      baseUrlInput: attempt.baseUrl || KIMI_CODING.baseUrl,
       provider: 'kimi',
     });
   }
 
   if (provider === 'claude-proxy') {
     const baseUrlInput =
+      attempt.baseUrl?.trim() ||
       CLAUDE_PROXY.baseUrl?.trim() ||
       configs.anthropic_base_url ||
       process.env.ANTHROPIC_BASE_URL;
@@ -663,11 +983,13 @@ async function createStaticStreamResultForAttempt(
       );
     }
     const anthropicVersion =
-      configs.anthropic_version || process.env.ANTHROPIC_VERSION || '2023-06-01';
+      configs.anthropic_version ||
+      process.env.ANTHROPIC_VERSION ||
+      '2023-06-01';
     return createAnthropicCompatibleStreamResult({
       chatId,
       model,
-      apiKey: CLAUDE_PROXY.apiKey,
+      apiKey: attempt.apiKey || CLAUDE_PROXY.apiKey,
       baseUrlInput,
       provider: 'claude-proxy',
       anthropicVersion,
@@ -690,6 +1012,10 @@ async function handleStaticModelsWithFailover({
   model,
   reasoning,
   initialProvider,
+  fallbackChain,
+  requestedModel,
+  billingPolicy,
+  requestId,
 }: {
   chatId: string;
   message: UIMessage;
@@ -699,20 +1025,38 @@ async function handleStaticModelsWithFailover({
   model: string;
   reasoning?: boolean;
   initialProvider: string;
+  fallbackChain?: ProviderAttempt[];
+  requestedModel: string;
+  billingPolicy: BillingPolicy;
+  requestId: string;
 }) {
-  const chain = buildStaticProviderFailoverChain(initialProvider, model);
+  const chain =
+    fallbackChain && fallbackChain.length > 0
+      ? fallbackChain
+      : buildStaticProviderFailoverChain(initialProvider, model).map(
+          (attempt, index) => ({
+            ...attempt,
+            channelId: `static:${attempt.provider}`,
+            fallbackReason:
+              index === 0 ? undefined : `fallback:${initialProvider}`,
+          })
+        );
   const failures: string[] = [];
 
   for (const attempt of chain) {
     try {
-      const { result, validatedMessages } = await createStaticStreamResultForAttempt(
-        attempt,
-        { chatId, user, configs, currentTime }
-      );
+      const { result, validatedMessages } =
+        await createStaticStreamResultForAttempt(attempt, {
+          chatId,
+          user,
+          configs,
+          currentTime,
+        });
       const ok = await probeStaticStreamOk(result);
       if (!ok) {
         failures.push(`${attempt.provider}: 流式首包错误`);
         console.warn('[chat static-failover] probe failed:', attempt);
+        await markProviderChannelFailure(attempt.channelId);
         continue;
       }
 
@@ -733,7 +1077,26 @@ async function handleStaticModelsWithFailover({
               model: attempt.model,
               provider: attempt.provider,
               parts: lastMessage.parts,
+              metadata: {
+                requested_model: requestedModel,
+                actual_model: attempt.model,
+                actual_provider: attempt.provider,
+                channel_id: attempt.channelId,
+                fallback_reason: attempt.fallbackReason,
+              },
             });
+            await recordServerChatUsage({
+              userId: user?.id,
+              requestId,
+              requestedModel,
+              actualModel: attempt.model,
+              actualProvider: attempt.provider,
+              channelId: attempt.channelId,
+              fallbackReason: attempt.fallbackReason,
+              parts: lastMessage.parts,
+              billingPolicy,
+            });
+            await markProviderChannelSuccess(attempt.channelId);
           }
         },
       });
@@ -741,10 +1104,13 @@ async function handleStaticModelsWithFailover({
       const msg = e?.message ?? String(e);
       failures.push(`${attempt.provider}: ${msg}`);
       console.warn('[chat static-failover] attempt failed:', attempt, e);
+      await markProviderChannelFailure(attempt.channelId);
     }
   }
 
-  throw new Error(`静态模型通道均不可用：${failures.join('；')}`);
+  throw new ProviderUnavailableError(
+    `静态模型通道均不可用：${failures.join('；')}`
+  );
 }
 
 async function handleOpenRouterChat({
@@ -755,6 +1121,10 @@ async function handleOpenRouterChat({
   currentTime,
   model,
   reasoning,
+  requestedModel,
+  billingPolicy,
+  requestId,
+  channelId,
 }: {
   chatId: string;
   message: UIMessage;
@@ -763,6 +1133,10 @@ async function handleOpenRouterChat({
   currentTime: Date;
   model: string;
   reasoning?: boolean;
+  requestedModel: string;
+  billingPolicy: BillingPolicy;
+  requestId: string;
+  channelId?: string;
 }) {
   const openrouterApiKey = configs.openrouter_api_key;
   if (!openrouterApiKey) {
@@ -803,7 +1177,24 @@ async function handleOpenRouterChat({
           model,
           provider: 'openrouter',
           parts: lastMessage.parts,
+          metadata: {
+            requested_model: requestedModel,
+            actual_model: model,
+            actual_provider: 'openrouter',
+            channel_id: channelId,
+          },
         });
+        await recordServerChatUsage({
+          userId: user?.id,
+          requestId,
+          requestedModel,
+          actualModel: model,
+          actualProvider: 'openrouter',
+          channelId,
+          parts: lastMessage.parts,
+          billingPolicy,
+        });
+        await markProviderChannelSuccess(channelId);
       }
     },
   });
@@ -817,6 +1208,10 @@ async function handleOpenAIChat({
   currentTime,
   model,
   reasoning,
+  requestedModel,
+  billingPolicy,
+  requestId,
+  channelId,
 }: {
   chatId: string;
   message: UIMessage;
@@ -825,6 +1220,10 @@ async function handleOpenAIChat({
   currentTime: Date;
   model: string;
   reasoning?: boolean;
+  requestedModel: string;
+  billingPolicy: BillingPolicy;
+  requestId: string;
+  channelId?: string;
 }) {
   const openaiApiKey = configs.openai_api_key || process.env.OPENAI_API_KEY;
   if (!openaiApiKey) {
@@ -867,7 +1266,24 @@ async function handleOpenAIChat({
           model,
           provider: 'openai',
           parts: lastMessage.parts,
+          metadata: {
+            requested_model: requestedModel,
+            actual_model: model,
+            actual_provider: 'openai',
+            channel_id: channelId,
+          },
         });
+        await recordServerChatUsage({
+          userId: user?.id,
+          requestId,
+          requestedModel,
+          actualModel: model,
+          actualProvider: 'openai',
+          channelId,
+          parts: lastMessage.parts,
+          billingPolicy,
+        });
+        await markProviderChannelSuccess(channelId);
       }
     },
   });
@@ -881,6 +1297,10 @@ async function handleAnthropicChat({
   currentTime,
   model,
   reasoning,
+  requestedModel,
+  billingPolicy,
+  requestId,
+  channelId,
 }: {
   chatId: string;
   message: UIMessage;
@@ -889,6 +1309,10 @@ async function handleAnthropicChat({
   currentTime: Date;
   model: string;
   reasoning?: boolean;
+  requestedModel: string;
+  billingPolicy: BillingPolicy;
+  requestId: string;
+  channelId?: string;
 }) {
   const anthropicApiKey =
     configs.anthropic_api_key || process.env.ANTHROPIC_API_KEY;
@@ -902,10 +1326,13 @@ async function handleAnthropicChat({
     model,
     reasoning,
     apiKey: anthropicApiKey,
-    baseUrlInput:
-      configs.anthropic_base_url || process.env.ANTHROPIC_BASE_URL,
+    baseUrlInput: configs.anthropic_base_url || process.env.ANTHROPIC_BASE_URL,
     provider: 'anthropic',
     anthropicVersion,
+    requestedModel,
+    billingPolicy,
+    requestId,
+    channelId,
   });
 }
 
@@ -918,6 +1345,9 @@ async function handleDifyChat({
   currentTime,
   model,
   rating,
+  requestedModel,
+  billingPolicy,
+  requestId,
 }: {
   chatId: string;
   chat: any;
@@ -927,6 +1357,9 @@ async function handleDifyChat({
   currentTime: Date;
   model: string;
   rating?: string;
+  requestedModel: string;
+  billingPolicy: BillingPolicy;
+  requestId: string;
 }) {
   const { streamDifyChatMessages, createDifyOpenAIStream } = await import(
     '@/extensions/ai/dify'
@@ -1002,7 +1435,7 @@ async function handleDifyChat({
       user: user.id,
       files: [],
     };
-    
+
     // Only include conversation_id if it's not empty
     if (conversationId) {
       requestBody.conversation_id = conversationId;
@@ -1011,21 +1444,26 @@ async function handleDifyChat({
     difyStream = await streamDifyChatMessages(difyConfig, requestBody);
   } catch (err: any) {
     // If we get a 404 error about conversation not existing, retry without conversation_id
-    const is404Error = err.status === 404 || (err.message && err.message.includes('404'));
+    const is404Error =
+      err.status === 404 || (err.message && err.message.includes('404'));
     const errorMessage = err.message || '';
     const errorData = err.data || {};
-    
+
     // Check if error is about conversation not existing
-    const isConversationNotFound = 
+    const isConversationNotFound =
       errorData.code === 'not_found' ||
-      (errorData.message && errorData.message.includes('Conversation Not Exists')) ||
+      (errorData.message &&
+        errorData.message.includes('Conversation Not Exists')) ||
       errorMessage.includes('Conversation Not Exists') ||
-      (errorMessage.includes('conversation') && errorMessage.includes('Not Exists'));
-    
+      (errorMessage.includes('conversation') &&
+        errorMessage.includes('Not Exists'));
+
     if (is404Error && isConversationNotFound && conversationId) {
-      console.warn(`[Dify] Conversation ${conversationId} not found, retrying without conversation_id`);
+      console.warn(
+        `[Dify] Conversation ${conversationId} not found, retrying without conversation_id`
+      );
       conversationId = ''; // Clear invalid conversation_id
-      
+
       // Update chat metadata to remove invalid conversation_id
       const { updateChat } = await import('@/shared/models/chat');
       await updateChat(chatId, {
@@ -1067,6 +1505,9 @@ async function handleDifyChat({
           parts: JSON.stringify([{ type: 'text', text: state.fullAnswer }]),
           role: 'assistant',
           metadata: JSON.stringify({
+            requested_model: requestedModel,
+            actual_model: model,
+            actual_provider: 'dify',
             conversation_id: state.conversationId,
             message_id: state.messageId,
             task_id: state.taskId,
@@ -1074,6 +1515,24 @@ async function handleDifyChat({
           }),
         };
         await createChatMessage(assistantMessage);
+
+        const usageTokens = Number(state?.metadata?.usage?.total_tokens || 0);
+        const fallbackTokens = Math.max(
+          1,
+          Math.ceil((state.fullAnswer?.length || 0) / 4)
+        );
+        const finalTokens = usageTokens > 0 ? usageTokens : fallbackTokens;
+        await recordServerChatUsage({
+          userId: user?.id,
+          requestId,
+          requestedModel,
+          actualModel: model,
+          actualProvider: 'dify',
+          channelId: model,
+          parts: [{ type: 'text', text: state.fullAnswer }],
+          billingPolicy,
+          tokensOverride: finalTokens,
+        });
 
         // Update chat metadata with conversation_id
         if (state.conversationId && state.conversationId !== conversationId) {
@@ -1099,7 +1558,7 @@ async function handleDifyChat({
     headers: {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
       'X-Accel-Buffering': 'no', // Disable nginx buffering
     },
   });
