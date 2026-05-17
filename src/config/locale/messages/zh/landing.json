@@ -31,9 +31,9 @@
               "icon": "TerminalSquare"
             },
             {
-              "title": "Fumadocs",
-              "description": "文档站与 API 能力入口",
-              "url": "/platform/fumadocs",
+              "title": "行业知识系统",
+              "description": "把文档、规格书、业务流程变成 AI 可执行知识底座",
+              "url": "/docs",
               "icon": "BookOpenText"
             },
             {
@@ -114,15 +114,15 @@
   },
   "hero": {
     "id": "hero",
-    "title": "行业知识，遇见 Agentic AI",
+    "title": "构建自有 Agentic AI",
     "highlight_text": "Agentic AI",
-    "description": "BatBot 是可组合的 Agent 平台，内置自研虚拟文件系统与面向工程师的文档站。<br/>接入任意行业数据，即刻部署领域专家 AI。数天上线，无需数月。",
+    "description": "我们不是做“AI Agent 设计工具”。BatBot 构建能直接解决行业问题的自有 AI：接入你的文档、流程、代码和业务数据，交付可登录、可计费、可容灾、可持续进化的 AI 产品。",
     "announcement": {
       "badge": "已上线",
-      "title": "BatBot 电子行业版——虚拟 FAE 助手 & AI 编码 Agent",
+      "title": "从 Barbot 到 Pi Agent：把问题变成真正可用的 AI",
       "url": "/pricing"
     },
-    "tip": "⚡ 一套平台，无限行业",
+    "tip": "⚡ 自有模型供应 · 知识系统 · 业务闭环",
     "buttons": [
       {
         "title": "立即开始",
@@ -143,19 +143,19 @@
     "avatars_tip": "受硬件工程师与采购团队信赖",
     "show_award": false,
     "image": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot 平台界面",
       "width": 1200,
       "height": 800
     },
     "image_invert": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot 平台界面深色",
       "width": 1200,
       "height": 800
     },
     "preview_image": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot 首屏预览图",
       "width": 1200,
       "height": 800
@@ -208,48 +208,48 @@
   "introduce": {
     "block": "features-list",
     "id": "introduce",
-    "title": "BatBot 是什么",
-    "label": "平台简介",
-    "description": "BatBot 维护一套可组合的 Agentic 架构。接入你的行业知识——技术文档、标准规范、企业私有数据——平台即成为该行业的 AI 专家。同一套系统驱动每个垂直行业。",
+    "title": "我们构建什么",
+    "label": "Agentic AI 公司",
+    "description": "BatBot 不是把模型包装成聊天框，而是把具体问题拆成知识、工具、权限、模型供应和商业闭环。你完全拥有这套 AI，它运行在你的业务数据、你的产品规则和你的增长模型之上。",
     "image": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot 平台概览"
     },
     "items": [
       {
-        "title": "自研虚拟文件系统",
-        "description": "不只是存储。从底层为 Agentic 检索设计的结构化知识引擎，版本可控、来源可溯、实时可查。",
+        "title": "行业知识系统",
+        "description": "把文档、规格书、标准、工单和内部经验变成 AI 可检索、可引用、可持续更新的知识底座。",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "虚拟文件系统"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "行业知识系统"
         }
       },
       {
-        "title": "面向工程师的文档站",
-        "description": "Agent 查的，工程师也能直接看到。支持浏览、参数搜索、引用溯源，工程师每天真实使用。",
+        "title": "模型供应与容灾",
+        "description": "按用户套餐、额度、模型成本和 provider 健康状态自动路由；主模型故障时静默降级，恢复后自动回切。",
         "icon": "RiBookOpenLine",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "工程师文档站"
+          "src": "/imgs/barbot/usage.png",
+          "alt": "模型供应与用量"
         }
       },
       {
-        "title": "可组合 Agent 推理层",
-        "description": "基于虚拟文件系统进行推理，支持问答、代码生成、选型推荐、多步骤任务执行。Token 用量随套餐打包。",
+        "title": "业务闭环 AI 产品",
+        "description": "登录、支付、订阅、用量、账单和权限一体化，真正能卖给用户，而不是只停留在演示 Demo。",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Agent 推理层"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "业务闭环 AI 产品"
         }
       },
       {
-        "title": "换数据，换行业",
-        "description": "替换数据集即进入新行业。无需重新训练，无需重复开发，平台自动适配。",
+        "title": "项目化交付",
+        "description": "Barbot、Pi Agent、Coding Agent、企业知识系统可以按场景组合，针对一个具体问题交付一个可运营的 AI。",
         "icon": "RiRefreshLine",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "多行业覆盖"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "项目化交付"
         }
       }
     ],
@@ -258,35 +258,35 @@
   "benefits": {
     "block": "features-accordion",
     "id": "benefits",
-    "title": "团队为何选择 BatBot",
+    "title": "为什么我们的 AI 更强",
     "label": "产品优势",
-    "description": "一次平台投入，无限行业应用。",
+    "description": "我们不卖通用聊天壳，而是把你的业务问题做成可拥有、可上线、可计费、可持续优化的 AI 系统。",
     "items": [
       {
-        "title": "行业专业能力，无需从头构建",
-        "description": "Agent 架构、虚拟文件系统、文档站已就绪。你提供数据，BatBot 成为专家。",
+        "title": "围绕具体问题构建",
+        "description": "先定义要解决的业务问题，再选择模型、知识结构、工具链和评估标准。AI 的目标不是聊天，而是完成任务。",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "行业专业能力"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "具体问题 AI"
         }
       },
       {
-        "title": "人与 AI 共享同一套知识",
-        "description": "工程师每天使用文档站，Agent 使用同一知识库。无漂移、无重复，单一事实来源。",
+        "title": "你完全拥有它",
+        "description": "数据、配置、权限、套餐、模型供应和用量记录都沉淀在你的系统里，不依赖某个单一模型或外部产品界面。",
         "icon": "RiShareLine",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "共享知识库"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "自有 AI 系统"
         }
       },
       {
-        "title": "Token 打包计费，无额外惊喜",
-        "description": "Token 用量随套餐包含，无独立 API 费用，无用量冲击。一个订阅，全能力开放。",
+        "title": "商业化从第一天开始",
+        "description": "Free/Pro/Team 权益、支付宝付款、active subscription、模型权限、降级账单和 Included/On-demand 用量同一个闭环。",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "打包计费"
+          "src": "/imgs/barbot/usage.png",
+          "alt": "商业化闭环"
         }
       }
     ]
@@ -294,44 +294,44 @@
   "usage": {
     "block": "features-step",
     "id": "usage",
-    "title": "部署你的行业专家 AI",
-    "description": "从数据到 Agent 上线，数天完成：",
+    "title": "从问题到自有 AI",
+    "description": "我们把需求落成可运营的 AI 产品，而不是停在提示词和原型。",
     "image": {
-      "src": "/imgs/fumadocs/main.png",
+      "src": "/imgs/barbot/billing.png",
       "alt": "部署 BatBot"
     },
     "image_position": "left",
     "text_align": "center",
     "items": [
       {
-        "title": "导入行业数据",
-        "description": "将文档、规格书、标准、内部知识库载入 BatBot 虚拟文件系统。",
+        "title": "定义具体问题",
+        "description": "明确 AI 要替谁做什么、成功标准是什么、失败时如何兜底，例如选型、客服、编码、知识检索或内部运营。",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "导入数据"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "定义具体问题"
         }
       },
       {
-        "title": "自动结构化与索引",
-        "description": "文档站自动为工程师呈现内容；虚拟文件系统让 Agent 可全链路追溯地检索。",
+        "title": "接入你的资产",
+        "description": "接入文档、代码、流程、账号体系、支付套餐、内部 API 和业务数据库，让 AI 在真实上下文里工作。",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "自动结构化"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "接入资产"
         }
       },
       {
-        "title": "配置你的 Agent",
-        "description": "设定 Agent 的领域范围、角色定位与任务能力，可选聊天机器人、编码 Agent 或自定义工作流。",
+        "title": "构建可执行 Agent",
+        "description": "把模型供应、工具调用、权限、记忆、引用和降级策略组合起来，形成稳定可测的 AI 工作流。",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "配置 Agent"
+          "src": "/imgs/barbot/usage.png",
+          "alt": "构建 Agent"
         }
       },
       {
-        "title": "上线与迭代",
-        "description": "在你的平台发布，监控使用情况，持续优化回答，扩展至更多数据源或新行业。",
+        "title": "上线并持续变强",
+        "description": "通过用量、账单、fallback、真实对话和 E2E 回归持续改进，越用越贴近你的业务。",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
+          "src": "/imgs/barbot/usage.png",
           "alt": "上线迭代"
         }
       }
@@ -340,37 +340,37 @@
   },
   "features": {
     "id": "features",
-    "title": "平台核心能力",
-    "description": "大规模运行领域专家 AI 所需的一切。",
+    "title": "可上线的 Agentic AI 能力",
+    "description": "从模型供应到底层商业闭环，全部为真实用户使用而建。",
     "items": [
       {
-        "title": "虚拟文件系统",
-        "description": "自研知识引擎。从底层结构化、版本化、AI 优化。",
+        "title": "模型供应层",
+        "description": "套餐权益、模型列表、额度池、成本系数、provider 优先级和 fallback 链统一决策。",
         "icon": "RiDatabase2Line"
       },
       {
-        "title": "工程师文档站",
-        "description": "工程师每天真实打开的文档中心，可搜索、可浏览、可引用。",
+        "title": "登录支付闭环",
+        "description": "用户注册默认 Free，支付宝付款后创建 active subscription，Pro 权限立即生效。",
         "icon": "RiBookOpenLine"
       },
       {
-        "title": "AI 聊天助手",
-        "description": "FAE 级问答，带来源引用与推理透明度。",
+        "title": "AI Web Chat",
+        "description": "用户只看到当前套餐可用模型；Auto 默认推荐，手动高级模型按同一额度池消耗。",
         "icon": "RiMessage2Line"
       },
       {
         "title": "AI 编码 Agent",
-        "description": "生成、检视和调试领域相关代码，深度理解 MCU 外设、SDK、硬件约束。",
+        "description": "把 Pi Agent Web UI、Coding Agent 和领域知识接到同一权限与模型供应体系。",
         "icon": "RiCodeFill"
       },
       {
-        "title": "定制数据管道",
-        "description": "行业专属数据接入逻辑：清洗、解析、切片、向量化。",
+        "title": "容灾降级恢复",
+        "description": "主模型 500、429、超时或流式首包失败时自动切备用，健康后新请求自动回主模型。",
         "icon": "RiFlowChart"
       },
       {
-        "title": "打包 Token 计费",
-        "description": "无独立 API 惊喜，Token 用量随套餐包含，自由扩展。",
+        "title": "用量与账单可追踪",
+        "description": "记录 requested/actual model、provider、fallback reason、Included/On-demand 和 estimated cost。",
         "icon": "RiPriceTag3Line"
       }
     ]

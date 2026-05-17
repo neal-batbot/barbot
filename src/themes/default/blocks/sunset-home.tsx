@@ -1,12 +1,12 @@
 'use client';
 
-import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState, type RefObject } from 'react';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
 import { Link } from '@/core/i18n/navigation';
-import { Hero } from '@/themes/default/blocks/hero';
 import { Section } from '@/shared/types/blocks/landing';
+import { Hero } from '@/themes/default/blocks/hero';
 
 const Dithering = dynamic(
   () => import('@paper-design/shaders-react').then((mod) => mod.Dithering),
@@ -29,11 +29,13 @@ export function SunsetHome({
 
       <div className="mx-auto mt-10 grid w-full max-w-[1400px] grid-cols-1 gap-8 px-5 md:gap-10 md:px-12">
         <p className="text-2xl leading-[1.2] font-light text-zinc-100 md:text-[3.15rem]">
-          Fumadocs is a <span className="font-medium text-[#efe879]">React.js</span>{' '}
-          documentation framework for{' '}
-          <span className="font-medium text-[#efe879]">Developers</span>, beautifully
-          designed by <span className="font-medium text-[#efe879]">Fuma Nama</span>.
-          Bringing powerful features for your docs workflows.
+          {sections.hero?.title ||
+            'Build owned Agentic AI for concrete problems.'}{' '}
+          <span className="font-medium text-[#efe879]">
+            {sections.hero?.highlight_text || 'Agentic AI'}
+          </span>{' '}
+          is not a design prompt. It is a product system with knowledge, tools,
+          permissions, billing, and resilient model supply.
         </p>
 
         <TryOutBlock />
@@ -48,28 +50,28 @@ export function SunsetHome({
             button={introduce?.buttons?.[0]}
           />
           <ImageCard
-            title={benefits?.title || 'Minimal aesthetics, Maximum customizability.'}
+            title={benefits?.title || 'Model supply that keeps working.'}
             description={
               benefits?.description ||
-              'Plug your own UI while keeping production-ready docs components.'
+              'Route requests by plan, quota, model cost, and provider health.'
             }
-            image="/imgs/fumadocs/shadcn.png"
+            image="/imgs/barbot/usage.png"
           />
           <ImageCard
             title={usage?.title || 'Built for real workflows.'}
             description={
               usage?.description ||
-              'Create docs quickly with markdown, codeblocks, and interactive components.'
+              'Turn domain assets into AI that can answer, act, and be measured.'
             }
-            image="/imgs/fumadocs/story.png"
+            image="/imgs/barbot/billing.png"
           />
           <ImageCard
-            title={features?.title || 'OpenAPI and engineering-first docs.'}
+            title={features?.title || 'Commercial loop included.'}
             description={
               features?.description ||
-              'Compose docs, APIs, and product guides in one coherent system.'
+              'Login, payment, subscriptions, usage, and billing events are part of the product.'
             }
-            image="/imgs/fumadocs/main.png"
+            image="/imgs/barbot/billing.png"
           />
         </div>
       </div>
@@ -86,20 +88,22 @@ function TryOutBlock() {
           <span className="rounded-xl border-2 border-[#e8de76]/60 px-2 py-1 font-mono text-xs font-bold text-[#efe879] uppercase">
             Try It Out
           </span>
-          <span className="ml-auto mr-2 size-2 rounded-full bg-red-400" />
+          <span className="mr-2 ml-auto size-2 rounded-full bg-red-400" />
         </div>
         <div className="mt-3 rounded-xl border border-zinc-700 bg-zinc-900 p-4">
-          <p className="font-mono text-sm text-zinc-300">pnpm create fumadocs-app</p>
-          <pre className="mt-4 whitespace-pre-wrap font-mono text-sm text-zinc-400">{`◇ Project name
-│ my-app
+          <p className="font-mono text-sm text-zinc-300">
+            barbot deploy owned-ai
+          </p>
+          <pre className="mt-4 font-mono text-sm whitespace-pre-wrap text-zinc-400">{`◇ Project name
+│ industry-copilot
 │
-◆ Choose a framework
-│ ● Next.js
-│ ○ Waku
-│ ○ Tanstack Start
-│ ○ React Router`}</pre>
+◆ Build loop
+│ ● ingest docs, specs, tickets, and APIs
+│ ● route models by plan, quota, and provider health
+│ ● ship chat, usage, billing, and fallback recovery
+│ ● keep the AI owned by your company`}</pre>
           <div className="mt-4 ml-auto w-fit rounded-md border border-zinc-600 bg-zinc-800 p-2 text-xs text-zinc-300">
-            New App launched!
+            Owned AI launched.
           </div>
         </div>
       </div>
@@ -118,8 +122,12 @@ function InfoCard({
 }) {
   return (
     <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/85 p-6 text-zinc-100 ring-1 ring-white/5">
-      <h3 className="text-2xl leading-tight font-semibold tracking-tight md:text-3xl">{title}</h3>
-      <p className="mt-4 text-sm leading-6 text-zinc-300 md:text-base">{description}</p>
+      <h3 className="text-2xl leading-tight font-semibold tracking-tight md:text-3xl">
+        {title}
+      </h3>
+      <p className="mt-4 text-sm leading-6 text-zinc-300 md:text-base">
+        {description}
+      </p>
       {button?.url ? (
         <Link
           href={button.url}
@@ -150,7 +158,9 @@ function ImageCard({
         <h3 className="text-2xl leading-tight font-semibold tracking-tight text-zinc-100 md:text-3xl">
           {title}
         </h3>
-        <p className="mt-3 text-sm leading-6 text-zinc-300 md:text-base">{description}</p>
+        <p className="mt-3 text-sm leading-6 text-zinc-300 md:text-base">
+          {description}
+        </p>
       </div>
     </div>
   );
@@ -163,7 +173,7 @@ function AgnosticBackground() {
   return (
     <div
       ref={ref}
-      className="absolute inset-0 -z-0 opacity-90 [mask-image:linear-gradient(to_top,white_30%,transparent_100%)]"
+      className="absolute inset-0 -z-0 [mask-image:linear-gradient(to_top,white_30%,transparent_100%)] opacity-90"
     >
       <Dithering
         colorBack="#00000000"

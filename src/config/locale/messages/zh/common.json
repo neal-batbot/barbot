@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Vector - Native LLM-powered FAE for Semiconductor Design-in",
-    "description": "Vector is a native LLM-powered FAE that helps hardware and procurement engineers select, design, and commit to your components. 24/7 instant answers · 50+ languages · Near-zero marginal cost.",
-    "keywords": "semiconductor, FAE, design-in, LLM, AI, technical support"
+    "title": "BatBot - 构建自有 Agentic AI",
+    "description": "BatBot 构建能解决具体问题的自有 Agentic AI 产品，覆盖知识系统、模型供应、登录支付、用量账单与容灾恢复。",
+    "keywords": "Agentic AI, AI agent, model supply, SaaS AI, AI product, BatBot"
   },
   "sign": {
     "sign_in_title": "登录",

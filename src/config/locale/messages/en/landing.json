@@ -31,9 +31,9 @@
               "icon": "TerminalSquare"
             },
             {
-              "title": "Fumadocs",
-              "description": "Docs site and API capability portal",
-              "url": "/platform/fumadocs",
+              "title": "Knowledge OS",
+              "description": "Turn docs, specs, and workflows into AI-executable knowledge",
+              "url": "/docs",
               "icon": "BookOpenText"
             },
             {
@@ -114,15 +114,15 @@
   },
   "hero": {
     "id": "hero",
-    "title": "Industry Knowledge, Meet Agentic AI",
+    "title": "Own the Agentic AI That Solves the Problem",
     "highlight_text": "Agentic AI",
-    "description": "BatBot is a composable agent platform with a proprietary virtual file system and engineer-facing doc site.<br/>Load any industry's data. Deploy a domain-expert AI. Ship in days, not months.",
+    "description": "We are not an AI-agent design tool. BatBot builds owned AI systems that solve concrete industry problems: ingest your docs, workflows, code, and business data; ship an AI product with login, billing, failover, and continuous improvement.",
     "announcement": {
       "badge": "Now Live",
-      "title": "BatBot electronics vertical — virtual FAE & AI coding agent",
+      "title": "From Barbot to Pi Agent: turn hard problems into usable AI",
       "url": "/pricing"
     },
-    "tip": "⚡ One platform. Endless verticals.",
+    "tip": "⚡ Owned model supply. Owned knowledge. Owned business loop.",
     "buttons": [
       {
         "title": "Get Started",
@@ -143,19 +143,19 @@
     "avatars_tip": "Trusted by hardware and procurement engineers",
     "show_award": false,
     "image": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot platform dashboard",
       "width": 1200,
       "height": 800
     },
     "image_invert": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot platform dashboard dark",
       "width": 1200,
       "height": 800
     },
     "preview_image": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot hero preview",
       "width": 1200,
       "height": 800
@@ -208,48 +208,48 @@
   "introduce": {
     "block": "features-list",
     "id": "introduce",
-    "title": "What is BatBot",
-    "label": "Platform",
-    "description": "BatBot maintains a composable agentic architecture. Plug in your industry's knowledge — technical docs, standards, internal data — and the platform becomes that industry's AI expert. The same system powers every vertical.",
+    "title": "What We Build",
+    "label": "Agentic AI Company",
+    "description": "BatBot does not wrap models in a chat box. We decompose concrete problems into knowledge, tools, permissions, model supply, and commercial loops. You fully own the AI system, and it runs on your data, product rules, and growth model.",
     "image": {
-      "src": "/imgs/fumadocs/hero-preview.jpeg",
+      "src": "/imgs/barbot/billing.png",
       "alt": "BatBot platform overview"
     },
     "items": [
       {
-        "title": "Proprietary Virtual File System",
-        "description": "Not just storage. A structured, AI-optimized knowledge engine built ground-up for agentic retrieval. Versioned, traceable, instantly queryable.",
+        "title": "Industry Knowledge OS",
+        "description": "Turn docs, specs, standards, tickets, and internal expertise into an AI-ready knowledge layer that is searchable, citable, and continuously updated.",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Virtual File System"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "Industry Knowledge OS"
         }
       },
       {
-        "title": "Engineer-Facing Doc Site",
-        "description": "The same knowledge your agent uses, surfaced for humans too. Browse, search by parameter, trace references. Engineers open it every day.",
+        "title": "Model Supply & Failover",
+        "description": "Route by plan, quota, model cost, and provider health. Fail over silently when the primary model breaks, then switch back when it recovers.",
         "icon": "RiBookOpenLine",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Engineer Doc Site"
+          "src": "/imgs/barbot/usage.png",
+          "alt": "Model supply and usage"
         }
       },
       {
-        "title": "Composable Agent Layer",
-        "description": "Agents that reason over your VFS to answer questions, generate code, recommend parts, and execute multi-step tasks. Token usage bundled per plan.",
+        "title": "Commercial AI Product Loop",
+        "description": "Login, payment, subscriptions, usage, billing, and entitlement are part of the product, so the AI can be sold to real users.",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Agent Layer"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "Commercial AI product loop"
         }
       },
       {
-        "title": "Load Data, Change Vertical",
-        "description": "Swap the dataset, enter a new industry. No retraining. No rebuilding. The platform adapts.",
+        "title": "Project-Based Delivery",
+        "description": "Barbot, Pi Agent, Coding Agent, and enterprise knowledge systems can be composed around one concrete problem and shipped as an operable AI product.",
         "icon": "RiRefreshLine",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Multi-vertical"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "Project-based delivery"
         }
       }
     ],
@@ -258,35 +258,35 @@
   "benefits": {
     "block": "features-accordion",
     "id": "benefits",
-    "title": "Why Teams Choose BatBot",
+    "title": "Why Our AI Is Stronger",
     "label": "Benefits",
-    "description": "One platform investment. Unlimited domain applications.",
+    "description": "We do not sell a generic chat wrapper. We turn your business problem into an AI system you can own, launch, charge for, and improve.",
     "items": [
       {
-        "title": "Domain Expertise Without Domain Rebuilding",
-        "description": "The agent architecture, VFS, and doc site are already built. You bring the data; BatBot becomes the expert.",
+        "title": "Built Around a Concrete Problem",
+        "description": "We define the job, success criteria, model mix, knowledge structure, tools, and evaluation loop first. The goal is not to chat; it is to complete work.",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Domain expertise"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "Concrete problem AI"
         }
       },
       {
-        "title": "Knowledge Humans and AI Share",
-        "description": "Engineers use the doc site daily. The agent uses the same knowledge base. No drift, no duplication, one source of truth.",
+        "title": "You Fully Own It",
+        "description": "Data, configuration, permissions, pricing, model supply, and usage records live in your system instead of depending on one model vendor or external UI.",
         "icon": "RiShareLine",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Shared knowledge"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "Owned AI system"
         }
       },
       {
-        "title": "Bundled Token Pricing, No Surprises",
-        "description": "Token usage is included with your plan. No separate API costs, no usage shock. One subscription, full capability.",
+        "title": "Commercial From Day One",
+        "description": "Free/Pro/Team entitlements, Alipay payment, active subscriptions, model access, fallback billing, and Included/On-demand usage share one loop.",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Bundled pricing"
+          "src": "/imgs/barbot/usage.png",
+          "alt": "Commercial AI loop"
         }
       }
     ]
@@ -294,45 +294,45 @@
   "usage": {
     "block": "features-step",
     "id": "usage",
-    "title": "Deploy Your Domain Expert AI",
-    "description": "From data to deployed agent in days:",
+    "title": "From Problem to Owned AI",
+    "description": "We ship operable AI products, not prompt demos.",
     "image": {
-      "src": "/imgs/fumadocs/main.png",
+      "src": "/imgs/barbot/billing.png",
       "alt": "Deploy BatBot"
     },
     "image_position": "left",
     "text_align": "center",
     "items": [
       {
-        "title": "Load Your Industry Data",
-        "description": "Import docs, specs, standards, and internal knowledge into BatBot's virtual file system.",
+        "title": "Define the Concrete Problem",
+        "description": "Clarify who the AI works for, what job it completes, how success is measured, and how it fails safely.",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Load data"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "Define concrete problem"
         }
       },
       {
-        "title": "Auto-Structure & Index",
-        "description": "The doc site indexes and surfaces content for engineers. The VFS makes it agent-queryable with full traceability.",
+        "title": "Connect Your Assets",
+        "description": "Bring in docs, code, workflows, accounts, pricing plans, internal APIs, and business databases so the AI works in real context.",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Auto-structure"
+          "src": "/imgs/barbot/billing.png",
+          "alt": "Connect assets"
         }
       },
       {
-        "title": "Configure Your Agent",
-        "description": "Set the agent's domain scope, personas, and task capabilities. Choose from chatbot, coding agent, or custom workflows.",
+        "title": "Build the Executable Agent",
+        "description": "Compose model supply, tools, permissions, memory, citations, and fallback rules into a stable AI workflow.",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Configure agent"
+          "src": "/imgs/barbot/usage.png",
+          "alt": "Build executable agent"
         }
       },
       {
-        "title": "Deploy & Iterate",
-        "description": "Go live on your platform. Monitor usage, refine responses, expand to new data sources or verticals.",
+        "title": "Launch and Keep Improving",
+        "description": "Use real conversations, usage, billing, fallback events, and E2E regression tests to make the system stronger over time.",
         "image": {
-          "src": "/imgs/fumadocs/main.png",
-          "alt": "Deploy and iterate"
+          "src": "/imgs/barbot/usage.png",
+          "alt": "Launch and iterate"
         }
       }
     ],
@@ -340,37 +340,37 @@
   },
   "features": {
     "id": "features",
-    "title": "Platform Capabilities",
-    "description": "Everything needed to run a domain-expert AI at scale.",
+    "title": "Agentic AI Capabilities Built for Launch",
+    "description": "From model supply to the commercial loop, everything is built for real users.",
     "items": [
       {
-        "title": "Virtual File System",
-        "description": "Proprietary knowledge engine. Structured, versioned, AI-optimized from the ground up.",
+        "title": "Model Supply Layer",
+        "description": "Plan entitlement, visible model lists, quota pools, cost multipliers, provider priority, and fallback chains in one decision layer.",
         "icon": "RiDatabase2Line"
       },
       {
-        "title": "Engineer Doc Site",
-        "description": "A real documentation hub engineers open daily. Searchable, browsable, citable.",
+        "title": "Login and Payment Loop",
+        "description": "New users start Free. Alipay payment creates an active subscription, and Pro access is applied immediately.",
         "icon": "RiBookOpenLine"
       },
       {
-        "title": "AI Chatbot",
-        "description": "FAE-grade question answering with source citations and reasoning transparency.",
+        "title": "AI Web Chat",
+        "description": "Users only see models allowed by their plan. Auto is the recommended default; premium models draw from the same quota pool.",
         "icon": "RiMessage2Line"
       },
       {
         "title": "AI Coding Agent",
-        "description": "Generate, review, and debug domain-specific code. Understands MCU peripherals, SDKs, hardware constraints.",
+        "description": "Pi Agent Web UI, Coding Agent, and domain knowledge can share the same entitlement and model supply foundation.",
         "icon": "RiCodeFill"
       },
       {
-        "title": "Custom Data Pipeline",
-        "description": "Industry-specific ingestion logic. Clean, parse, chunk, and index your data the right way.",
+        "title": "Failover and Recovery",
+        "description": "When the primary model returns 500, 429, timeout, or streaming-first-byte failure, requests switch to backup and later recover.",
         "icon": "RiFlowChart"
       },
       {
-        "title": "Bundled Token Pricing",
-        "description": "No per-API surprises. Token usage included in plan. Scale freely.",
+        "title": "Traceable Usage and Billing",
+        "description": "Record requested/actual model, provider, fallback reason, Included/On-demand usage, and estimated cost.",
         "icon": "RiPriceTag3Line"
       }
     ]
