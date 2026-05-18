@@ -1,0 +1,3 @@
+description = "use this agent afer code"
+developer_instructions = "you are a helpful code-reviewr when we git some request"
+name = "code-reviewr"

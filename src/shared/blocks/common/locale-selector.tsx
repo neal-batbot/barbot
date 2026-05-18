@@ -47,8 +47,8 @@ export function LocaleSelector({
         size={type === 'icon' ? 'icon' : 'sm'}
         className={
           type === 'icon'
-            ? 'h-10 w-10 rounded-full border border-zinc-700 bg-zinc-900/80 p-0 text-zinc-200'
-            : 'border-zinc-700 bg-zinc-900/80 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100'
+            ? 'h-10 w-10 rounded-full border border-fd-border bg-fd-secondary/80 p-0 text-fd-secondary-foreground'
+            : 'border-fd-border bg-fd-secondary/80 text-fd-secondary-foreground hover:bg-fd-accent hover:text-fd-accent-foreground'
         }
         disabled
       >
@@ -71,7 +71,7 @@ export function LocaleSelector({
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10 rounded-full border border-zinc-700 bg-zinc-900/80 p-0 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
+            className="h-10 w-10 rounded-full border border-fd-border bg-fd-secondary/80 p-0 text-fd-secondary-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
           >
             <Languages size={18} />
           </Button>
@@ -79,7 +79,7 @@ export function LocaleSelector({
           <Button
             variant="outline"
             size="sm"
-            className="border-zinc-700 bg-zinc-900/80 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
+            className="border-fd-border bg-fd-secondary/80 text-fd-secondary-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
           >
             <Globe size={16} />
             {localeNames[currentLocale]}

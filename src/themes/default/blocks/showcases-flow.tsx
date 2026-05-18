@@ -125,8 +125,8 @@ export function ShowcasesFlow({
                   className={cn(
                     'relative rounded-full border px-4 py-2 text-sm font-medium transition-[background-color,color,border-color] duration-200',
                     isSelected
-                      ? 'border-[#f0e889]/80 bg-[#ece673] text-zinc-900'
-                      : 'border-zinc-700 bg-zinc-900/70 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800/80 hover:text-zinc-100'
+                      ? 'border-brand/80 bg-brand text-brand-foreground'
+                      : 'border-fd-border bg-fd-secondary/70 text-fd-secondary-foreground hover:bg-fd-accent hover:text-fd-accent-foreground'
                   )}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}

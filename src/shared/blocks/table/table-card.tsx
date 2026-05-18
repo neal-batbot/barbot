@@ -37,20 +37,20 @@ export function TableCard({
   return (
     <Card
       className={cn(
-        'border border-zinc-200/80 bg-white text-zinc-950 shadow-[0_18px_60px_-36px_rgba(15,23,42,0.35)] dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50',
+        'border border-fd-border bg-fd-card text-fd-card-foreground shadow-lg',
         className
       )}
     >
       {(title || description || buttons) && (
-        <CardHeader className="flex flex-wrap items-center gap-2 border-b border-zinc-100 pb-5 dark:border-zinc-850">
+        <CardHeader className="flex flex-wrap items-center gap-2 border-b border-fd-border pb-5">
           <div className="flex flex-col gap-2">
             {title && (
-              <CardTitle className="text-xl tracking-tight text-zinc-950 dark:text-zinc-50">
+              <CardTitle className="text-xl tracking-normal text-fd-foreground">
                 {title}
               </CardTitle>
             )}
             {description && (
-              <CardDescription className="text-sm text-zinc-500 dark:text-zinc-400">
+              <CardDescription className="text-sm text-fd-muted-foreground">
                 {description}
               </CardDescription>
             )}

@@ -6,98 +6,92 @@ body {
   background-color: var(--background);
 }
 
-/* Docs-only palette bridge: keep theme toggle behavior, but enforce readable contrast. */
 #nd-docs-layout {
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-card: var(--card);
+  --color-fd-card-foreground: var(--card-foreground);
+  --color-fd-popover: var(--popover);
+  --color-fd-popover-foreground: var(--popover-foreground);
+  --color-fd-primary: var(--primary);
+  --color-fd-primary-foreground: var(--primary-foreground);
+  --color-fd-secondary: var(--secondary);
+  --color-fd-secondary-foreground: var(--secondary-foreground);
+  --color-fd-muted: var(--muted);
+  --color-fd-muted-foreground: var(--muted-foreground);
+  --color-fd-accent: var(--accent);
+  --color-fd-accent-foreground: var(--accent-foreground);
+  --color-fd-border: var(--border);
+
+  background: var(--background);
   color: var(--foreground);
 }
 
 #nd-docs-layout .text-fd-muted-foreground {
-  color: color-mix(in oklab, var(--muted-foreground) 88%, transparent);
+  color: color-mix(in oklab, var(--muted-foreground) 92%, transparent);
 }
 
-#nd-docs-layout .text-fd-primary {
-  color: color-mix(in oklab, var(--primary) 92%, white);
+#nd-docs-layout .bg-fd-card,
+#nd-docs-layout .bg-fd-popover,
+#nd-docs-layout [data-toc-popover] {
+  background-color: color-mix(in oklab, var(--card) 94%, var(--background));
 }
 
 #nd-docs-layout .bg-fd-secondary\/50,
 #nd-docs-layout .bg-fd-secondary,
-#nd-docs-layout .bg-fd-accent,
-#nd-docs-layout [data-toc-popover] {
-  background-color: color-mix(in oklab, var(--background) 92%, var(--card));
+#nd-docs-layout .bg-fd-accent {
+  background-color: color-mix(in oklab, var(--secondary) 90%, var(--background));
 }
 
 #nd-docs-layout .border,
 #nd-docs-layout .border-b,
 #nd-docs-layout .border-t,
 #nd-docs-layout .border-e-0 {
-  border-color: color-mix(in oklab, var(--border) 88%, transparent);
+  border-color: color-mix(in oklab, var(--border) 92%, transparent);
 }
 
 #nd-docs-layout article .prose,
 #nd-docs-layout article .docs {
-  color: var(--foreground);
+  color: color-mix(in oklab, var(--foreground) 90%, transparent);
 }
 
 #nd-docs-layout article .prose :where(h1, h2, h3, h4, h5, h6),
 #nd-docs-layout article .docs :where(h1, h2, h3, h4, h5, h6) {
-  color: color-mix(in oklab, var(--foreground) 96%, transparent);
+  color: var(--foreground);
+  letter-spacing: 0;
 }
 
 #nd-docs-layout article .prose :where(p, li, td, th, blockquote),
 #nd-docs-layout article .docs :where(p, li, td, th, blockquote) {
-  color: color-mix(in oklab, var(--foreground) 88%, transparent);
+  color: color-mix(in oklab, var(--foreground) 86%, var(--muted-foreground));
 }
 
 #nd-docs-layout article .prose :where(a),
-#nd-docs-layout article .docs :where(a) {
-  color: color-mix(in oklab, var(--primary) 90%, white);
-}
-
-#nd-docs-layout article .prose :where(pre, code),
-#nd-docs-layout article .docs :where(pre, code) {
-  color: color-mix(in oklab, var(--foreground) 90%, transparent);
+#nd-docs-layout article .docs :where(a),
+#nd-docs-layout #nd-page :where(a[data-active='true']) {
+  color: color-mix(in oklab, var(--primary) 88%, var(--foreground));
 }
 
 #nd-docs-layout article .prose :where(pre),
 #nd-docs-layout article .docs :where(pre) {
-  background-color: color-mix(in oklab, var(--card) 92%, black);
-  border-color: color-mix(in oklab, var(--border) 85%, transparent);
+  background-color: color-mix(in oklab, var(--card) 90%, var(--background));
+  border-color: color-mix(in oklab, var(--border) 90%, transparent);
+}
+
+#nd-docs-layout article .prose :where(code),
+#nd-docs-layout article .docs :where(code) {
+  color: color-mix(in oklab, var(--foreground) 92%, transparent);
 }
 
 #nd-docs-layout article .prose :where(blockquote),
 #nd-docs-layout article .docs :where(blockquote) {
-  border-inline-start-color: color-mix(in oklab, var(--border) 95%, transparent);
+  border-inline-start-color: color-mix(in oklab, var(--primary) 55%, var(--border));
   background-color: color-mix(in oklab, var(--muted) 45%, transparent);
 }
 
 #nd-docs-layout #nd-tocnav,
 #nd-docs-layout #nd-sidebar {
-  color: color-mix(in oklab, var(--foreground) 90%, transparent);
-}
-
-#nd-docs-layout #nd-page :where(a[data-active='true']) {
-  color: color-mix(in oklab, var(--primary) 95%, white);
-}
-
-.dark #nd-docs-layout .text-fd-muted-foreground {
-  color: color-mix(in oklab, white 72%, var(--muted-foreground));
-}
-
-.dark #nd-docs-layout article .prose :where(p, li, td, th, blockquote),
-.dark #nd-docs-layout article .docs :where(p, li, td, th, blockquote) {
-  color: color-mix(in oklab, white 86%, var(--muted-foreground));
-}
-
-.dark #nd-docs-layout article .prose :where(h1, h2, h3, h4, h5, h6),
-.dark #nd-docs-layout article .docs :where(h1, h2, h3, h4, h5, h6) {
-  color: color-mix(in oklab, white 95%, var(--foreground));
-}
-
-.dark #nd-docs-layout .bg-fd-secondary\/50,
-.dark #nd-docs-layout .bg-fd-secondary,
-.dark #nd-docs-layout .bg-fd-accent,
-.dark #nd-docs-layout [data-toc-popover] {
-  background-color: color-mix(in oklab, var(--card) 90%, black);
+  color: color-mix(in oklab, var(--foreground) 88%, var(--muted-foreground));
 }
 
 .docs strong {

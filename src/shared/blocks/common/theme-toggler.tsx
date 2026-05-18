@@ -37,7 +37,7 @@ export function ThemeToggler({
       <Button
         variant="outline"
         size="sm"
-        className="border-zinc-700 bg-zinc-900/80 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
+        className="border-fd-border bg-fd-secondary/80 text-fd-secondary-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
       >
         <SunDim />
       </Button>

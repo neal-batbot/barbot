@@ -388,7 +388,7 @@ export function Pricing({
             return (
               <Card
                 key={idx}
-                className="relative gap-5 border-zinc-800/90 bg-zinc-950/90"
+                className="relative gap-5 border-fd-border bg-fd-card"
               >
                 {item.label && (
                   <span className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full bg-linear-to-br/increasing from-purple-400 to-amber-300 px-3 py-1 text-xs font-medium text-amber-950 ring-1 ring-white/20 ring-offset-1 ring-offset-gray-950/5 ring-inset">
@@ -398,7 +398,7 @@ export function Pricing({
 
                 <CardHeader className="gap-2.5">
                   <CardTitle className="font-medium">
-                    <h3 className="text-base font-semibold text-zinc-100">
+                    <h3 className="text-base font-semibold text-fd-card-foreground">
                       {item.title}
                     </h3>
                   </CardTitle>
@@ -411,7 +411,7 @@ export function Pricing({
                     )}
 
                     <div className="my-2 block text-3xl font-semibold tracking-tight">
-                      <span className="text-[#ece673]">
+                      <span className="text-brand">
                         {displayedItem.price}
                       </span>{' '}
                       {displayedItem.unit ? (
@@ -432,7 +432,7 @@ export function Pricing({
                       >
                         <SelectTrigger
                           size="sm"
-                          className="h-7 min-w-[64px] rounded-lg border-zinc-700 bg-zinc-900 px-2 text-xs"
+                          className="h-7 min-w-[64px] rounded-lg border-fd-border bg-fd-secondary px-2 text-xs"
                         >
                           <SelectValue placeholder="Currency" />
                         </SelectTrigger>
@@ -451,11 +451,11 @@ export function Pricing({
                     )}
                   </div>
 
-                  <CardDescription className="text-sm text-zinc-300">
+                  <CardDescription className="text-sm text-fd-muted-foreground">
                     {item.description}
                   </CardDescription>
                   {item.tip && (
-                    <span className="text-sm text-zinc-400">
+                    <span className="text-sm text-fd-muted-foreground">
                       {item.tip}
                     </span>
                   )}
@@ -491,17 +491,17 @@ export function Pricing({
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  <hr className="border-zinc-800 border-dashed" />
+                  <hr className="border-fd-border border-dashed" />
 
                   {item.features_title && (
-                    <p className="text-sm font-medium text-zinc-200">
+                    <p className="text-sm font-medium text-fd-foreground">
                       {item.features_title}
                     </p>
                   )}
-                  <ul className="list-outside space-y-2.5 text-sm text-zinc-300">
+                  <ul className="list-outside space-y-2.5 text-sm text-fd-muted-foreground">
                     {item.features?.map((item, index) => (
                       <li key={index} className="flex items-center gap-2">
-                        <Check className="size-3 text-[#ece673]" />
+                        <Check className="size-3 text-brand" />
                         {item}
                       </li>
                     ))}

@@ -13,7 +13,7 @@ export function Footer({ footer }: { footer: FooterType }) {
   return (
     <footer
       id={footer.id}
-      className={`overflow-x-hidden border-t border-zinc-900 bg-black py-10 text-zinc-100 sm:py-12 ${footer.className || ''}`}
+      className={`overflow-x-hidden border-t border-fd-border bg-fd-background py-10 text-fd-foreground sm:py-12 ${footer.className || ''}`}
       // overflow-x-hidden防止-footer-撑出水平滚动条
     >
       <div className="container space-y-8 overflow-x-hidden">
@@ -42,7 +42,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                       key={iidx}
                       href={subItem.url || ''}
                       target={subItem.target || ''}
-                      className="block break-words text-zinc-400 duration-150 hover:text-zinc-100"
+                      className="block break-words text-fd-muted-foreground duration-150 hover:text-fd-foreground"
                     >
                       <span className="break-words">{subItem.title || ''}</span>
                     </Link>
@@ -85,7 +85,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
-                  className="block text-xs break-words text-zinc-400 underline duration-150 hover:text-zinc-100"
+                  className="block text-xs break-words text-fd-muted-foreground underline duration-150 hover:text-fd-foreground"
                 >
                   {item.title || ''}
                 </Link>
@@ -100,7 +100,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
-                  className="block cursor-pointer rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1.5 text-xs text-zinc-300 duration-150 hover:border-zinc-600 hover:bg-zinc-800/90 hover:text-zinc-100"
+                  className="block cursor-pointer rounded-full border border-fd-border bg-fd-secondary/80 px-3 py-1.5 text-xs text-fd-muted-foreground duration-150 hover:bg-fd-accent hover:text-fd-accent-foreground"
                   aria-label={item.title || 'Social media link'}
                 >
                   {item.title || 'Link'}

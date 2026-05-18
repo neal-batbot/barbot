@@ -116,7 +116,8 @@
     "id": "hero",
     "title": "构建自有 Agentic AI",
     "highlight_text": "Agentic AI",
-    "description": "我们不是做“AI Agent 设计工具”。BatBot 构建能直接解决行业问题的自有 AI：接入你的文档、流程、代码和业务数据，交付可登录、可计费、可容灾、可持续进化的 AI 产品。",
+    "description": "BatBot 是把行业问题做成自有 AI 产品的最快方式。连接你的文档、流程、代码和业务数据，交付可登录、可计费、可容灾、可持续进化的 Agentic AI。",
+    "statement": "Agentic AI 不该停在提示词和原型里。BatBot 把知识、工具、权限、账单和模型供应组装成一套可运营的产品系统。",
     "announcement": {
       "badge": "已上线",
       "title": "从 Barbot 到 Pi Agent：把问题变成真正可用的 AI",
@@ -212,7 +213,7 @@
     "label": "Agentic AI 公司",
     "description": "BatBot 不是把模型包装成聊天框，而是把具体问题拆成知识、工具、权限、模型供应和商业闭环。你完全拥有这套 AI，它运行在你的业务数据、你的产品规则和你的增长模型之上。",
     "image": {
-      "src": "/imgs/barbot/billing.png",
+      "src": "/imgs/barbot/what-we-build-v2.png",
       "alt": "BatBot 平台概览"
     },
     "items": [
@@ -221,7 +222,7 @@
         "description": "把文档、规格书、标准、工单和内部经验变成 AI 可检索、可引用、可持续更新的知识底座。",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/what-we-build-v2.png",
           "alt": "行业知识系统"
         }
       },
@@ -230,7 +231,7 @@
         "description": "按用户套餐、额度、模型成本和 provider 健康状态自动路由；主模型故障时静默降级，恢复后自动回切。",
         "icon": "RiBookOpenLine",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "模型供应与用量"
         }
       },
@@ -239,7 +240,7 @@
         "description": "登录、支付、订阅、用量、账单和权限一体化，真正能卖给用户，而不是只停留在演示 Demo。",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/launch-ready-capabilities-v2.png",
           "alt": "业务闭环 AI 产品"
         }
       },
@@ -248,7 +249,7 @@
         "description": "Barbot、Pi Agent、Coding Agent、企业知识系统可以按场景组合，针对一个具体问题交付一个可运营的 AI。",
         "icon": "RiRefreshLine",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "项目化交付"
         }
       }
@@ -267,7 +268,7 @@
         "description": "先定义要解决的业务问题，再选择模型、知识结构、工具链和评估标准。AI 的目标不是聊天，而是完成任务。",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "具体问题 AI"
         }
       },
@@ -276,7 +277,7 @@
         "description": "数据、配置、权限、套餐、模型供应和用量记录都沉淀在你的系统里，不依赖某个单一模型或外部产品界面。",
         "icon": "RiShareLine",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "自有 AI 系统"
         }
       },
@@ -285,7 +286,7 @@
         "description": "Free/Pro/Team 权益、支付宝付款、active subscription、模型权限、降级账单和 Included/On-demand 用量同一个闭环。",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "商业化闭环"
         }
       }
@@ -297,7 +298,7 @@
     "title": "从问题到自有 AI",
     "description": "我们把需求落成可运营的 AI 产品，而不是停在提示词和原型。",
     "image": {
-      "src": "/imgs/barbot/billing.png",
+      "src": "/imgs/barbot/owned-ai-flow-v2.png",
       "alt": "部署 BatBot"
     },
     "image_position": "left",
@@ -307,7 +308,7 @@
         "title": "定义具体问题",
         "description": "明确 AI 要替谁做什么、成功标准是什么、失败时如何兜底，例如选型、客服、编码、知识检索或内部运营。",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "定义具体问题"
         }
       },
@@ -315,7 +316,7 @@
         "title": "接入你的资产",
         "description": "接入文档、代码、流程、账号体系、支付套餐、内部 API 和业务数据库，让 AI 在真实上下文里工作。",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "接入资产"
         }
       },
@@ -323,7 +324,7 @@
         "title": "构建可执行 Agent",
         "description": "把模型供应、工具调用、权限、记忆、引用和降级策略组合起来，形成稳定可测的 AI 工作流。",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "构建 Agent"
         }
       },
@@ -331,7 +332,7 @@
         "title": "上线并持续变强",
         "description": "通过用量、账单、fallback、真实对话和 E2E 回归持续改进，越用越贴近你的业务。",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "上线迭代"
         }
       }

@@ -73,7 +73,7 @@ export function Hero({
         className
       )}
     >
-      <div className="relative mx-auto min-h-[720px] max-w-[1360px] overflow-hidden rounded-3xl border border-zinc-700/50 bg-black text-zinc-50">
+      <div className="relative mx-auto min-h-[720px] max-w-[1360px] overflow-hidden rounded-3xl border border-fd-border bg-fd-background text-landing-foreground shadow-xl dark:text-landing-foreground-dark">
         <div className="absolute inset-0">
           {showShaders && (
             <GrainGradient
@@ -109,7 +109,7 @@ export function Hero({
               minPixelRatio={1}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/45" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-fd-background/20 to-fd-background/65" />
         </div>
 
         <div className="relative z-20 px-6 pt-14 pb-56 md:px-14 md:pt-18 md:pb-64 lg:px-16 lg:pt-22">
@@ -117,7 +117,7 @@ export function Hero({
             <Link
               href={section.announcement.url || ''}
               target={section.announcement.target || '_self'}
-              className="inline-flex h-11 items-center rounded-full border border-yellow-200/40 bg-black/30 px-5 text-sm text-yellow-100 transition-colors hover:border-yellow-100/60 hover:bg-black/50"
+              className="inline-flex h-11 items-center rounded-full border border-brand/45 bg-fd-card/45 px-5 text-sm font-medium text-brand backdrop-blur transition-colors hover:border-brand/70 hover:bg-fd-card/70"
             >
               {section.announcement.title}
             </Link>
@@ -125,7 +125,7 @@ export function Hero({
 
           <div className="mt-8 max-w-[680px]">
             {texts && texts.length > 0 ? (
-              <h1 className="text-balance text-5xl leading-[1.05] font-semibold tracking-tight text-zinc-100 md:text-6xl">
+              <h1 className="text-balance text-5xl leading-[1.05] font-semibold tracking-normal text-fd-foreground md:text-6xl">
                 {texts[0]}
                 <Highlighter action="underline" color="#EDE781">
                   {highlightText}
@@ -133,13 +133,13 @@ export function Hero({
                 {texts[1]}
               </h1>
             ) : (
-              <h1 className="text-balance text-5xl leading-[1.05] font-semibold tracking-tight text-zinc-100 md:text-6xl">
+              <h1 className="text-balance text-5xl leading-[1.05] font-semibold tracking-normal text-fd-foreground md:text-6xl">
                 {section.title}
               </h1>
             )}
 
             <p
-              className="mt-6 max-w-[620px] text-base leading-7 text-zinc-300 md:text-lg"
+              className="mt-6 max-w-[620px] text-base leading-7 text-fd-muted-foreground md:text-lg"
               dangerouslySetInnerHTML={{ __html: section.description ?? '' }}
             />
           </div>
@@ -153,10 +153,10 @@ export function Hero({
                   variant="ghost"
                   key={idx}
                   className={cn(
-                    'h-14 rounded-full px-8 text-2xl font-semibold tracking-tight shadow-none transition-colors md:text-3xl',
+                    'h-14 rounded-full px-8 text-2xl font-semibold tracking-normal shadow-none transition-colors md:text-3xl',
                     idx === 0
-                      ? 'bg-[#EDE781] text-zinc-900 hover:bg-[#f3ee9b]'
-                      : 'bg-zinc-800/80 text-zinc-100 hover:bg-zinc-700/90'
+                      ? 'bg-brand text-brand-foreground hover:bg-brand-200'
+                      : 'border border-fd-border bg-fd-secondary/80 text-fd-secondary-foreground hover:bg-fd-accent'
                   )}
                 >
                   <Link href={button.url ?? ''} target={button.target ?? '_self'}>
@@ -169,7 +169,7 @@ export function Hero({
 
           {section.tip && (
             <p
-              className="mt-6 text-sm text-zinc-300"
+              className="mt-6 text-sm text-fd-muted-foreground"
               dangerouslySetInnerHTML={{ __html: section.tip ?? '' }}
             />
           )}
@@ -183,7 +183,7 @@ export function Hero({
             width={previewImage.width || 1400}
             height={previewImage.height || 840}
             className={cn(
-              'absolute right-[-14%] bottom-[-120px] z-30 w-[90%] max-w-[1060px] rounded-2xl border border-zinc-700/70 shadow-2xl md:right-[-8%] md:bottom-[-170px] lg:right-[-2%]',
+              'absolute right-[-14%] bottom-[-120px] z-30 w-[90%] max-w-[1060px] rounded-2xl border border-fd-border shadow-2xl md:right-[-8%] md:bottom-[-170px] lg:right-[-2%]',
               previewReady ? 'animate-in fade-in slide-in-from-bottom-8 duration-700' : 'invisible'
             )}
             onLoad={() => setPreviewReady(true)}

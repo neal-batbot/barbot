@@ -13,7 +13,7 @@ export default async function ChatLayout({ children }: { children: ReactNode }) 
 
   if (mode === 'pi') {
     return (
-      <div className="terminal-skin min-h-screen">
+      <div className="workbench-shell min-h-screen">
         {children}
       </div>
     );
@@ -27,7 +27,7 @@ export default async function ChatLayout({ children }: { children: ReactNode }) 
 
   return (
     <ChatContextProvider>
-      <div className="terminal-skin min-h-screen">
+      <div className="workbench-shell min-h-screen">
         <DashboardLayout sidebar={sidebar}>
           <LocaleDetector />
           {children}

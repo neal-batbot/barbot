@@ -9,17 +9,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    background: var(--background);
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-lato), sans-serif;
-    letter-spacing: 0.06px;
-  }
-}
-
-@layer base {
-  body {
-    background: #050505;
-    color: #f4f4ee;
+    letter-spacing: 0;
   }
 }
 
@@ -29,32 +27,41 @@
   }
 
   .sunset-shell {
-    background: radial-gradient(120% 80% at 75% -10%, rgb(241 96 25 / 0.24), transparent 48%),
-      radial-gradient(80% 70% at 10% 0%, rgb(197 188 84 / 0.16), transparent 45%),
-      #050505;
-    color: #f4f4ee;
+    background:
+      radial-gradient(120% 80% at 75% -10%, color-mix(in oklab, var(--brand-secondary) 22%, transparent), transparent 48%),
+      radial-gradient(80% 70% at 10% 0%, color-mix(in oklab, var(--brand) 14%, transparent), transparent 45%),
+      var(--background);
+    color: var(--foreground);
   }
 
   [data-slot='card'],
   .bg-card {
-    background: #111216;
-    border-color: rgb(63 63 70 / 0.7);
-    box-shadow: 0 24px 56px rgb(0 0 0 / 0.45);
+    background: var(--card);
+    border-color: var(--border);
+    box-shadow: var(--shadow-sm);
   }
 
   [data-slot='button'] {
     border-radius: 9999px;
   }
+
+  .workbench-shell {
+    background:
+      radial-gradient(90% 55% at 100% -20%, color-mix(in oklab, var(--brand) 10%, transparent), transparent 55%),
+      var(--background);
+    color: var(--foreground);
+  }
 }
 
 .terminal-skin {
-  @apply bg-background text-foreground font-mono;
-  background-color: #0a0a0a;
-  background-image: none;
+  @apply bg-background text-foreground;
+  background:
+    radial-gradient(80% 50% at 90% -10%, color-mix(in oklab, var(--brand) 12%, transparent), transparent 55%),
+    var(--background);
 }
 
 .terminal-skin * {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .terminal-skin main {
@@ -112,11 +119,10 @@
 
 .terminal-skin [data-slot='button'] {
   border: 1px solid var(--border);
-  border-radius: calc(var(--radius) - 1px);
-  background: color-mix(in oklab, var(--background) 96%, black);
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--background) 96%, var(--card));
   color: var(--foreground);
   box-shadow: none;
-  font-family: var(--font-mono);
 }
 
 .terminal-skin [data-slot='button']:hover {
@@ -128,20 +134,20 @@
 .terminal-skin .bg-primary,
 .terminal-skin .from-primary,
 .terminal-skin .to-primary {
-  background: #101010 !important;
-  color: #3ecf8e !important;
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
   border-color: color-mix(in oklab, var(--primary) 72%, var(--border)) !important;
 }
 
 .terminal-skin .bg-secondary,
 .terminal-skin .bg-muted {
-  background: #111 !important;
+  background: var(--secondary) !important;
 }
 
 .terminal-skin .rounded-full,
 .terminal-skin .rounded-2xl,
 .terminal-skin .rounded-xl {
-  border-radius: 0.45rem !important;
+  border-radius: var(--radius) !important;
 }
 
 .terminal-skin .border,
@@ -157,10 +163,9 @@
 .terminal-skin [data-slot='input'],
 .terminal-skin textarea {
   border-color: color-mix(in oklab, var(--border) 90%, transparent);
-  border-radius: calc(var(--radius) - 1px);
-  background: color-mix(in oklab, var(--background) 95%, black);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--background) 95%, var(--card));
   box-shadow: none;
-  font-family: var(--font-mono);
 }
 
 .terminal-skin [data-slot='input']:focus-visible,
@@ -171,19 +176,19 @@
 .terminal-skin [data-slot='card'] {
   border-color: color-mix(in oklab, var(--border) 88%, transparent);
   border-radius: var(--radius);
-  background: color-mix(in oklab, var(--background) 96%, black);
-  box-shadow: none;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
 }
 
 .terminal-skin [data-slot='badge'] {
   border-color: color-mix(in oklab, var(--border) 90%, transparent);
-  border-radius: calc(var(--radius) - 1px);
-  background: color-mix(in oklab, var(--background) 95%, black);
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--background) 95%, var(--card));
   color: var(--muted-foreground);
 }
 
 .terminal-skin [data-slot='table'] {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .terminal-skin [data-slot='table-header'] [data-slot='table-row'] {
@@ -195,12 +200,12 @@
 }
 
 .terminal-skin [data-slot='table-row']:hover {
-  background: color-mix(in oklab, var(--background) 72%, black);
+  background: color-mix(in oklab, var(--accent) 78%, transparent);
 }
 
 .terminal-skin [data-slot='sidebar-inner'] {
   border-color: color-mix(in oklab, var(--sidebar-border) 90%, transparent);
-  background: color-mix(in oklab, var(--sidebar) 92%, black);
+  background: color-mix(in oklab, var(--sidebar) 96%, var(--background));
   box-shadow: none;
 }
 
@@ -227,7 +232,7 @@
   width: 100%;
   border: 1px solid color-mix(in oklab, var(--border) 92%, transparent);
   border-radius: var(--radius);
-  background: color-mix(in oklab, var(--background) 92%, black);
+  background: color-mix(in oklab, var(--background) 92%, var(--card));
   color: color-mix(in oklab, var(--foreground) 86%, transparent);
   padding: 0.82rem 0.95rem;
   text-align: left;
@@ -255,7 +260,7 @@
   width: 100%;
   border: 1px dashed color-mix(in oklab, var(--primary) 66%, var(--border));
   border-radius: var(--radius);
-  background: color-mix(in oklab, var(--background) 95%, black);
+  background: color-mix(in oklab, var(--background) 95%, var(--card));
   padding: 1.35rem 1.1rem;
 }
 
@@ -271,10 +276,6 @@
 
 .terminal-skin section {
   border-color: color-mix(in oklab, var(--border) 90%, transparent);
-}
-
-.terminal-skin img {
-  filter: grayscale(0.18) brightness(0.78) contrast(0.92);
 }
 
 .terminal-skin .prose,
@@ -375,17 +376,6 @@ pre {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-lato), sans-serif;
-    letter-spacing: 0.06px;
-  }
 }
 
 /* Cursor Design System Typography Utilities */

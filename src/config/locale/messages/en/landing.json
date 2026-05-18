@@ -117,6 +117,7 @@
     "title": "Own the Agentic AI That Solves the Problem",
     "highlight_text": "Agentic AI",
     "description": "We are not an AI-agent design tool. BatBot builds owned AI systems that solve concrete industry problems: ingest your docs, workflows, code, and business data; ship an AI product with login, billing, failover, and continuous improvement.",
+    "statement": "Agentic AI is not a design prompt. BatBot turns knowledge, tools, permissions, billing, and resilient model supply into an operable product system.",
     "announcement": {
       "badge": "Now Live",
       "title": "From Barbot to Pi Agent: turn hard problems into usable AI",
@@ -212,7 +213,7 @@
     "label": "Agentic AI Company",
     "description": "BatBot does not wrap models in a chat box. We decompose concrete problems into knowledge, tools, permissions, model supply, and commercial loops. You fully own the AI system, and it runs on your data, product rules, and growth model.",
     "image": {
-      "src": "/imgs/barbot/billing.png",
+      "src": "/imgs/barbot/what-we-build-v2.png",
       "alt": "BatBot platform overview"
     },
     "items": [
@@ -221,7 +222,7 @@
         "description": "Turn docs, specs, standards, tickets, and internal expertise into an AI-ready knowledge layer that is searchable, citable, and continuously updated.",
         "icon": "RiDatabase2Line",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/what-we-build-v2.png",
           "alt": "Industry Knowledge OS"
         }
       },
@@ -230,7 +231,7 @@
         "description": "Route by plan, quota, model cost, and provider health. Fail over silently when the primary model breaks, then switch back when it recovers.",
         "icon": "RiBookOpenLine",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "Model supply and usage"
         }
       },
@@ -239,7 +240,7 @@
         "description": "Login, payment, subscriptions, usage, billing, and entitlement are part of the product, so the AI can be sold to real users.",
         "icon": "RiRobot2Line",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/launch-ready-capabilities-v2.png",
           "alt": "Commercial AI product loop"
         }
       },
@@ -248,7 +249,7 @@
         "description": "Barbot, Pi Agent, Coding Agent, and enterprise knowledge systems can be composed around one concrete problem and shipped as an operable AI product.",
         "icon": "RiRefreshLine",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Project-based delivery"
         }
       }
@@ -267,7 +268,7 @@
         "description": "We define the job, success criteria, model mix, knowledge structure, tools, and evaluation loop first. The goal is not to chat; it is to complete work.",
         "icon": "RiNextjsFill",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "Concrete problem AI"
         }
       },
@@ -276,7 +277,7 @@
         "description": "Data, configuration, permissions, pricing, model supply, and usage records live in your system instead of depending on one model vendor or external UI.",
         "icon": "RiShareLine",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "Owned AI system"
         }
       },
@@ -285,7 +286,7 @@
         "description": "Free/Pro/Team entitlements, Alipay payment, active subscriptions, model access, fallback billing, and Included/On-demand usage share one loop.",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/why-stronger-v2.png",
           "alt": "Commercial AI loop"
         }
       }
@@ -297,7 +298,7 @@
     "title": "From Problem to Owned AI",
     "description": "We ship operable AI products, not prompt demos.",
     "image": {
-      "src": "/imgs/barbot/billing.png",
+      "src": "/imgs/barbot/owned-ai-flow-v2.png",
       "alt": "Deploy BatBot"
     },
     "image_position": "left",
@@ -307,7 +308,7 @@
         "title": "Define the Concrete Problem",
         "description": "Clarify who the AI works for, what job it completes, how success is measured, and how it fails safely.",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Define concrete problem"
         }
       },
@@ -315,7 +316,7 @@
         "title": "Connect Your Assets",
         "description": "Bring in docs, code, workflows, accounts, pricing plans, internal APIs, and business databases so the AI works in real context.",
         "image": {
-          "src": "/imgs/barbot/billing.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Connect assets"
         }
       },
@@ -323,7 +324,7 @@
         "title": "Build the Executable Agent",
         "description": "Compose model supply, tools, permissions, memory, citations, and fallback rules into a stable AI workflow.",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Build executable agent"
         }
       },
@@ -331,7 +332,7 @@
         "title": "Launch and Keep Improving",
         "description": "Use real conversations, usage, billing, fallback events, and E2E regression tests to make the system stronger over time.",
         "image": {
-          "src": "/imgs/barbot/usage.png",
+          "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Launch and iterate"
         }
       }

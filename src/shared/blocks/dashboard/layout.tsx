@@ -14,6 +14,7 @@ export function DashboardLayout({
 }) {
   return (
     <SidebarProvider
+      className="workbench-shell"
       style={
         {
           '--sidebar-width': 'calc(var(--spacing) * 72)',
@@ -24,7 +25,9 @@ export function DashboardLayout({
       {sidebar && (
         <Sidebar variant={sidebar.variant || 'inset'} sidebar={sidebar} />
       )}
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset className="bg-background text-foreground">
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }

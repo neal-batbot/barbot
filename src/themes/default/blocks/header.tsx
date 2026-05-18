@@ -77,7 +77,7 @@ export function Header({ header }: { header: HeaderType }) {
                     target={item.target || '_self'}
                     className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm ${
                       item.is_active || pathname.endsWith(item.url as string)
-                        ? 'rounded-full border border-zinc-700 bg-zinc-900/90 text-zinc-100'
+                        ? 'rounded-full border border-fd-border bg-fd-accent text-fd-accent-foreground'
                         : ''
                     }`}
                   >
@@ -93,7 +93,7 @@ export function Header({ header }: { header: HeaderType }) {
                   {item.title}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-2xs origin-top p-0.5">
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-950/95 p-2 shadow-2xl shadow-black/40 ring-1 ring-white/5">
+                  <div className="rounded-xl border border-fd-border bg-fd-popover/95 p-2 shadow-2xl backdrop-blur">
                     <ul className="mt-1 space-y-2">
                       {item.children?.map((subItem: NavItem, index: number) => (
                         <ListItem
@@ -211,14 +211,14 @@ export function Header({ header }: { header: HeaderType }) {
       <header
         data-state={isMobileMenuOpen ? 'active' : 'inactive'}
         {...(isScrolled && { 'data-scrolled': true })}
-        className="fixed inset-x-0 top-0 z-50 border-b border-zinc-800/70 bg-black/85 text-zinc-100 backdrop-blur has-data-[state=open]:h-screen has-data-[state=open]:bg-black/80"
+        className="fixed inset-x-0 top-0 z-50 border-b border-fd-border bg-fd-background/85 text-fd-foreground backdrop-blur has-data-[state=open]:h-screen has-data-[state=open]:bg-fd-background/90"
       >
         <div
           className={cn(
             'absolute inset-x-0 top-0 z-50 h-18 border-transparent ring-1 ring-transparent transition-all duration-300',
-            'in-data-scrolled:border-zinc-800/70 in-data-scrolled:bg-black/85 in-data-scrolled:border-b in-data-scrolled:backdrop-blur',
-            'has-data-[state=open]:ring-zinc-700/60 has-data-[state=open]:bg-zinc-950/85 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/30 has-data-[state=open]:backdrop-blur',
-            'max-lg:in-data-[state=active]:bg-zinc-950/95 max-lg:h-15 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen max-lg:in-data-[state=active]:backdrop-blur'
+            'in-data-scrolled:border-fd-border in-data-scrolled:bg-fd-background/85 in-data-scrolled:border-b in-data-scrolled:backdrop-blur',
+            'has-data-[state=open]:ring-fd-border has-data-[state=open]:bg-fd-background/90 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:border-b has-data-[state=open]:shadow-lg has-data-[state=open]:backdrop-blur',
+            'max-lg:in-data-[state=active]:bg-fd-background/95 max-lg:h-15 max-lg:overflow-hidden max-lg:border-b max-lg:in-data-[state=active]:h-screen max-lg:in-data-[state=active]:backdrop-blur'
           )}
         >
           <div className="container">
@@ -229,7 +229,7 @@ export function Header({ header }: { header: HeaderType }) {
               )}
             >
               {!hideLandingChrome && (
-                <div className="flex justify-between gap-8 max-lg:h-15 max-lg:w-full max-lg:border-b max-lg:border-zinc-800/70">
+                <div className="flex justify-between gap-8 max-lg:h-15 max-lg:w-full max-lg:border-b max-lg:border-fd-border">
                   {/* Brand Logo */}
                   {header.brand && <BrandLogo brand={header.brand} />}
 
@@ -241,7 +241,7 @@ export function Header({ header }: { header: HeaderType }) {
                     aria-label={
                       isMobileMenuOpen == true ? 'Close Menu' : 'Open Menu'
                     }
-                    className="relative z-20 -m-2.5 -mr-3 block cursor-pointer rounded-full p-2.5 text-zinc-200 hover:bg-zinc-900/80 hover:text-zinc-100 lg:hidden"
+                    className="relative z-20 -m-2.5 -mr-3 block cursor-pointer rounded-full p-2.5 text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground lg:hidden"
                   >
                     <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
                     <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
@@ -270,10 +270,10 @@ export function Header({ header }: { header: HeaderType }) {
                         href={button.url || ''}
                         target={button.target || '_self'}
                         className={cn(
-                          'inline-flex h-9 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-[background-color,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ece673]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-50',
+                          'inline-flex h-9 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-[background-color,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50',
                           button.variant === 'outline'
-                            ? 'border-zinc-700 bg-zinc-900/80 text-zinc-100 hover:border-zinc-600 hover:bg-zinc-800/90'
-                            : 'border-[#f2eb94]/70 bg-[#ece673] text-[#0d0d0f] hover:border-[#fff4b0] hover:bg-[#f2eb94]'
+                            ? 'border-fd-border bg-fd-secondary/80 text-fd-secondary-foreground hover:bg-fd-accent'
+                            : 'border-brand/70 bg-brand text-brand-foreground hover:bg-brand-200'
                         )}
                       >
                         <span>{button.title}</span>
@@ -281,7 +281,7 @@ export function Header({ header }: { header: HeaderType }) {
                     ))}
 
                   {header.show_theme ? (
-                    <ThemeToggler className="rounded-full border border-zinc-700 bg-zinc-900/80 p-0.5" />
+                    <ThemeToggler className="rounded-full border border-fd-border bg-fd-secondary/80 p-0.5" />
                   ) : null}
                   {header.show_locale ? <LocaleSelector /> : null}
                   <div className="flex-1 md:hidden"></div>
