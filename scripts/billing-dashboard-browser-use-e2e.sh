@@ -58,7 +58,36 @@ session_cookie_for() {
       \"password\":\"$USER_PASSWORD\",
       \"callbackURL\":\"/zh/dashboard\"
     }" |
-    awk 'BEGIN{IGNORECASE=1}/^set-cookie: better-auth.session_token=/{sub(/^set-cookie: better-auth.session_token=/,""); sub(/;.*/,""); print; exit}'
+    awk 'BEGIN{IGNORECASE=1}/^set-cookie: (__Secure-)?better-auth.session_token=/{sub(/^set-cookie: /,""); sub(/;.*/,""); print; exit}'
+}
+
+cookie_name() {
+  printf '%s' "$1" | cut -d '=' -f 1
+}
+
+cookie_value() {
+  printf '%s' "$1" | cut -d '=' -f 2-
+}
+
+set_auth_cookie() {
+  local browser_name="$1"
+  local cookie="$2"
+  shift 2
+
+  local name
+  name="$(cookie_name "$cookie")"
+  local value
+  value="$(cookie_value "$cookie")"
+  local secure_flag=()
+  if [[ "$name" == __Secure-* ]]; then
+    secure_flag=(--secure)
+  fi
+
+  "$@" cookies set "$name" "$value" \
+    --url "$BARBOT_BASE_URL" --domain localhost --path / --httpOnly "${secure_flag[@]}" --sameSite Lax >/dev/null || {
+    record_failure "Could not set ${browser_name} auth cookie"
+    return 1
+  }
 }
 
 assert_contains() {
@@ -95,6 +124,9 @@ wait_for_text() {
 
 finish() {
   local exit_code=$?
+  if ((exit_code != 0 && ${#FAILURES[@]} == 0)); then
+    FAILURES+=("E2E command exited before completing all checks")
+  fi
   save_command "user-console" "${USER_BROWSER[@]}" console
   save_command "user-errors" "${USER_BROWSER[@]}" errors
   save_command "user-network" "${USER_BROWSER[@]}" network requests
@@ -200,8 +232,7 @@ login_user() {
     return
   fi
   "${USER_BROWSER[@]}" close >/dev/null 2>&1 || true
-  "${USER_BROWSER[@]}" cookies set better-auth.session_token "$cookie" \
-    --url "$BARBOT_BASE_URL" --domain localhost --path / --httpOnly --sameSite Lax >/dev/null
+  set_auth_cookie "$who" "$cookie" "${USER_BROWSER[@]}" || return
   "${USER_BROWSER[@]}" open "$BARBOT_BASE_URL/zh/dashboard" >/dev/null
   "${USER_BROWSER[@]}" wait --load networkidle >/dev/null || true
 }
@@ -217,8 +248,7 @@ login_admin() {
     return
   fi
   "${ADMIN_BROWSER[@]}" close >/dev/null 2>&1 || true
-  "${ADMIN_BROWSER[@]}" cookies set better-auth.session_token "$cookie" \
-    --url "$BARBOT_BASE_URL" --domain localhost --path / --httpOnly --sameSite Lax >/dev/null
+  set_auth_cookie "$who" "$cookie" "${ADMIN_BROWSER[@]}" || return
   "${ADMIN_BROWSER[@]}" open "$BARBOT_BASE_URL/zh/admin/payments" >/dev/null
   "${ADMIN_BROWSER[@]}" wait --load networkidle >/dev/null || true
 }

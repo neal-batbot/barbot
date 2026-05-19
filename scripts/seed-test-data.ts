@@ -12,7 +12,12 @@ import {
   billingEvent,
   credit,
   order,
+  permission,
+  planEntitlement,
+  product,
+  providerConfig,
   role,
+  rolePermission,
   subscription,
   usageLog,
   user,
@@ -27,6 +32,12 @@ const ADMIN_EMAIL =
   process.env.E2E_BILLING_ADMIN_EMAIL || 'billing-admin-e2e@example.com';
 const TEST_PASSWORD = process.env.E2E_BILLING_PASSWORD || 'Test@123456';
 const API_KEY = process.env.E2E_BILLING_API_KEY || 'sk_e2e_billing_local';
+const ADMIN_PERMISSIONS = [
+  'admin.access',
+  'admin.payments.read',
+  'admin.subscriptions.read',
+  'admin.credits.read',
+];
 
 function daysAgo(days: number): Date {
   const value = new Date();
@@ -58,12 +69,65 @@ async function ensureUser(email: string, name: string) {
 }
 
 async function ensureAdminRole(adminUserId: string) {
-  const [adminRole] = await db()
+  let [adminRole] = await db()
     .select()
     .from(role)
     .where(eq(role.name, 'admin'));
 
-  if (!adminRole) return;
+  if (!adminRole) {
+    [adminRole] = await db()
+      .insert(role)
+      .values({
+        id: getUuid(),
+        name: 'admin',
+        title: 'Admin',
+        description: 'Billing E2E admin role',
+        status: 'active',
+        sort: 10,
+      })
+      .returning();
+  }
+
+  for (const code of ADMIN_PERMISSIONS) {
+    const [resource, ...actionParts] = code.replace(/^admin\./, '').split('.');
+    const action = actionParts.join('.') || 'access';
+    let [existingPermission] = await db()
+      .select()
+      .from(permission)
+      .where(eq(permission.code, code));
+
+    if (!existingPermission) {
+      [existingPermission] = await db()
+        .insert(permission)
+        .values({
+          id: getUuid(),
+          code,
+          resource: resource || 'admin',
+          action,
+          title: code,
+          description: 'Required by billing E2E',
+        })
+        .returning();
+    }
+
+    const [existingRolePermission] = await db()
+      .select()
+      .from(rolePermission)
+      .where(
+        and(
+          eq(rolePermission.roleId, adminRole.id),
+          eq(rolePermission.permissionId, existingPermission.id)
+        )
+      );
+
+    if (!existingRolePermission) {
+      await db().insert(rolePermission).values({
+        id: getUuid(),
+        roleId: adminRole.id,
+        permissionId: existingPermission.id,
+      });
+    }
+  }
 
   const [existing] = await db()
     .select()
@@ -96,6 +160,101 @@ async function ensureApiKey(userId: string) {
     title: 'E2E Billing Usage Reporter',
     status: ApikeyStatus.ACTIVE,
   });
+}
+
+async function ensureDesktopAccess() {
+  const [existingProduct] = await db()
+    .select()
+    .from(product)
+    .where(eq(product.code, 'desktop_code'));
+
+  if (!existingProduct) {
+    await db().insert(product).values({
+      id: getUuid(),
+      code: 'desktop_code',
+      name: 'Harvey Desktop',
+      description: 'Electron desktop coding assistant',
+      isActive: true,
+    });
+  }
+
+  const [existingEntitlement] = await db()
+    .select()
+    .from(planEntitlement)
+    .where(
+      and(
+        eq(planEntitlement.planName, 'Pi Agent Pro'),
+        eq(planEntitlement.productCode, 'desktop_code')
+      )
+    );
+
+  const entitlementValues = {
+    planName: 'Pi Agent Pro',
+    productCode: 'desktop_code',
+    isEnabled: true,
+    quotaTokens: 2_000_000,
+    quotaRequests: null,
+    features: JSON.stringify({
+      device_limit: 3,
+      advanced_model: true,
+      allowed_models: ['gpt-5.5'],
+    }),
+  };
+
+  if (existingEntitlement) {
+    await db()
+      .update(planEntitlement)
+      .set(entitlementValues)
+      .where(eq(planEntitlement.id, existingEntitlement.id));
+  } else {
+    await db().insert(planEntitlement).values({
+      id: getUuid(),
+      ...entitlementValues,
+    });
+  }
+
+  const [existingProvider] = await db()
+    .select()
+    .from(providerConfig)
+    .where(
+      and(
+        eq(providerConfig.planName, 'Pi Agent Pro'),
+        eq(providerConfig.productCode, 'desktop_code'),
+        eq(providerConfig.providerName, 'test_dragoncode'),
+        eq(providerConfig.modelName, 'gpt-5.5')
+      )
+    );
+
+  const providerValues = {
+    planName: 'Pi Agent Pro',
+    productCode: 'desktop_code',
+    providerName: 'test_dragoncode',
+    modelName: 'gpt-5.5',
+    baseUrl: process.env.E2E_DESKTOP_PROVIDER_BASE_URL || 'mock://desktop-code',
+    apiKey: process.env.E2E_DESKTOP_PROVIDER_API_KEY || 'sk_e2e_desktop_local',
+    priority: 0,
+    weight: 100,
+    healthStatus: 'healthy',
+    cooldownUntil: null,
+    fallbackGroup: 'desktop-code-e2e',
+    costPer1kInput: '0.0005',
+    costPer1kOutput: '0.0015',
+    supportsStreaming: true,
+    isDefaultAuto: true,
+    isActive: true,
+  };
+
+  if (existingProvider) {
+    await db()
+      .update(providerConfig)
+      .set(providerValues)
+      .where(eq(providerConfig.id, existingProvider.id));
+  } else {
+    await db().insert(providerConfig).values({
+      id: getUuid(),
+      ...providerValues,
+    });
+  }
 }
 
 async function ensureSubscription(userId: string) {
@@ -324,6 +483,7 @@ async function main() {
 
   await ensureAdminRole(adminUserId);
   await ensureApiKey(userId);
+  await ensureDesktopAccess();
   await ensureSubscription(userId);
   await ensureOrder(userId);
   await ensureCredits(userId);
