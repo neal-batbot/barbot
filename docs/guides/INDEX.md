@@ -5,6 +5,7 @@
 | Guide                                                                            | Description                                                      |
 | -------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | [environment-setup.md](environment-setup.md)                                     | First-time setup, env vars, database initialization              |
+| [development-deployment-workflow.md](development-deployment-workflow.md)         | Local, staging, production, GitHub Actions, and VPS Docker flow   |
 | [adding-features.md](adding-features.md)                                         | Step-by-step workflow for adding new features                    |
 | [dify-integration.md](dify-integration.md)                                       | Full Dify API integration tutorial                               |
 | [docker-setup.md](docker-setup.md)                                               | Docker deployment guide                                          |

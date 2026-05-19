@@ -1,0 +1,91 @@
+name: Deploy VPS Docker
+
+on:
+  workflow_run:
+    workflows: ['Build and Push Docker Image']
+    types: [completed]
+    branches: ['main', 'staging']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment target
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: >
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || (github.event.workflow_run.head_branch == 'main' && 'production' || 'staging') }}
+    env:
+      DEPLOY_TARGET: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || (github.event.workflow_run.head_branch == 'main' && 'production' || 'staging') }}
+
+    steps:
+      - name: Deploy selected image on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+          GHCR_USER: ${{ github.repository_owner }}
+          REGISTRY: ghcr.io
+          IMAGE: ghcr.io/${{ github.repository }}
+          DEPLOY_TARGET: ${{ env.DEPLOY_TARGET }}
+          STAGING_ENV_FILE_PATH: ${{ secrets.STAGING_ENV_FILE_PATH }}
+          PRODUCTION_ENV_FILE_PATH: ${{ secrets.PRODUCTION_ENV_FILE_PATH }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: GHCR_PAT,GHCR_USER,REGISTRY,IMAGE,DEPLOY_TARGET,STAGING_ENV_FILE_PATH,PRODUCTION_ENV_FILE_PATH
+          script: |
+            set -euo pipefail
+
+            case "${DEPLOY_TARGET}" in
+              production)
+                IMAGE_TAG="latest"
+                CONTAINER_NAME="barbot-production"
+                HOST_PORT="3000"
+                ENV_FILE_PATH="${PRODUCTION_ENV_FILE_PATH}"
+                PUBLIC_URL="https://harveycode.com"
+                ;;
+              staging)
+                IMAGE_TAG="staging"
+                CONTAINER_NAME="barbot-staging"
+                HOST_PORT="3001"
+                ENV_FILE_PATH="${STAGING_ENV_FILE_PATH}"
+                PUBLIC_URL="https://staging.harveycode.com"
+                ;;
+              *)
+                echo "Unsupported DEPLOY_TARGET: ${DEPLOY_TARGET}"
+                exit 1
+                ;;
+            esac
+
+            if [ -z "${ENV_FILE_PATH}" ]; then
+              echo "ENV_FILE_PATH is required for ${CONTAINER_NAME}"
+              exit 1
+            fi
+
+            if [ -n "${GHCR_PAT:-}" ]; then
+              echo "${GHCR_PAT}" | docker login "${REGISTRY}" -u "${GHCR_USER}" --password-stdin
+            fi
+
+            docker pull "${IMAGE}:${IMAGE_TAG}"
+
+            docker rm -f "${CONTAINER_NAME}" 2>/dev/null || true
+            docker run -d \
+              --name "${CONTAINER_NAME}" \
+              --restart unless-stopped \
+              --env-file "${ENV_FILE_PATH}" \
+              -p "127.0.0.1:${HOST_PORT}:3000" \
+              "${IMAGE}:${IMAGE_TAG}"
+
+            sleep 8
+            curl -fsS "${PUBLIC_URL}/api/health" | head -c 1200
