@@ -14,5 +14,14 @@
     "buttons": {
       "submit": "保存"
     }
+  },
+  "desktop": {
+    "title": "Barbot for Electron",
+    "description": "管理已连接到当前账户的 Barbot for Electron 桌面客户端。",
+    "defaultDevice": "Barbot for Electron 桌面客户端",
+    "createdAt": "连接于 {date}",
+    "expiresAt": "有效期至 {date}",
+    "revoke": "撤销",
+    "empty": "当前没有已连接的 Harvey 桌面会话。"
   }
 }

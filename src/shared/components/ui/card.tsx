@@ -14,7 +14,7 @@ const cardVariants = cva(
         flat: "bg-[var(--color-canvas-parchment)] rounded-[4px] shadow-none border-0 px-[7.5px]",
         // Default: standard card with border
         default:
-          "rounded-2xl border border-zinc-800 bg-zinc-950/85 text-zinc-100 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.75)] ring-1 ring-white/5",
+          "rounded-2xl border border-fd-border bg-fd-card text-fd-card-foreground shadow-[var(--shadow-cursor-xl)]",
       },
       padding: {
         default: "py-6",

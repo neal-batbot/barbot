@@ -12,7 +12,10 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
     >
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm text-zinc-700 dark:text-zinc-300", className)}
+        className={cn(
+          "w-full caption-bottom text-sm text-fd-foreground",
+          className
+        )}
         {...props}
       />
     </div>
@@ -57,7 +60,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b border-zinc-100 transition-colors hover:bg-zinc-50 data-[state=selected]:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/70 dark:data-[state=selected]:bg-zinc-900",
+        "border-b border-fd-border transition-colors hover:bg-fd-secondary/55 data-[state=selected]:bg-fd-secondary",
         className
       )}
       {...props}
@@ -70,7 +73,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-3 text-left align-middle text-xs font-semibold uppercase tracking-wide text-zinc-500 whitespace-nowrap dark:text-zinc-400 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "h-10 px-3 text-left align-middle text-xs font-semibold uppercase tracking-wide text-fd-muted-foreground whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}

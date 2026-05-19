@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "BatBot - 构建自有 Agentic AI",
-    "description": "BatBot 构建能解决具体问题的自有 Agentic AI 产品，覆盖知识系统、模型供应、登录支付、用量账单与容灾恢复。",
-    "keywords": "Agentic AI, AI agent, model supply, SaaS AI, AI product, BatBot"
+    "title": "BatBot - 高科技 Sales / FAE 的成交扩散智能",
+    "description": "BatBot 面向高科技 Sales 与 FAE，提供 Barbot for Web、Barbot for Electron 和 Barbot for Knowledgebase，把成功项目扩散成更多高价值成交。",
+    "keywords": "Deal Fanout Intelligence, 高科技销售, FAE, Barbot for Web, Barbot for Electron, Barbot for Knowledgebase, BatBot"
   },
   "sign": {
     "sign_in_title": "登录",

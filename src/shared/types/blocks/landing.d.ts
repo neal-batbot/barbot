@@ -69,6 +69,7 @@ export interface Hero extends Section {
   show_avatars?: boolean;
   avatars_tip?: string;
   show_award?: boolean;
+  show_preview_image?: boolean;
   highlight_text?: string;
   preview_image?: Image;
 }

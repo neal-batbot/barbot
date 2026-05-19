@@ -175,7 +175,7 @@ export function Hero({
           )}
         </div>
 
-        {previewImage?.src && (
+        {section.show_preview_image !== false && previewImage?.src && (
           <Image
             ref={previewRef}
             src={previewImage.src}

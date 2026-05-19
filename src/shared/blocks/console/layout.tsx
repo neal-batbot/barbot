@@ -36,17 +36,17 @@ export function ConsoleLayout({
   );
 
   const renderNavItems = () => (
-    <nav className="space-y-1">
+    <nav className="space-y-1.5">
       {filteredItems?.map((item, idx) => (
         <Link
           key={idx}
           href={item.url || ''}
-          className={`flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors ${
+          className={`flex items-center space-x-3 rounded-xl border px-3.5 py-2.5 text-sm transition-colors ${
             item.is_active ||
             pathname.endsWith(item.url as string) ||
             item.url?.endsWith(pathname)
-              ? 'bg-secondary text-secondary-foreground font-medium'
-              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+              ? 'border-fd-border bg-fd-secondary text-fd-foreground font-semibold shadow-sm'
+              : 'border-transparent text-fd-muted-foreground hover:border-fd-border hover:bg-fd-secondary/55 hover:text-fd-foreground'
           }`}
         >
           <SmartIcon name={item.icon as string} size={16} />
@@ -87,7 +87,7 @@ export function ConsoleLayout({
       {/* Page Header */}
       <div className="border-border">
         <div className="container">
-          <div className="flex items-center gap-4 py-8">
+          <div className="flex items-center gap-4 pt-12 pb-10 md:pt-16">
             {/* Mobile Menu Trigger */}
             <Sheet>
               <SheetTrigger asChild>
@@ -103,7 +103,7 @@ export function ConsoleLayout({
               </SheetContent>
             </Sheet>
 
-            <h1 className="text-foreground text-2xl font-semibold md:text-3xl">
+            <h1 className="text-fd-foreground text-4xl font-semibold tracking-normal md:text-5xl">
               {title}
             </h1>
           </div>
@@ -112,9 +112,9 @@ export function ConsoleLayout({
 
       {/* Main Content */}
       <div className="container">
-        <div className="flex flex-wrap gap-8 py-8">
+        <div className="flex flex-wrap gap-8 pb-16 md:gap-10">
           {/* Left Sidebar (Desktop) */}
-          <div className="hidden w-64 flex-shrink-0 md:block">
+          <div className="hidden w-72 flex-shrink-0 md:block">
             {/* Search Box */}
             {/* <div className="relative mb-6">
               <SmartIcon

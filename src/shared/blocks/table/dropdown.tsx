@@ -33,7 +33,7 @@ export function Dropdown({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
+          className="data-[state=open]:bg-fd-secondary flex h-8 w-8 p-0"
         >
           <MoreHorizontal />
           <span className="sr-only">Open menu</span>

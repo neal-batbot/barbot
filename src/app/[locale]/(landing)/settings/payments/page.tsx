@@ -77,7 +77,7 @@ export default async function PaymentsPage({
           }
 
           return (
-            <div className="text-primary">{`${prefix}${item.amount / 100}`}</div>
+            <div className="font-medium text-brand">{`${prefix}${item.amount / 100}`}</div>
           );
         },
       },
@@ -98,7 +98,7 @@ export default async function PaymentsPage({
           }
 
           return (
-            <div className="text-primary">{`${prefix}${item.paymentAmount / 100}`}</div>
+            <div className="font-medium text-brand">{`${prefix}${item.paymentAmount / 100}`}</div>
           );
         },
       },
@@ -119,7 +119,7 @@ export default async function PaymentsPage({
           }
 
           return (
-            <div className="text-primary">{`${prefix}${item.discountAmount / 100}`}</div>
+            <div className="font-medium text-brand">{`${prefix}${item.discountAmount / 100}`}</div>
           );
         },
       },

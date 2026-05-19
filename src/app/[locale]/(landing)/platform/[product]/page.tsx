@@ -10,8 +10,8 @@ import {
 } from '@/shared/lib/auth-bridge';
 
 const DEFAULT_PI_AGENT_WEB_URL = 'http://localhost:5173';
-const DEFAULT_SUPABASE_SSH_WEB_URL = 'http://localhost:3001';
-const DEFAULT_FUMADOCS_WEB_URL = 'http://localhost:3002';
+const DEFAULT_SUPABASE_SSH_WEB_URL = 'http://localhost:3003';
+const DEFAULT_FUMADOCS_WEB_URL = 'http://localhost:3002/docs';
 
 function localizedPath(locale: string, path: string) {
   return locale === defaultLocale ? path : `/${locale}${path}`;
@@ -82,13 +82,8 @@ export default async function PlatformEntryPage({
       );
 
     case 'fumadocs':
-      redirect(
-        getPlatformAuthorizePath({
-          locale,
-          audience: FUMADOCS_WEB_AUDIENCE,
-          redirectUri: process.env.FUMADOCS_WEB_URL || DEFAULT_FUMADOCS_WEB_URL,
-        })
-      );
+    case 'knowledgebase':
+      redirect(process.env.FUMADOCS_WEB_URL || DEFAULT_FUMADOCS_WEB_URL);
 
     default:
       notFound();

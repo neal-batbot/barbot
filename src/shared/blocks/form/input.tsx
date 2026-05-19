@@ -18,7 +18,7 @@ export function Input({
       onChange={formField.onChange}
       type={field.type || 'text'}
       placeholder={field.placeholder}
-      className="bg-background placeholder:text-base-content/50 rounded-md"
+      className="rounded-xl bg-fd-background/85 placeholder:text-fd-muted-foreground/65"
       {...field.attributes}
     />
   );

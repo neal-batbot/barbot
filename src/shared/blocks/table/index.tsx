@@ -14,7 +14,7 @@ import { type TableColumn } from '@/shared/types/blocks/table';
 
 import { Copy } from './copy';
 import { Dropdown } from './dropdown';
-import { Image } from './image';
+import { Image as TableImage } from './image';
 import { JsonPreview } from './json-preview';
 import { Label } from './label';
 import { Time } from './time';
@@ -65,7 +65,7 @@ export function Table({
 
                   if (column.type === 'image') {
                     cellContent = (
-                      <Image
+                      <TableImage
                         placeholder={column.placeholder}
                         value={value}
                         metadata={column.metadata}
@@ -141,7 +141,7 @@ export function Table({
         ) : (
           <TableRow className="">
             <TableCell colSpan={columns.length}>
-              <div className="text-muted-foreground flex w-full items-center justify-center py-8">
+              <div className="flex w-full items-center justify-center py-8 text-fd-muted-foreground">
                 {emptyMessage ? (
                   <p>{emptyMessage}</p>
                 ) : (

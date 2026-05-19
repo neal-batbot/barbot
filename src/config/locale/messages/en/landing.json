@@ -19,38 +19,38 @@
           "url": "/#introduce",
           "children": [
             {
-              "title": "Pi Agent Web UI",
-              "description": "Multi-model agent workspace with unified auth",
+              "title": "Barbot for Web",
+              "description": "Web deal workspace for high-tech Sales and FAE",
               "url": "/platform/pi-agent",
               "icon": "RiRobot2Line"
             },
             {
-              "title": "Supabase SSH",
-              "description": "Web + SSH access via short-lived credentials",
+              "title": "Barbot for Filesystem SSH",
+              "description": "Secure SSH access for filesystems and databases",
               "url": "/platform/supabase-ssh",
               "icon": "TerminalSquare"
             },
             {
-              "title": "Knowledge OS",
-              "description": "Turn docs, specs, and workflows into AI-executable knowledge",
-              "url": "/docs",
+              "title": "Barbot for Knowledgebase",
+              "description": "Turn specs, cases, and technical content into reusable trust assets",
+              "url": "http://localhost:3002/docs",
               "icon": "BookOpenText"
             },
             {
-              "title": "Coding Agent",
-              "description": "Code assistant entry under platform entitlement",
+              "title": "Barbot for Electron",
+              "description": "Desktop agent operating system for multi-deal work",
               "url": "/platform/coding-agent",
               "icon": "RiCodeFill"
             }
           ]
         },
         {
-          "title": "Doc Site",
-          "url": "/docs",
+          "title": "Knowledgebase",
+          "url": "http://localhost:3002/docs",
           "icon": "BookOpenText"
         },
         {
-          "title": "Pi Agent",
+          "title": "Web",
           "url": "/platform/pi-agent",
           "icon": "RiRobot2Line"
         },
@@ -114,16 +114,16 @@
   },
   "hero": {
     "id": "hero",
-    "title": "Own the Agentic AI That Solves the Problem",
-    "highlight_text": "Agentic AI",
-    "description": "We are not an AI-agent design tool. BatBot builds owned AI systems that solve concrete industry problems: ingest your docs, workflows, code, and business data; ship an AI product with login, billing, failover, and continuous improvement.",
-    "statement": "Agentic AI is not a design prompt. BatBot turns knowledge, tools, permissions, billing, and resilient model supply into an operable product system.",
+    "title": "Turn One Successful Project Into More High-Value Deals",
+    "highlight_text": "Successful Project",
+    "description": "Barbot is Deal Fanout Intelligence for high-tech Sales and FAE. It connects technical content, customer needs, project sessions, and closed-won patterns to identify similar customers, applications, and buying signals.",
+    "statement": "High-tech sales does not suffer from a lack of leads. It suffers from losing the technical validation, customer pattern, and close motion hidden inside each successful project. Barbot turns every close into the engine for the next set of opportunities.",
     "announcement": {
       "badge": "Now Live",
-      "title": "From Barbot to Pi Agent: turn hard problems into usable AI",
+      "title": "Barbot for Web · Electron · Knowledgebase",
       "url": "/pricing"
     },
-    "tip": "⚡ Owned model supply. Owned knowledge. Owned business loop.",
+    "tip": "⚡ High-tech Sales / FAE. Long-cycle projects. Deal Fanout Intelligence.",
     "buttons": [
       {
         "title": "Get Started",
@@ -135,7 +135,7 @@
       {
         "title": "See the Docs",
         "icon": "BookOpenText",
-        "url": "/docs",
+        "url": "http://localhost:3002/docs",
         "target": "_blank",
         "variant": "outline"
       }
@@ -143,6 +143,7 @@
     "show_avatars": false,
     "avatars_tip": "Trusted by hardware and procurement engineers",
     "show_award": false,
+    "show_preview_image": false,
     "image": {
       "src": "/imgs/barbot/billing.png",
       "alt": "BatBot platform dashboard",
@@ -167,41 +168,41 @@
     }
   },
   "logos": {
-    "title": "Three layers. One platform. Any industry.",
+    "title": "Three product surfaces. One deal fanout system.",
     "items": [
       {
-        "title": "Virtual File System",
+        "title": "Barbot for Web",
         "image": {
           "src": "/imgs/logos/nextjs.svg",
-          "alt": "Virtual File System"
+          "alt": "Barbot for Web"
         }
       },
       {
-        "title": "Doc Site",
+        "title": "Barbot for Electron",
         "image": {
           "src": "/imgs/logos/tailwindcss.svg",
-          "alt": "Doc Site"
+          "alt": "Barbot for Electron"
         }
       },
       {
-        "title": "Agent Layer",
+        "title": "Barbot for Knowledgebase",
         "image": {
           "src": "/imgs/logos/react.svg",
-          "alt": "Agent Layer"
+          "alt": "Barbot for Knowledgebase"
         }
       },
       {
-        "title": "Electronics Vertical",
+        "title": "Deal Fanout",
         "image": {
           "src": "/imgs/logos/supabase.svg",
-          "alt": "Electronics Vertical"
+          "alt": "Deal Fanout"
         }
       },
       {
-        "title": "More Verticals Coming",
+        "title": "High-Tech Sales / FAE",
         "image": {
           "src": "/imgs/logos/vercel.svg",
-          "alt": "More Verticals Coming"
+          "alt": "High-Tech Sales / FAE"
         }
       }
     ]
@@ -210,47 +211,47 @@
     "block": "features-list",
     "id": "introduce",
     "title": "What We Build",
-    "label": "Agentic AI Company",
-    "description": "BatBot does not wrap models in a chat box. We decompose concrete problems into knowledge, tools, permissions, model supply, and commercial loops. You fully own the AI system, and it runs on your data, product rules, and growth model.",
+    "label": "Deal Fanout Intelligence",
+    "description": "Barbot is not a CRM and not a generic chatbot. It connects technical assets, customer projects, agent sessions, and closed-won paths so one successful project can fan out into more similar customers.",
     "image": {
       "src": "/imgs/barbot/what-we-build-v2.png",
       "alt": "BatBot platform overview"
     },
     "items": [
       {
-        "title": "Industry Knowledge OS",
-        "description": "Turn docs, specs, standards, tickets, and internal expertise into an AI-ready knowledge layer that is searchable, citable, and continuously updated.",
+        "title": "Barbot for Knowledgebase",
+        "description": "Turn product specs, application notes, selection logic, FAQs, and closed-won cases into technical trust assets that customers, engineers, buyers, and agents can use.",
         "icon": "RiDatabase2Line",
         "image": {
           "src": "/imgs/barbot/what-we-build-v2.png",
-          "alt": "Industry Knowledge OS"
+          "alt": "Barbot for Knowledgebase"
         }
       },
       {
-        "title": "Model Supply & Failover",
-        "description": "Route by plan, quota, model cost, and provider health. Fail over silently when the primary model breaks, then switch back when it recovers.",
+        "title": "Barbot for Web",
+        "description": "A web field-agent workspace for customer Q&A, product matching, proposal drafting, alternative-part analysis, and next-step deal actions.",
         "icon": "RiBookOpenLine",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
-          "alt": "Model supply and usage"
+          "alt": "Barbot for Web"
         }
       },
       {
-        "title": "Commercial AI Product Loop",
-        "description": "Login, payment, subscriptions, usage, billing, and entitlement are part of the product, so the AI can be sold to real users.",
+        "title": "Barbot for Electron",
+        "description": "A desktop multi-deal agent operating system for long-running customer projects, status workflows, tool connections, automations, and replayable sessions.",
         "icon": "RiRobot2Line",
         "image": {
           "src": "/imgs/barbot/launch-ready-capabilities-v2.png",
-          "alt": "Commercial AI product loop"
+          "alt": "Barbot for Electron"
         }
       },
       {
-        "title": "Project-Based Delivery",
-        "description": "Barbot, Pi Agent, Coding Agent, and enterprise knowledge systems can be composed around one concrete problem and shipped as an operable AI product.",
+        "title": "Deal Fanout Loop",
+        "description": "Extract customer patterns, technical paths, objection handling, and close motions from won projects, then match them to more customers and applications.",
         "icon": "RiRefreshLine",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
-          "alt": "Project-based delivery"
+          "alt": "Deal fanout loop"
         }
       }
     ],
@@ -259,13 +260,13 @@
   "benefits": {
     "block": "features-accordion",
     "id": "benefits",
-    "title": "Why Our AI Is Stronger",
+    "title": "Why It Keeps Fanning Out Deals",
     "label": "Benefits",
-    "description": "We do not sell a generic chat wrapper. We turn your business problem into an AI system you can own, launch, charge for, and improve.",
+    "description": "High-tech sales value is not in a single answer. It is in long-cycle project motion, reusable technical validation, and expansion into similar accounts.",
     "items": [
       {
-        "title": "Built Around a Concrete Problem",
-        "description": "We define the job, success criteria, model mix, knowledge structure, tools, and evaluation loop first. The goal is not to chat; it is to complete work.",
+        "title": "Built Around Long-Cycle Projects",
+        "description": "Designed around design-in, evaluation, replacement, quotation, sampling, technical validation, procurement, and production ramp instead of one-off chat.",
         "icon": "RiNextjsFill",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
@@ -273,8 +274,8 @@
         }
       },
       {
-        "title": "You Fully Own It",
-        "description": "Data, configuration, permissions, pricing, model supply, and usage records live in your system instead of depending on one model vendor or external UI.",
+        "title": "Closed-Won Patterns Become Replayable",
+        "description": "Every project captures content, Q&A, tool calls, field actions, and outcomes so the next fanout is based on evidence instead of memory.",
         "icon": "RiShareLine",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
@@ -282,8 +283,8 @@
         }
       },
       {
-        "title": "Commercial From Day One",
-        "description": "Free/Pro/Team entitlements, Alipay payment, active subscriptions, model access, fallback billing, and Included/On-demand usage share one loop.",
+        "title": "From One Customer to More Customers",
+        "description": "The system identifies similar industries, applications, technical blockers, and buying signals, then recommends proven paths for new opportunities.",
         "icon": "RiPriceTag3Line",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
@@ -295,8 +296,8 @@
   "usage": {
     "block": "features-step",
     "id": "usage",
-    "title": "From Problem to Owned AI",
-    "description": "We ship operable AI products, not prompt demos.",
+    "title": "From One Project to a Pipeline of Opportunities",
+    "description": "Barbot turns single-project success into reusable, searchable, executable deal fanout.",
     "image": {
       "src": "/imgs/barbot/owned-ai-flow-v2.png",
       "alt": "Deploy BatBot"
@@ -305,32 +306,32 @@
     "text_align": "center",
     "items": [
       {
-        "title": "Define the Concrete Problem",
-        "description": "Clarify who the AI works for, what job it completes, how success is measured, and how it fails safely.",
+        "title": "Capture the Successful Project",
+        "description": "Record the customer context, application, technical issue, selection path, FAE support, quotation moments, and final close motion.",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Define concrete problem"
         }
       },
       {
-        "title": "Connect Your Assets",
-        "description": "Bring in docs, code, workflows, accounts, pricing plans, internal APIs, and business databases so the AI works in real context.",
+        "title": "Connect Technical Assets",
+        "description": "Use Barbot for Knowledgebase to ingest specs, application notes, FAQs, closed-won cases, replacement tables, and internal field knowledge.",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Connect assets"
         }
       },
       {
-        "title": "Build the Executable Agent",
-        "description": "Compose model supply, tools, permissions, memory, citations, and fallback rules into a stable AI workflow.",
+        "title": "Move the Field Conversation",
+        "description": "Use Barbot for Web to answer, match, draft, handle objections, and decide the next action during active customer conversations.",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Build executable agent"
         }
       },
       {
-        "title": "Launch and Keep Improving",
-        "description": "Use real conversations, usage, billing, fallback events, and E2E regression tests to make the system stronger over time.",
+        "title": "Fan Out Across Deals",
+        "description": "Use Barbot for Electron to manage many long-running customer sessions and expand proven paths into similar opportunities.",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "Launch and iterate"
@@ -341,88 +342,88 @@
   },
   "features": {
     "id": "features",
-    "title": "Agentic AI Capabilities Built for Launch",
-    "description": "From model supply to the commercial loop, everything is built for real users.",
+    "title": "Product Line for High-Tech Sales and FAE",
+    "description": "Web, Electron, and Knowledgebase work together as one deal fanout loop.",
     "items": [
       {
-        "title": "Model Supply Layer",
-        "description": "Plan entitlement, visible model lists, quota pools, cost multipliers, provider priority, and fallback chains in one decision layer.",
+        "title": "Barbot for Knowledgebase",
+        "description": "Technical content, product knowledge, cases, and selection logic become one knowledge base for agents and field teams.",
         "icon": "RiDatabase2Line"
       },
       {
-        "title": "Login and Payment Loop",
-        "description": "New users start Free. Alipay payment creates an active subscription, and Pro access is applied immediately.",
+        "title": "Barbot for Web",
+        "description": "Browser agent workspace for customer Q&A, proposal drafting, product matching, and daily Sales / FAE execution.",
         "icon": "RiBookOpenLine"
       },
       {
-        "title": "AI Web Chat",
-        "description": "Users only see models allowed by their plan. Auto is the recommended default; premium models draw from the same quota pool.",
+        "title": "Barbot for Electron",
+        "description": "Desktop multi-session workspace for customer projects, source connections, automations, and long-running context.",
         "icon": "RiMessage2Line"
       },
       {
-        "title": "AI Coding Agent",
-        "description": "Pi Agent Web UI, Coding Agent, and domain knowledge can share the same entitlement and model supply foundation.",
+        "title": "Closed-Won Replay",
+        "description": "Project sessions, tool calls, technical reasoning, and deal actions become searchable, trainable, reusable assets.",
         "icon": "RiCodeFill"
       },
       {
-        "title": "Failover and Recovery",
-        "description": "When the primary model returns 500, 429, timeout, or streaming-first-byte failure, requests switch to backup and later recover.",
+        "title": "Similar Opportunity Matching",
+        "description": "Match proven paths to new customers based on application, component needs, technical constraints, and buying signals.",
         "icon": "RiFlowChart"
       },
       {
-        "title": "Traceable Usage and Billing",
-        "description": "Record requested/actual model, provider, fallback reason, Included/On-demand usage, and estimated cost.",
+        "title": "Model and Entitlement Foundation",
+        "description": "Unified auth, permissions, model supply, usage, and billing keep the field products launchable and operable.",
         "icon": "RiPriceTag3Line"
       }
     ]
   },
   "stats": {
     "id": "stats",
-    "title": "Built to Scale",
-    "description": "One platform architecture. Deployed across industries.",
+    "title": "Built for Long-Cycle High-Value Deals",
+    "description": "From one project win to many similar opportunities.",
     "items": [
       {
-        "title": "Days",
-        "description": "Deploy Time"
+        "title": "High Value",
+        "description": "Long-cycle deals"
       },
       {
-        "title": "1 Platform",
-        "description": "Infinite Verticals"
+        "title": "1 Project",
+        "description": "More customers"
       },
       {
-        "title": "0 Rebuilds",
-        "description": "Per New Industry"
+        "title": "3 Surfaces",
+        "description": "Web / Electron / Knowledgebase"
       }
     ],
     "className": "bg-muted"
   },
   "testimonials": {
     "id": "testimonials",
-    "title": "What Engineers Say",
-    "description": "Real feedback from hardware and procurement engineers using BatBot.",
+    "title": "What Field Teams Say",
+    "description": "Feedback from high-tech Sales, FAE, and procurement-adjacent roles.",
     "items": [
       {
-        "name": "Hardware Engineer",
-        "role": "Consumer Electronics",
-        "quote": "It feels like having a senior FAE on call. I get the datasheet answer while I'm still at my bench.",
+        "name": "Sales",
+        "role": "Semiconductor Distribution",
+        "quote": "A successful project used to live in someone's memory. Now the system shows which customers can reuse the same wedge.",
         "image": {
           "src": "/imgs/logos/react.svg",
           "alt": "testimonial 1"
         }
       },
       {
-        "name": "Procurement Engineer",
-        "role": "Electronics OEM",
-        "quote": "Component selection used to take hours of datasheet hunting. BatBot cuts that to minutes.",
+        "name": "FAE",
+        "role": "Industrial Control",
+        "quote": "When a customer asks about replacement parts or design risk, I can pull the explanation and path from similar projects.",
         "image": {
           "src": "/imgs/logos/supabase.svg",
           "alt": "testimonial 2"
         }
       },
       {
-        "name": "Embedded Developer",
-        "role": "IoT Startup",
-        "quote": "The coding agent understands register maps and SDK quirks. It's not just autocomplete — it actually knows the hardware.",
+        "name": "Procurement Collaboration",
+        "role": "Electronics OEM",
+        "quote": "The context no longer disappears across docs, chats, and follow-ups. Long cycles are much easier to continue.",
         "image": {
           "src": "/imgs/logos/vercel.svg",
           "alt": "testimonial 3"
@@ -438,23 +439,23 @@
     "items": [
       {
         "question": "What makes BatBot different from a generic AI chatbot?",
-        "answer": "BatBot is built around a proprietary virtual file system and engineer-facing doc site. The agent reasons over structured, versioned, traceable domain knowledge — not a generic index. Engineers also get a real doc site they use daily, not just a chat interface."
+        "answer": "BatBot is built for long-cycle high-tech Sales and FAE work. It does not answer one question and disappear; it connects technical content, customer projects, agent sessions, and closed-won paths so one win can fan out into more similar customers."
       },
       {
-        "question": "Can BatBot work for industries outside electronics?",
-        "answer": "Yes. The platform is industry-agnostic. Load any vertical's documentation and the agent becomes that domain's expert. Electronics is our first production vertical; others are in progress."
+        "question": "What are Barbot for Web, Electron, and Knowledgebase?",
+        "answer": "Barbot for Web is the browser field-agent workspace. Barbot for Electron is the desktop multi-deal agent operating system. Barbot for Knowledgebase is the technical content, case, and selection-logic foundation. Together they form Deal Fanout Intelligence."
       },
       {
         "question": "What content can BatBot ingest?",
-        "answer": "Datasheets, application notes, reference designs, standards, internal documentation, FAQs, and training materials. Custom ingestion pipelines are available for non-standard formats."
+        "answer": "Specs, application notes, replacement tables, reference designs, customer Q&A, project records, quotation moments, FAE technical reasoning, closed-won cases, and internal training materials. Custom ingestion pipelines are available for non-standard formats."
       },
       {
-        "question": "How is pricing structured?",
-        "answer": "Token usage is bundled with your subscription plan — no per-API charges. Enterprise plans include private deployment and custom data pipeline setup."
+        "question": "How is this different from CRM?",
+        "answer": "CRM manages account fields and sales process. BatBot manages the technical knowledge, agent sessions, closed-won paths, and reusable patterns inside projects. It can coexist with CRM, but the core value is fanning out proven project motion into more opportunities."
       },
       {
-        "question": "How long does deployment take?",
-        "answer": "A standard vertical deployment takes days, not months. Data ingestion, doc site setup, and agent configuration can be completed in a single sprint."
+        "question": "Who is it for?",
+        "answer": "It is designed for semiconductor, hardware, industrial, electronic component, equipment, and other high-tech B2B teams where deals are long, valuable, and Sales / FAE collaboration is intensive."
       },
       {
         "question": "Is private or on-premise deployment available?",
@@ -464,8 +465,8 @@
   },
   "cta": {
     "id": "cta",
-    "title": "Ready to Deploy Your Domain Expert AI?",
-    "description": "Start with the electronics vertical or bring your own industry data. BatBot's platform is ready.",
+    "title": "Ready to Fan Out Your Successful Projects?",
+    "description": "Start with Barbot for Web, Electron, and Knowledgebase to turn high-tech Sales / FAE project experience into a reusable deal fanout system.",
     "buttons": [
       {
         "title": "Get Started",
@@ -502,7 +503,7 @@
     "id": "footer",
     "brand": {
       "title": "BatBot",
-      "description": "BatBot is an agentic AI platform for industry-specific expert assistants — powered by a proprietary virtual file system, engineer-facing doc site, and composable agent layer.",
+      "description": "BatBot is Deal Fanout Intelligence for high-tech Sales and FAE, powered by Barbot for Web, Barbot for Electron, and Barbot for Knowledgebase.",
       "logo": {
         "src": "/logo/harvey-icon.svg",
         "alt": "Harvey",
@@ -522,8 +523,8 @@
               "target": "_self"
             },
             {
-              "title": "Doc Site",
-              "url": "/docs",
+              "title": "Knowledgebase",
+              "url": "http://localhost:3002/docs",
               "target": "_self"
             },
             {
@@ -547,7 +548,7 @@
               "target": "_self"
             },
             {
-              "title": "Engineer Chat",
+              "title": "Barbot for Web",
               "url": "/chat",
               "target": "_self"
             }

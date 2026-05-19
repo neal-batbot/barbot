@@ -37,7 +37,7 @@ export function PanelCard({
     <CardComponent className={cn('overflow-hidden pb-0', className)}>
       {(title || description) && (
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="text-fd-foreground">
             {title}
             {label && (
               <Badge
@@ -52,12 +52,12 @@ export function PanelCard({
         </CardHeader>
       )}
       {(content || children) && (
-        <CardContent className="text-muted-foreground">
+        <CardContent className="text-fd-muted-foreground">
           {content || children}
         </CardContent>
       )}
       {buttons && buttons.length > 0 && (
-        <CardFooter className="bg-muted flex justify-start gap-4 py-4">
+        <CardFooter className="flex justify-start gap-4 border-t border-fd-border bg-fd-secondary/55 py-4">
           {buttons.map((button, idx) => (
             <Button
               key={idx}

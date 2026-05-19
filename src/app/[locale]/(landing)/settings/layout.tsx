@@ -23,7 +23,7 @@ export default async function SettingsLayout({
       title={title}
       nav={nav}
       topNav={topNav}
-      className="py-8 md:py-10"
+      className="py-6 md:py-8"
     >
       {children}
     </ConsoleLayout>

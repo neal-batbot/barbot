@@ -60,6 +60,7 @@ src/config/db/migrations
 .test
 
 *.sql
+!supabase/migrations/*.sql
 .source
 
 .chats

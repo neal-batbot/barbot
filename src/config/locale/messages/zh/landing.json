@@ -19,38 +19,38 @@
           "url": "/#introduce",
           "children": [
             {
-              "title": "Pi Agent Web UI",
-              "description": "多模型 Agent 工作台（已接入统一登录）",
+              "title": "Barbot for Web",
+              "description": "高科技 Sales / FAE 的网页端成交工作台",
               "url": "/platform/pi-agent",
               "icon": "RiRobot2Line"
             },
             {
-              "title": "Supabase SSH",
-              "description": "Web + SSH 临时凭证接入",
+              "title": "Barbot for Filesystem SSH",
+              "description": "面向文件系统与数据库的安全 SSH 接入",
               "url": "/platform/supabase-ssh",
               "icon": "TerminalSquare"
             },
             {
-              "title": "行业知识系统",
-              "description": "把文档、规格书、业务流程变成 AI 可执行知识底座",
-              "url": "/docs",
+              "title": "Barbot for Knowledgebase",
+              "description": "把资料、规格书、案例变成可复用技术信任资产",
+              "url": "http://localhost:3002/docs",
               "icon": "BookOpenText"
             },
             {
-              "title": "Coding Agent",
-              "description": "统一鉴权下的代码助手入口",
+              "title": "Barbot for Electron",
+              "description": "桌面端多项目 Agent 运营系统",
               "url": "/platform/coding-agent",
               "icon": "RiCodeFill"
             }
           ]
         },
         {
-          "title": "文档站",
-          "url": "/docs",
+          "title": "Knowledgebase",
+          "url": "http://localhost:3002/docs",
           "icon": "BookOpenText"
         },
         {
-          "title": "Pi Agent",
+          "title": "Web",
           "url": "/platform/pi-agent",
           "icon": "RiRobot2Line"
         },
@@ -114,16 +114,16 @@
   },
   "hero": {
     "id": "hero",
-    "title": "构建自有 Agentic AI",
-    "highlight_text": "Agentic AI",
-    "description": "BatBot 是把行业问题做成自有 AI 产品的最快方式。连接你的文档、流程、代码和业务数据，交付可登录、可计费、可容灾、可持续进化的 Agentic AI。",
-    "statement": "Agentic AI 不该停在提示词和原型里。BatBot 把知识、工具、权限、账单和模型供应组装成一套可运营的产品系统。",
+    "title": "让一个成功项目，扩散成更多高价值成交",
+    "highlight_text": "成功项目",
+    "description": "Barbot 是面向高科技 Sales 与 FAE 的 Deal Fanout Intelligence。它连接技术资料、客户需求、项目会话和成交记录，从一个已验证项目中提取可复制模式，并匹配更多相似客户、应用场景和采购机会。",
+    "statement": "高科技销售不缺线索，缺的是把一个项目里的技术验证、客户画像和成交动作复制到更多客户。Barbot 把每一次成功 close，变成下一批机会的推进引擎。",
     "announcement": {
       "badge": "已上线",
-      "title": "从 Barbot 到 Pi Agent：把问题变成真正可用的 AI",
+      "title": "Barbot for Web · Electron · Knowledgebase",
       "url": "/pricing"
     },
-    "tip": "⚡ 自有模型供应 · 知识系统 · 业务闭环",
+    "tip": "⚡ 高科技 Sales / FAE · 长周期项目 · 成交扩散智能",
     "buttons": [
       {
         "title": "立即开始",
@@ -135,7 +135,7 @@
       {
         "title": "查看文档",
         "icon": "BookOpenText",
-        "url": "/docs",
+        "url": "http://localhost:3002/docs",
         "target": "_blank",
         "variant": "outline"
       }
@@ -143,6 +143,7 @@
     "show_avatars": false,
     "avatars_tip": "受硬件工程师与采购团队信赖",
     "show_award": false,
+    "show_preview_image": false,
     "image": {
       "src": "/imgs/barbot/billing.png",
       "alt": "BatBot 平台界面",
@@ -167,41 +168,41 @@
     }
   },
   "logos": {
-    "title": "三层架构，一套平台，覆盖任意行业。",
+    "title": "三个产品入口，一套成交扩散智能。",
     "items": [
       {
-        "title": "虚拟文件系统",
+        "title": "Barbot for Web",
         "image": {
           "src": "/imgs/logos/nextjs.svg",
-          "alt": "虚拟文件系统"
+          "alt": "Barbot for Web"
         }
       },
       {
-        "title": "文档站",
+        "title": "Barbot for Electron",
         "image": {
           "src": "/imgs/logos/tailwindcss.svg",
-          "alt": "文档站"
+          "alt": "Barbot for Electron"
         }
       },
       {
-        "title": "Agent 推理层",
+        "title": "Barbot for Knowledgebase",
         "image": {
           "src": "/imgs/logos/react.svg",
-          "alt": "Agent 推理层"
+          "alt": "Barbot for Knowledgebase"
         }
       },
       {
-        "title": "电子行业版",
+        "title": "Deal Fanout",
         "image": {
           "src": "/imgs/logos/supabase.svg",
-          "alt": "电子行业版"
+          "alt": "Deal Fanout"
         }
       },
       {
-        "title": "更多行业即将上线",
+        "title": "高科技 Sales / FAE",
         "image": {
           "src": "/imgs/logos/vercel.svg",
-          "alt": "更多行业即将上线"
+          "alt": "高科技 Sales / FAE"
         }
       }
     ]
@@ -210,47 +211,47 @@
     "block": "features-list",
     "id": "introduce",
     "title": "我们构建什么",
-    "label": "Agentic AI 公司",
-    "description": "BatBot 不是把模型包装成聊天框，而是把具体问题拆成知识、工具、权限、模型供应和商业闭环。你完全拥有这套 AI，它运行在你的业务数据、你的产品规则和你的增长模型之上。",
+    "label": "Deal Fanout Intelligence",
+    "description": "Barbot 不是 CRM，也不是通用聊天机器人。它面向高科技 Sales 与 FAE，把技术资产、客户项目、Agent 会话和成交路径连接起来，让一个成功项目可以扩散到更多相似客户。",
     "image": {
       "src": "/imgs/barbot/what-we-build-v2.png",
       "alt": "BatBot 平台概览"
     },
     "items": [
       {
-        "title": "行业知识系统",
-        "description": "把文档、规格书、标准、工单和内部经验变成 AI 可检索、可引用、可持续更新的知识底座。",
+        "title": "Barbot for Knowledgebase",
+        "description": "把产品规格书、应用笔记、选型逻辑、FAQ 和成功案例变成客户、工程师、采购和 Agent 都能使用的技术信任资产。",
         "icon": "RiDatabase2Line",
         "image": {
           "src": "/imgs/barbot/what-we-build-v2.png",
-          "alt": "行业知识系统"
+          "alt": "Barbot for Knowledgebase"
         }
       },
       {
-        "title": "模型供应与容灾",
-        "description": "按用户套餐、额度、模型成本和 provider 健康状态自动路由；主模型故障时静默降级，恢复后自动回切。",
+        "title": "Barbot for Web",
+        "description": "网页端一线 Agent 工作台，帮助 Sales / FAE 做客户问答、产品匹配、方案生成、替代料分析和下一步成交动作。",
         "icon": "RiBookOpenLine",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
-          "alt": "模型供应与用量"
+          "alt": "Barbot for Web"
         }
       },
       {
-        "title": "业务闭环 AI 产品",
-        "description": "登录、支付、订阅、用量、账单和权限一体化，真正能卖给用户，而不是只停留在演示 Demo。",
+        "title": "Barbot for Electron",
+        "description": "桌面端多项目 Agent 运营系统，管理长期客户项目、状态流转、工具连接、自动化任务和可复盘 session。",
         "icon": "RiRobot2Line",
         "image": {
           "src": "/imgs/barbot/launch-ready-capabilities-v2.png",
-          "alt": "业务闭环 AI 产品"
+          "alt": "Barbot for Electron"
         }
       },
       {
-        "title": "项目化交付",
-        "description": "Barbot、Pi Agent、Coding Agent、企业知识系统可以按场景组合，针对一个具体问题交付一个可运营的 AI。",
+        "title": "成交扩散闭环",
+        "description": "从已成交项目中提取客户画像、技术路径、异议处理和推进节奏，匹配更多相似客户和应用场景，持续 close 长周期大单。",
         "icon": "RiRefreshLine",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
-          "alt": "项目化交付"
+          "alt": "成交扩散闭环"
         }
       }
     ],
@@ -259,13 +260,13 @@
   "benefits": {
     "block": "features-accordion",
     "id": "benefits",
-    "title": "为什么我们的 AI 更强",
+    "title": "为什么它能持续扩散成交",
     "label": "产品优势",
-    "description": "我们不卖通用聊天壳，而是把你的业务问题做成可拥有、可上线、可计费、可持续优化的 AI 系统。",
+    "description": "高科技销售的价值不在一次回答，而在长期项目推进、技术验证复用和相似客户扩展。",
     "items": [
       {
-        "title": "围绕具体问题构建",
-        "description": "先定义要解决的业务问题，再选择模型、知识结构、工具链和评估标准。AI 的目标不是聊天，而是完成任务。",
+        "title": "围绕长周期项目构建",
+        "description": "围绕立项、选型、评估、替代、报价、样品、设计导入和量产推进，而不是围绕一次性聊天。",
         "icon": "RiNextjsFill",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
@@ -273,8 +274,8 @@
         }
       },
       {
-        "title": "你完全拥有它",
-        "description": "数据、配置、权限、套餐、模型供应和用量记录都沉淀在你的系统里，不依赖某个单一模型或外部产品界面。",
+        "title": "成功经验可复盘",
+        "description": "每个客户项目的资料、问答、工具调用、推进动作和成交结果都会沉淀下来，形成下一次 fanout 的依据。",
         "icon": "RiShareLine",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
@@ -282,8 +283,8 @@
         }
       },
       {
-        "title": "商业化从第一天开始",
-        "description": "Free/Pro/Team 权益、支付宝付款、active subscription、模型权限、降级账单和 Included/On-demand 用量同一个闭环。",
+        "title": "从一个客户扩散到更多客户",
+        "description": "系统识别相似行业、相似应用、相似技术问题和采购信号，把已验证路径推荐给更多潜在机会。",
         "icon": "RiPriceTag3Line",
         "image": {
           "src": "/imgs/barbot/why-stronger-v2.png",
@@ -295,8 +296,8 @@
   "usage": {
     "block": "features-step",
     "id": "usage",
-    "title": "从问题到自有 AI",
-    "description": "我们把需求落成可运营的 AI 产品，而不是停在提示词和原型。",
+    "title": "从一个项目到一批机会",
+    "description": "Barbot 把单点成交经验变成可复用、可检索、可执行的成交扩散系统。",
     "image": {
       "src": "/imgs/barbot/owned-ai-flow-v2.png",
       "alt": "部署 BatBot"
@@ -305,32 +306,32 @@
     "text_align": "center",
     "items": [
       {
-        "title": "定义具体问题",
-        "description": "明确 AI 要替谁做什么、成功标准是什么、失败时如何兜底，例如选型、客服、编码、知识检索或内部运营。",
+        "title": "沉淀成功项目",
+        "description": "记录客户背景、应用场景、技术问题、选型过程、FAE 支持、报价节点和最终成交路径。",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "定义具体问题"
         }
       },
       {
-        "title": "接入你的资产",
-        "description": "接入文档、代码、流程、账号体系、支付套餐、内部 API 和业务数据库，让 AI 在真实上下文里工作。",
+        "title": "接入技术资产",
+        "description": "用 Barbot for Knowledgebase 接入规格书、应用笔记、FAQ、成功案例、替代料表和内部经验。",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "接入资产"
         }
       },
       {
-        "title": "构建可执行 Agent",
-        "description": "把模型供应、工具调用、权限、记忆、引用和降级策略组合起来，形成稳定可测的 AI 工作流。",
+        "title": "一线实时推进",
+        "description": "用 Barbot for Web 在客户沟通中完成问答、匹配、方案草拟、异议处理和下一步行动。",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "构建 Agent"
         }
       },
       {
-        "title": "上线并持续变强",
-        "description": "通过用量、账单、fallback、真实对话和 E2E 回归持续改进，越用越贴近你的业务。",
+        "title": "多项目持续 fanout",
+        "description": "用 Barbot for Electron 管理多个客户项目和长期 session，把已验证路径扩散到更多相似机会。",
         "image": {
           "src": "/imgs/barbot/owned-ai-flow-v2.png",
           "alt": "上线迭代"
@@ -341,88 +342,88 @@
   },
   "features": {
     "id": "features",
-    "title": "可上线的 Agentic AI 能力",
-    "description": "从模型供应到底层商业闭环，全部为真实用户使用而建。",
+    "title": "为高科技 Sales / FAE 打造的产品线",
+    "description": "Web、Electron 和 Knowledgebase 共同支撑成交扩散闭环。",
     "items": [
       {
-        "title": "模型供应层",
-        "description": "套餐权益、模型列表、额度池、成本系数、provider 优先级和 fallback 链统一决策。",
+        "title": "Barbot for Knowledgebase",
+        "description": "技术资料、产品知识、案例和选型逻辑统一沉淀，成为 Agent 与客户共同使用的知识底座。",
         "icon": "RiDatabase2Line"
       },
       {
-        "title": "登录支付闭环",
-        "description": "用户注册默认 Free，支付宝付款后创建 active subscription，Pro 权限立即生效。",
+        "title": "Barbot for Web",
+        "description": "浏览器端 Agent 工作台，支持客户问答、方案生成、产品匹配和 Sales / FAE 的日常推进。",
         "icon": "RiBookOpenLine"
       },
       {
-        "title": "AI Web Chat",
-        "description": "用户只看到当前套餐可用模型；Auto 默认推荐，手动高级模型按同一额度池消耗。",
+        "title": "Barbot for Electron",
+        "description": "桌面端多 session 工作空间，管理多个客户项目、工具连接、自动化和长期上下文。",
         "icon": "RiMessage2Line"
       },
       {
-        "title": "AI 编码 Agent",
-        "description": "把 Pi Agent Web UI、Coding Agent 和领域知识接到同一权限与模型供应体系。",
+        "title": "成交路径复盘",
+        "description": "把项目会话、工具调用、技术判断和推进动作变成可检索、可训练、可复用的数据资产。",
         "icon": "RiCodeFill"
       },
       {
-        "title": "容灾降级恢复",
-        "description": "主模型 500、429、超时或流式首包失败时自动切备用，健康后新请求自动回主模型。",
+        "title": "相似机会匹配",
+        "description": "基于应用场景、物料需求、技术约束和采购信号，把成功经验推荐给更多潜在客户。",
         "icon": "RiFlowChart"
       },
       {
-        "title": "用量与账单可追踪",
-        "description": "记录 requested/actual model、provider、fallback reason、Included/On-demand 和 estimated cost。",
+        "title": "模型与权限底座",
+        "description": "统一登录、权限、模型供应、用量和账单，保证一线产品能真实上线和持续运营。",
         "icon": "RiPriceTag3Line"
       }
     ]
   },
   "stats": {
     "id": "stats",
-    "title": "为规模化而生",
-    "description": "一套平台架构，跨行业部署。",
+    "title": "为长周期大单而生",
+    "description": "从单个项目成功，到一批相似机会持续推进。",
     "items": [
       {
-        "title": "数天",
-        "description": "部署周期"
+        "title": "千万级",
+        "description": "高价值项目"
       },
       {
-        "title": "1 套平台",
-        "description": "无限行业"
+        "title": "1 个项目",
+        "description": "扩散更多客户"
       },
       {
-        "title": "0 次重建",
-        "description": "每进入新行业"
+        "title": "3 个入口",
+        "description": "Web / Electron / Knowledgebase"
       }
     ],
     "className": "bg-muted"
   },
   "testimonials": {
     "id": "testimonials",
-    "title": "工程师怎么说",
-    "description": "来自硬件与采购工程师的真实反馈。",
+    "title": "一线团队怎么说",
+    "description": "来自高科技 Sales、FAE 与采购相关角色的反馈。",
     "items": [
       {
-        "name": "硬件工程师",
-        "role": "消费电子",
-        "quote": "就像随时有资深 FAE 待命。我在工作台上就能拿到 Datasheet 的答案。",
+        "name": "Sales",
+        "role": "半导体分销",
+        "quote": "以前一个成功项目只能靠人记住，现在系统会告诉我哪些客户可能复用同样的切入点。",
         "image": {
           "src": "/imgs/logos/react.svg",
           "alt": "testimonial 1"
         }
       },
       {
-        "name": "采购工程师",
-        "role": "电子 OEM",
-        "quote": "选型以前要花几小时翻数据手册，BatBot 把这压缩到了几分钟。",
+        "name": "FAE",
+        "role": "工业控制",
+        "quote": "客户问到替代料和设计风险时，我能直接调出类似项目里的技术解释和推进路径。",
         "image": {
           "src": "/imgs/logos/supabase.svg",
           "alt": "testimonial 2"
         }
       },
       {
-        "name": "嵌入式开发者",
-        "role": "IoT 创业公司",
-        "quote": "编码 Agent 真的懂寄存器和 SDK，不是简单的自动补全，它理解硬件。",
+        "name": "采购协同",
+        "role": "电子 OEM",
+        "quote": "资料、选型理由和项目上下文不再散落在聊天记录里，跟进周期长也能接得住。",
         "image": {
           "src": "/imgs/logos/vercel.svg",
           "alt": "testimonial 3"
@@ -438,23 +439,23 @@
     "items": [
       {
         "question": "BatBot 与通用 AI 聊天机器人有何不同？",
-        "answer": "BatBot 围绕自研虚拟文件系统和工程师文档站构建。Agent 在结构化、版本化、可溯源的领域知识上推理——不是泛化索引。工程师还能每天直接使用文档站，而不只是一个聊天界面。"
+        "answer": "BatBot 面向高科技 Sales 与 FAE 的长周期成交场景。它不是回答一次问题，而是把技术资料、客户项目、Agent 会话和成交路径连接起来，让成功经验可以从一个客户扩散到更多相似客户。"
       },
       {
-        "question": "BatBot 能用于电子行业以外的场景吗？",
-        "answer": "可以，平台与行业无关。接入任意行业的文档，Agent 即成为该领域的专家。电子行业是第一个落地行业，更多行业正在推进中。"
+        "question": "Barbot for Web、Electron、Knowledgebase 分别是什么？",
+        "answer": "Barbot for Web 是网页端一线 Agent 工作台；Barbot for Electron 是桌面端多项目 Agent 运营系统；Barbot for Knowledgebase 是技术资料、案例和选型逻辑的知识底座。三者共同支撑 Deal Fanout Intelligence。"
       },
       {
         "question": "BatBot 能接入哪些内容？",
-        "answer": "Datasheet、应用笔记、参考设计、标准规范、内部文档、FAQ 与培训材料。非标格式支持定制数据管道。"
+        "answer": "规格书、应用笔记、替代料表、参考设计、客户问答、项目记录、报价节点、FAE 技术判断、成功案例和内部培训材料。非标格式支持定制数据管道。"
       },
       {
-        "question": "定价如何？",
-        "answer": "Token 用量随订阅套餐打包——无独立 API 计费，无用量冲击。企业版含私有化部署与定制数据管道。"
+        "question": "它和 CRM 有什么区别？",
+        "answer": "CRM 管客户字段和销售流程，BatBot 管项目里的技术知识、Agent 会话、成交路径和可复制模式。它可以和 CRM 共存，但核心价值是把已验证项目 fanout 到更多机会。"
       },
       {
-        "question": "部署需要多久？",
-        "answer": "标准行业版部署数天内完成，不需要数月。数据接入、文档站搭建与 Agent 配置可在一个迭代周期内全部完成。"
+        "question": "适合什么团队？",
+        "answer": "适合芯片、硬件、工业、电子元器件、设备和其他高科技 B2B 团队，尤其适合项目周期长、客单价高、Sales 与 FAE 协作密集的场景。"
       },
       {
         "question": "是否支持私有化或本地部署？",
@@ -464,8 +465,8 @@
   },
   "cta": {
     "id": "cta",
-    "title": "准备好部署你的行业专家 AI 了吗？",
-    "description": "从电子行业版开始体验，或携带你的行业数据来谈定制。BatBot 平台已就绪。",
+    "title": "准备把成功项目扩散成更多成交了吗？",
+    "description": "从 Barbot for Web、Electron 和 Knowledgebase 开始，把高科技 Sales / FAE 的项目经验沉淀成可复用的成交扩散系统。",
     "buttons": [
       {
         "title": "立即开始",
@@ -502,7 +503,7 @@
     "id": "footer",
     "brand": {
       "title": "BatBot",
-      "description": "BatBot 是面向行业专家 AI 的 Agentic 平台——由自研虚拟文件系统、工程师文档站与可组合 Agent 层驱动。",
+      "description": "BatBot 是面向高科技 Sales 与 FAE 的 Deal Fanout Intelligence，由 Barbot for Web、Barbot for Electron 和 Barbot for Knowledgebase 共同驱动。",
       "logo": {
         "src": "/logo/harvey-icon.svg",
         "alt": "Harvey",
@@ -522,8 +523,8 @@
               "target": "_self"
             },
             {
-              "title": "文档站",
-              "url": "/docs",
+              "title": "Knowledgebase",
+              "url": "http://localhost:3002/docs",
               "target": "_self"
             },
             {
@@ -547,7 +548,7 @@
               "target": "_self"
             },
             {
-              "title": "工程师对话",
+              "title": "Barbot for Web",
               "url": "/chat",
               "target": "_self"
             }

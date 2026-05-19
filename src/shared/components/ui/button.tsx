@@ -5,21 +5,21 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/shared/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-[15px] font-semibold tracking-tight transition-[background-color,color,border-color,box-shadow,transform] duration-200 disabled:pointer-events-none disabled:opacity-50 active:translate-y-px [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#ece673]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-[15px] font-semibold tracking-normal transition-[background-color,color,border-color,box-shadow,transform] duration-200 disabled:pointer-events-none disabled:opacity-50 active:translate-y-px [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-brand/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
         default:
-          "border border-[#f2eb94]/70 bg-[#ece673] text-[#0d0d0f] shadow-[0_0_0_1px_rgba(255,255,255,0.12)_inset] hover:border-[#fff4b0] hover:bg-[#f2eb94]",
+          "border border-brand/70 bg-brand text-brand-foreground shadow-[0_1px_0_rgba(255,255,255,0.45)_inset] hover:border-brand hover:bg-brand-200",
         destructive:
           "border border-destructive/60 bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/30 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border border-zinc-700 bg-zinc-900/80 text-zinc-100 shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset] hover:border-zinc-600 hover:bg-zinc-800/90",
+          "border border-fd-border bg-fd-card text-fd-foreground shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] hover:border-brand/50 hover:bg-fd-secondary",
         secondary:
-          "border border-zinc-700/80 bg-zinc-850 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800",
+          "border border-fd-border bg-fd-secondary text-fd-secondary-foreground hover:border-brand/40 hover:bg-fd-accent",
         ghost:
-          "border border-transparent bg-transparent text-zinc-100 hover:bg-zinc-900/70",
-        link: "rounded-none border-0 p-0 text-zinc-300 underline-offset-4 hover:text-zinc-100 hover:underline active:translate-y-0",
+          "border border-transparent bg-transparent text-fd-foreground hover:bg-fd-secondary/75",
+        link: "rounded-none border-0 p-0 text-fd-muted-foreground underline-offset-4 hover:text-brand hover:underline active:translate-y-0",
       },
       size: {
         default: "h-11 px-5 has-[>svg]:px-4",

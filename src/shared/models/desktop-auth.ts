@@ -1,4 +1,4 @@
-import { and, eq, gt } from 'drizzle-orm';
+import { and, desc, eq, gt } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { desktopAuthCode, desktopSession, user } from '@/config/db/schema';
 
@@ -158,4 +158,45 @@ export async function validateDesktopToken(
 
 export async function revokeDesktopSessionByToken(token: string): Promise<void> {
   await db().delete(desktopSession).where(eq(desktopSession.token, token));
+}
+
+export async function listDesktopSessionsForUser(userId: string): Promise<
+  Array<{
+    id: string;
+    deviceInfo: string | null;
+    expiresAt: Date;
+    createdAt: Date;
+  }>
+> {
+  const now = new Date();
+
+  return db()
+    .select({
+      id: desktopSession.id,
+      deviceInfo: desktopSession.deviceInfo,
+      expiresAt: desktopSession.expiresAt,
+      createdAt: desktopSession.createdAt,
+    })
+    .from(desktopSession)
+    .where(
+      and(
+        eq(desktopSession.userId, userId),
+        gt(desktopSession.expiresAt, now)
+      )
+    )
+    .orderBy(desc(desktopSession.createdAt));
+}
+
+export async function revokeDesktopSessionById(
+  userId: string,
+  sessionId: string
+): Promise<void> {
+  await db()
+    .delete(desktopSession)
+    .where(
+      and(
+        eq(desktopSession.id, sessionId),
+        eq(desktopSession.userId, userId)
+      )
+    );
 }

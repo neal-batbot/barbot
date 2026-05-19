@@ -87,7 +87,7 @@ export default async function BillingPage({
           }
 
           return (
-            <div className="text-primary">{`${prefix}${item.amount / 100}`}</div>
+            <div className="font-medium text-brand">{`${prefix}${item.amount / 100}`}</div>
           );
         },
       },
@@ -236,14 +236,14 @@ export default async function BillingPage({
         buttons={buttons}
         className="max-w-md"
       >
-        <div className="text-primary text-3xl font-bold">
+        <div className="text-3xl font-bold text-brand">
           {currentSubscription?.planName || t('view.no_subscription')}
         </div>
         {currentSubscription ? (
           <>
             {currentSubscription?.status === SubscriptionStatus.ACTIVE ||
             currentSubscription?.status === SubscriptionStatus.TRIALING ? (
-              <div className="text-muted-foreground mt-4 text-sm font-normal">
+              <div className="mt-4 text-sm font-normal text-fd-muted-foreground">
                 {t('view.tip', {
                   date: moment(currentSubscription?.currentPeriodEnd).format(
                     'YYYY-MM-DD'

@@ -14,5 +14,14 @@
     "buttons": {
       "submit": "Save"
     }
+  },
+  "desktop": {
+    "title": "Barbot for Electron",
+    "description": "Manage Barbot for Electron desktop clients connected to this account.",
+    "defaultDevice": "Barbot for Electron desktop client",
+    "createdAt": "Connected on {date}",
+    "expiresAt": "Expires on {date}",
+    "revoke": "Revoke",
+    "empty": "No Harvey desktop sessions are connected yet."
   }
 }
